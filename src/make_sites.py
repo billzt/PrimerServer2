@@ -15,10 +15,10 @@ def faidx(template_file, region_file):
 
     seqs = pysam.faidx('-r', region_file, template_file).split('>')
     del seqs[0]
-    result_seqs = []
+    result_seqs = {}
     for seq in seqs:
         seq_split = seq.splitlines()
-        result_seqs.append({'id': seq_split[0], 'seq': ''.join(seq_split[1:])})
+        result_seqs[seq_split[0]] = ''.join(seq_split[1:])
     return result_seqs
 
 def build(query_file, template_file, region_file, primer_type):
@@ -47,11 +47,11 @@ def build(query_file, template_file, region_file, primer_type):
                 retrieve_region2raw_region[f'{chr}:{retrieve_start}-{retrieve_end}'] = [chr, pos, length, size_min, size_max, retrieve_start]
     
     result_seqs = faidx(template_file, region_file)
-    for seq in result_seqs:
-        (chr, pos, length, size_min, size_max, retrieve_start) = retrieve_region2raw_region[seq['id']]
+    for (result_seq_id, result_seq) in result_seqs.items():
+        (chr, pos, length, size_min, size_max, retrieve_start) = retrieve_region2raw_region[result_seq_id]
         primer_sites.append({
             'id': chr+'-'+str(pos)+'-'+str(length), 
-            'template': seq['seq'],
+            'template': result_seq,
             'type': primer_type,
             'pos': pos-retrieve_start,
             'length':length,

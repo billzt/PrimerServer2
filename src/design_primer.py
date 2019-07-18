@@ -21,7 +21,7 @@ def single(id, template, type, pos, length, size_max, size_min):
                 'SEQUENCE_TEMPLATE': template,
                 type: [pos,length]
             })
-        return({'id': id, 'primers': [p3]})
+        return([{'id': id, 'primers': p3}])
     if type=='FORCE_END':
         p3_settings['PRIMER_MIN_LEFT_THREE_PRIME_DISTANCE'] = -1
         p3_settings['PRIMER_MIN_RIGHT_THREE_PRIME_DISTANCE'] = 3
@@ -43,7 +43,9 @@ def single(id, template, type, pos, length, size_max, size_min):
                 'SEQUENCE_FORCE_RIGHT_END': pos
             })
 
-        return({'id': id, 'primers': [p3_L, p3_R]})
+        return([{'id': id+'-LEFT', 'primers': p3_L},
+                {'id': id+'-RIGHT', 'primers': p3_R}
+        ])
 
 def single_combine(site):
     '''
@@ -57,7 +59,15 @@ def multiple(sites, cpu=2):
     multi_res = []
     for site in sites:
         multi_res.append(pool.apply_async(single_combine, (site,)))
-    return [x.get() for x in multi_res]
+
+    primers = {}
+    for result in multi_res:
+        primers_in_each_site = result.get()
+        for primer in primers_in_each_site:
+            primers[primer['id']] = primer['primers']
+        
+    return primers
+
 
 
 if __name__ == "__main__":
