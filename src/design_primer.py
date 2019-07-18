@@ -6,11 +6,20 @@ import primer3
 
 p3_settings = dict(json.load(open('src/p3_settings.json')))
 
-def single(id, template, type, pos, length, size_max, size_min):
+def single(site):
     '''
         Using the primer3-module to design primers for a single site, return a list (one or two items)
         in DICT format
+        site: site['id'], site['template'], site['type'], site['pos'], site['length'], 
+        site['size_max'], site['size_min']
     '''
+    id = site['id']
+    template = site['template']
+    type = site['type']
+    pos = site['pos']
+    length = site['length']
+    size_max = site['size_max']
+    size_min = site['size_min']
     p3_settings['PRIMER_PRODUCT_SIZE_RANGE'] = [[size_min, size_max]]
 
     if type=='SEQUENCE_TARGET' or type=='SEQUENCE_INCLUDED_REGION':
@@ -47,18 +56,12 @@ def single(id, template, type, pos, length, size_max, size_min):
                 {'id': id+'-RIGHT', 'primers': p3_R}
         ])
 
-def single_combine(site):
-    '''
-        combine the func "single" to a single parameter for multiple processing
-    '''
-    return single(site['id'], site['template'], site['type'], site['pos'], site['length'], 
-        site['size_max'], site['size_min'])
 
 def multiple(sites, cpu=2):
     pool = mp.Pool(processes=cpu)
     multi_res = []
     for site in sites:
-        multi_res.append(pool.apply_async(single_combine, (site,)))
+        multi_res.append(pool.apply_async(single, (site,)))
 
     primers = {}
     for result in multi_res:

@@ -36,3 +36,7 @@ def make_primers(query_file):
             primers[id][f'PRIMER_PAIR_{rank}_PRODUCT_SIZE'] = -1
     
     return primers
+
+if __name__ == "__main__":
+    primers = make_primers('tests/query_check')
+    print(primers)
