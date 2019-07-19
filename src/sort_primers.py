@@ -1,4 +1,5 @@
 import json
+import os
 
 def sort_rank(primers, dbs, max_num_return=10):
     '''
@@ -14,7 +15,7 @@ def sort_rank(primers, dbs, max_num_return=10):
     '''
     for (id, primer) in primers.items():
         rank_to_amplicon_valid_num = {}
-        main_db = dbs[0]
+        main_db = os.path.basename(dbs[0])
         for rank in range(0, primer['PRIMER_PAIR_NUM_RETURNED']):
             if f'PRIMER_PAIR_{rank}_AMPLICONS' not in primer[main_db]:
                 continue

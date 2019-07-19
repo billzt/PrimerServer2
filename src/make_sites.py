@@ -25,37 +25,39 @@ def faidx(template_file, region_string):
         result_seqs[seq_split[0]] = ''.join(seq_split[1:])
     return result_seqs
 
-def build(query_file, template_file, primer_type):
+def build(query, template_file, primer_type):
     '''
-        return a list of primer sites dict that can be passed to the design_primer module
-        [{
-            'id': , 
-            'template': ,
-            'type': ,
-            'pos': ,
-            'length':,
-            'size_min':,
-            'size_max':
-        }]
+        Input:
+            query: a string in multi-lines
+        Return:
+            a list of primer sites dict that can be passed to the design_primer module
+            [{
+                'id': , 
+                'template': ,
+                'type': ,
+                'pos': ,
+                'length':,
+                'size_min':,
+                'size_max':
+            }]
     '''
     primer_sites = []
     retrieve_region2raw_region = {}
-    with open(query_file) as f:
-        for line in f:
-            query_data = re.split(r'\s+', line.strip())
-            (chr, pos, length, size_min, size_max) = (query_data[0], 1, 1, 70, 1000)
-            if len(query_data)>1 :     # seq ID and pos
-                pos = int(query_data[1].replace(',', ''))
-            if len(query_data)>2 :
-                length = int(query_data[2])
-            if len(query_data)>3 :
-                size_min = int(query_data[3])
-                size_max = int(query_data[4])
+    for line in query.splitlines():
+        query_data = re.split(r'\s+', line.strip())
+        (chr, pos, length, size_min, size_max) = (query_data[0], 1, 1, 70, 1000)
+        if len(query_data)>1 :     # seq ID and pos
+            pos = int(query_data[1].replace(',', ''))
+        if len(query_data)>2 :
+            length = int(query_data[2])
+        if len(query_data)>3 :
+            size_min = int(query_data[3])
+            size_max = int(query_data[4])
 
-            # retrieve_start and retrieve_end are used by samtools to extract template sequences
-            retrieve_start = max(pos-size_max, 1)
-            retrieve_end = pos+length+size_max
-            retrieve_region2raw_region[f'{chr}:{retrieve_start}-{retrieve_end}'] = [chr, pos, length, size_min, size_max, retrieve_start]
+        # retrieve_start and retrieve_end are used by samtools to extract template sequences
+        retrieve_start = max(pos-size_max, 1)
+        retrieve_end = pos+length+size_max
+        retrieve_region2raw_region[f'{chr}:{retrieve_start}-{retrieve_end}'] = [chr, pos, length, size_min, size_max, retrieve_start]
     
     retrieve_region_string = '\n'.join(retrieve_region2raw_region.keys())
 
@@ -75,5 +77,6 @@ def build(query_file, template_file, primer_type):
     return primer_sites
 
 if __name__ == "__main__":
-    primer_sites = build(query_file='tests/query_design', template_file='tests/example.fa', primer_type='SEQUENCE_TARGET')
-    print(json.dumps(primer_sites))
+    with open('tests/query_design') as f:
+        primer_sites = build(query=f.read(), template_file='tests/example.fa', primer_type='SEQUENCE_TARGET')
+        print(json.dumps(primer_sites, indent=4))

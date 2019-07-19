@@ -41,7 +41,7 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
                 p3_input = {
                     'id': id,
                     'rank': rank,
-                    'db': 'tests/'+ db,
+                    'db': db,
                     'seq_L': primer[f'PRIMER_LEFT_{rank}_SEQUENCE'],
                     'seq_R': primer[f'PRIMER_RIGHT_{rank}_SEQUENCE'],
                     'checking_size_min': checking_size_min,
@@ -63,7 +63,8 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
     return primers
 
 if __name__ == "__main__":
-    primers = make_primers('tests/query_check_multiple')
-    dbs = ['example.fa']
-    report_primers = run_blast_parallel(primers, dbs, cpu=10, report_amplicon_seq=True)
-    print(json.dumps(report_primers))
+    with open('tests/query_check_multiple') as f:
+        primers = make_primers(query=f.read())
+        dbs = ['tests/example.fa']
+        report_primers = run_blast_parallel(primers, dbs, cpu=10, report_amplicon_seq=True)
+        print(json.dumps(report_primers, indent=4))
