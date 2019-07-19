@@ -6,7 +6,7 @@ import multiprocessing as mp
 
 import primer3
 
-from analysis_blast import filter_len, filter_Tm
+from analysis_blast import filter_len, filter_Tm, add_amplicon_seq
 from make_sites import faidx
 from make_primers import make_primers
 
@@ -25,11 +25,13 @@ def run_blast(p3_input):
         + ' -outfmt "6 qseqid qlen qstart qend sseqid slen sstart send sstrand"'
     blast_out = subprocess.run(cmd, input=blast_query, stdout=subprocess.PIPE, shell=True, encoding='ascii').stdout
     amplicons = filter_len(blast_out=blast_out, len_min=p3_input['checking_size_min'], len_max=p3_input['checking_size_max'])
-    hits_seqs = faidx(template_file=db, region_string=amplicons['regions'])
+    hits_seqs = faidx(template_file=db, region_string=amplicons['regions_primer'])
     report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq={'LEFT': seq_L, 'RIGHT': seq_R}, hits_seqs=hits_seqs)
+    if p3_input['report_amplicon_seq']==True:
+        report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file=db)
     return {'id': p3_input['id'], 'rank': p3_input['rank'], 'db': os.path.basename(db), 'amplicons': report_amplicons}
 
-def run_blast_parallel(primers, dbs, cpu=2):
+def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, report_amplicon_seq=False):
     pool = mp.Pool(processes=cpu)
     multi_res = []
     for (id, primer) in primers.items():
@@ -42,8 +44,9 @@ def run_blast_parallel(primers, dbs, cpu=2):
                     'db': 'tests/'+ db,
                     'seq_L': primer[f'PRIMER_LEFT_{rank}_SEQUENCE'],
                     'seq_R': primer[f'PRIMER_RIGHT_{rank}_SEQUENCE'],
-                    'checking_size_min': 70,
-                    'checking_size_max': 1000
+                    'checking_size_min': checking_size_min,
+                    'checking_size_max': checking_size_max,
+                    'report_amplicon_seq': report_amplicon_seq
                 }
                 multi_res.append(pool.apply_async(run_blast, (p3_input,)))
     
@@ -62,5 +65,5 @@ def run_blast_parallel(primers, dbs, cpu=2):
 if __name__ == "__main__":
     primers = make_primers('tests/query_check_multiple')
     dbs = ['example.fa']
-    report_primers = run_blast_parallel(primers, dbs, cpu=10)
+    report_primers = run_blast_parallel(primers, dbs, cpu=10, report_amplicon_seq=True)
     print(json.dumps(report_primers))

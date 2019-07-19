@@ -10,7 +10,7 @@ def filter_len(blast_out, len_min, len_max):
     '''
         return 
             'amplicons': hit-pairs 
-            'regions': a region string used by samtools faidx;
+            'regions_primer': a region string for each primer used by samtools faidx;
     '''
 
     # collect hits data
@@ -82,13 +82,14 @@ def filter_len(blast_out, len_min, len_max):
                 hits_regions[primer_hits[i]['sseqid']+':'+str(start_plus)+'-'+str(end_plus)] = 1
                 hits_regions[primer_hits[j]['sseqid']+':'+str(end_minus)+'-'+str(start_minus)] = 1 # flip
 
-    return {'amplicons':amplicons, 'regions': '\n'.join(hits_regions.keys())}
+    return {'amplicons':amplicons, 'regions_primer': '\n'.join(hits_regions.keys()) }
 
 def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=10):
     '''
-        query_primer_seq:
-            "LEFT": XXXXXXXXXXXXXX
-            "RIGHT": XXXXXXXXXXXX
+        Input:
+            query_primer_seq:
+                "LEFT": XXXXXXXXXXXXXX
+                "RIGHT": XXXXXXXXXXXX
     '''
     amplicons_filter = []
     for amplicon in amplicons:
@@ -133,6 +134,10 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
         amplicon['minus']['qseq'] = query_primer_minus
         amplicon['minus']['sseq'] = hit_seq_minus
         amplicon['Tm'] = min(Tm_plus, Tm_minus)
+        amplicon['region'] = amplicon['plus']['sseqid']+':'+str(amplicon['plus']['sstart'])\
+            +'-'+str(amplicon['minus']['send'])
+        amplicon['product_size'] = amplicon['minus']['send']-amplicon['plus']['sstart']+1
+        amplicon['product_seq'] = ''
         amplicons_filter.append(amplicon)
 
         if len(amplicons_filter)==max_amplicons:
@@ -140,12 +145,19 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
 
     return amplicons_filter
 
+def add_amplicon_seq(amplicons, template_file):
+    amplicon_regions = '\n'.join([x['region'] for x in amplicons])
+    amplicon_seqs = faidx(template_file=template_file, region_string=amplicon_regions)
+    for (i, amplicon) in enumerate(amplicons):
+        amplicons[i]['product_seq'] = amplicon_seqs[amplicon['region']]
+    return amplicons
 
 
 if __name__ == "__main__":
     blast_out = open('tests/query_blast.fa.out').read()
     amplicons = filter_len(blast_out=blast_out, len_min=75, len_max=1000)
-    hits_seqs = faidx(template_file='tests/example.fa', region_string=amplicons['regions'])
-    report_primers = filter_Tm(amplicons['amplicons'], query_primer_seq={'LEFT':'CTTCTGCAATGCCAAGTCCAG',\
+    hits_seqs = faidx(template_file='tests/example.fa', region_string=amplicons['regions_primer'])
+    report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq={'LEFT':'CTTCTGCAATGCCAAGTCCAG',\
         'RIGHT': 'GTGGTGAAGGGTCGGTTGAA'}, hits_seqs=hits_seqs)
-    print(json.dumps(report_primers))
+    report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file='tests/example.fa')
+    print(json.dumps(report_amplicons))
