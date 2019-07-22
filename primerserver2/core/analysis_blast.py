@@ -84,7 +84,7 @@ def filter_len(blast_out, len_min, len_max):
 
     return {'amplicons':amplicons, 'regions_primer': '\n'.join(hits_regions.keys()) }
 
-def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=10):
+def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=10, use_3_end=False):
     '''
         Input:
             query_primer_seq:
@@ -106,6 +106,15 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
         # perfect Tm for this primer pair
         Tm_perfect = min(float(NN_Tm(seq=query_primer_plus, compl_seq=complement(query_primer_plus))), \
             float(NN_Tm(seq=query_primer_minus, compl_seq=complement(query_primer_minus))))
+
+        # 3' end in this amplicon
+        if use_3_end is True:
+            # plus
+            if query_primer_plus[-1].upper() != hit_seq_plus[-1].upper():
+                continue
+            # minus
+            if query_primer_minus[-1].upper() != hit_seq_minus[-1].upper():
+                continue
 
         # Tm in this amplicon
         # plus

@@ -1,7 +1,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '2.0.0a0'
+VERSION = '2.0.0a2'
 
 setup(name='primerserver2',
       version=VERSION,
@@ -23,7 +23,6 @@ setup(name='primerserver2',
       license='MIT',
       packages=find_packages(),
       include_package_data=True,
-      zip_safe=True,
       python_requires='>=3.6',
       install_requires=[
           'primer3-py'

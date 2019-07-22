@@ -26,12 +26,14 @@ def run_blast(p3_input):
     blast_out = subprocess.run(cmd, input=blast_query, stdout=subprocess.PIPE, shell=True, encoding='ascii').stdout
     amplicons = filter_len(blast_out=blast_out, len_min=p3_input['checking_size_min'], len_max=p3_input['checking_size_max'])
     hits_seqs = faidx(template_file=db, region_string=amplicons['regions_primer'])
-    report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq={'LEFT': seq_L, 'RIGHT': seq_R}, hits_seqs=hits_seqs)
+    report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq={'LEFT': seq_L, 'RIGHT': seq_R}, \
+        hits_seqs=hits_seqs, Tm_diff=p3_input['Tm_diff'], use_3_end=p3_input['use_3_end'])
     if p3_input['report_amplicon_seq']==True:
         report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file=db)
     return {'id': p3_input['id'], 'rank': p3_input['rank'], 'db': os.path.basename(db), 'amplicons': report_amplicons}
 
-def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, report_amplicon_seq=False):
+def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, \
+    report_amplicon_seq=False, Tm_diff=20, use_3_end=False):
     pool = mp.Pool(processes=cpu)
     multi_res = []
     for (id, primer) in primers.items():
@@ -46,7 +48,9 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
                     'seq_R': primer[f'PRIMER_RIGHT_{rank}_SEQUENCE'],
                     'checking_size_min': checking_size_min,
                     'checking_size_max': checking_size_max,
-                    'report_amplicon_seq': report_amplicon_seq
+                    'report_amplicon_seq': report_amplicon_seq,
+                    'Tm_diff': Tm_diff,
+                    'use_3_end': use_3_end
                 }
                 multi_res.append(pool.apply_async(run_blast, (p3_input,)))
     

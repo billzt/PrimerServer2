@@ -40,6 +40,12 @@ def make_args():
     parser.add_argument('--type', choices=['SEQUENCE_TARGET', 'SEQUENCE_INCLUDED_REGION', 'FORCE_END'],\
         help='designing primer types', default='SEQUENCE_TARGET')
     parser.add_argument('-p', '--cpu', type=int, help='Used CPU number.', default=2)
+    parser.add_argument('-d', '--Tm-diff', type=int, \
+        help='The mininum melting temperature (in ℃) suggested to produce off-target amplicon. Suggest >10', default=20)
+    parser.add_argument('-3', '--use-3-end', help='If turned on, primer pairs having at least one mismatch at the 3 end\
+        position with templates would not be considered to produce off-target amplicon, even if their melting temperatures \
+            are high. Turn on this would find more candidate primers, but might also have more false positives\
+                ', action='store_true')
     parser.add_argument('-l', '--checking-size-min', type=int, help='Lower limit of the checking amplicon size range (bp).', \
         default=70)
     parser.add_argument('-u', '--checking-size-max', type=int, help='Upper limit of the checking amplicon size range (bp).', \
@@ -89,7 +95,7 @@ def run(args):
     if args.no_specificity is False:
         primers = run_blast.run_blast_parallel(primers=primers, dbs=dbs, cpu=args.cpu,\
             checking_size_max=args.checking_size_max, checking_size_min=args.checking_size_min, \
-                report_amplicon_seq=args.report_amplicon_seqs)
+                report_amplicon_seq=args.report_amplicon_seqs, Tm_diff=args.Tm_diff, use_3_end=args.use_3_end)
         primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=args.primer_num_retain)
 
     ###################  Output  ###########################

@@ -5,8 +5,6 @@ import multiprocessing as mp
 
 import primer3
 
-p3_settings = dict(json.load(open('primerserver2/data/p3_settings.json')))
-
 def single(site):
     '''
         Using the primer3-module to design primers for a single site, return a list (one or two items)
@@ -21,6 +19,8 @@ def single(site):
     length = site['length']
     size_max = site['size_max']
     size_min = site['size_min']
+    p3_json = os.path.join(os.path.dirname(__file__), '../data/p3_settings.json')
+    p3_settings = dict(json.load(open(p3_json)))
     p3_settings['PRIMER_PRODUCT_SIZE_RANGE'] = [[size_min, size_max]]
 
     if type=='SEQUENCE_TARGET' or type=='SEQUENCE_INCLUDED_REGION':
