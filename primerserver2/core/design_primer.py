@@ -1,10 +1,11 @@
 
 import json
+import os
 import multiprocessing as mp
 
 import primer3
 
-p3_settings = dict(json.load(open('src/p3_settings.json')))
+p3_settings = dict(json.load(open('primerserver2/data/p3_settings.json')))
 
 def single(site):
     '''
@@ -108,4 +109,4 @@ if __name__ == "__main__":
                 'size_min':75,
                 'size_max':1000
             }
-            ])))
+            ]), indent=4))

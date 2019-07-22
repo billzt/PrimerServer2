@@ -39,6 +39,6 @@ def after_check(primers, dbs, file):
 
 
 if __name__ == "__main__":
-    primers = json.load(open('tests/sort_primers.json'))
+    primers = json.load(open('tests/_internal_/sort_primers.json'))
     dbs = ['example.fa']
     after_check(primers, dbs, file=sys.stdout)

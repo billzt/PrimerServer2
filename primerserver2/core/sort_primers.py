@@ -33,7 +33,7 @@ def sort_rank(primers, dbs, max_num_return=10):
     return primers
 
 if __name__ == "__main__":
-    primers = json.load(open('tests/run_blast.json'))
+    primers = json.load(open('tests/_internal_/run_blast.json'))
     dbs = ['example.fa']
-    print(json.dumps(sort_rank(primers, dbs)))
+    print(json.dumps(sort_rank(primers, dbs), indent=4))
 

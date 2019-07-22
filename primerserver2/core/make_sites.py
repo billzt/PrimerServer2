@@ -77,6 +77,6 @@ def build(query, template_file, primer_type):
     return primer_sites
 
 if __name__ == "__main__":
-    with open('tests/query_design') as f:
+    with open('tests/query_design_multiple') as f:
         primer_sites = build(query=f.read(), template_file='tests/example.fa', primer_type='SEQUENCE_TARGET')
         print(json.dumps(primer_sites, indent=4))

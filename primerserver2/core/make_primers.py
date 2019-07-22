@@ -1,4 +1,5 @@
 import re
+import json
 
 import primer3
 
@@ -40,6 +41,6 @@ def make_primers(query):
     return primers
 
 if __name__ == "__main__":
-    with open('tests/query_check') as f:
+    with open('tests/_internal_/query_check') as f:
         primers = make_primers(f.read())
-        print(primers)
+        print(json.dumps(primers, indent=4))

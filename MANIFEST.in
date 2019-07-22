@@ -1,0 +1,4 @@
+include tests/example*
+include tests/query*
+include primerserver2/data/*
+include example_cmd.sh

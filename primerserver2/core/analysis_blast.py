@@ -2,9 +2,9 @@ import re
 import json
 import sys
 
-from make_sites import faidx
-from Santalucia_NN_Tm import complement, rev_complement, NN_Tm
-from make_primers import make_primers
+from primerserver2.core.make_sites import faidx
+from primerserver2.core.Santalucia_NN_Tm import complement, rev_complement, NN_Tm
+from primerserver2.core.make_primers import make_primers
 
 def filter_len(blast_out, len_min, len_max):
     '''
@@ -154,10 +154,10 @@ def add_amplicon_seq(amplicons, template_file):
 
 
 if __name__ == "__main__":
-    blast_out = open('tests/query_blast.fa.out').read()
+    blast_out = open('tests/_internal_/query_blast.fa.out').read()
     amplicons = filter_len(blast_out=blast_out, len_min=75, len_max=1000)
     hits_seqs = faidx(template_file='tests/example.fa', region_string=amplicons['regions_primer'])
     report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq={'LEFT':'CTTCTGCAATGCCAAGTCCAG',\
         'RIGHT': 'GTGGTGAAGGGTCGGTTGAA'}, hits_seqs=hits_seqs)
     report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file='tests/example.fa')
-    print(json.dumps(report_amplicons))
+    print(json.dumps(report_amplicons, indent=4))
