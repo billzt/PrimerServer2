@@ -2,9 +2,9 @@ import re
 import json
 import sys
 
-from .make_sites import faidx
-from .Santalucia_NN_Tm import complement, rev_complement, NN_Tm
-from .make_primers import make_primers
+from primerserver2.core.make_sites import faidx
+from primerserver2.core.Santalucia_NN_Tm import complement, rev_complement, NN_Tm
+from primerserver2.core.make_primers import make_primers
 
 def filter_len(blast_out, len_min, len_max):
     '''

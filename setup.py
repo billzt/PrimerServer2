@@ -25,7 +25,8 @@ setup(name='primerserver2',
       include_package_data=True,
       python_requires='>=3.6',
       install_requires=[
-          'primer3-py'
+          'primer3-py',
+          'progressbar2'
       ],
       entry_points={
           'console_scripts': [

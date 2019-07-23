@@ -1,9 +1,11 @@
 
 import json
 import os
+import time
 import multiprocessing as mp
 
 import primer3
+import progressbar
 
 def single(site):
     '''
@@ -64,11 +66,27 @@ def single(site):
 
 
 def multiple(sites, cpu=2):
+    # distribute
     pool = mp.Pool(processes=cpu)
     multi_res = []
     for site in sites:
         multi_res.append(pool.apply_async(single, (site,)))
 
+    # monitor
+    all_tasks_num = len(sites)
+    widgets = ['Designning Primers: ', progressbar.Counter(), ' Finished', ' (', progressbar.Percentage(), ')', \
+        progressbar.Bar(), progressbar.ETA()]
+    bar = progressbar.ProgressBar(widgets=widgets, max_value=all_tasks_num).start()
+
+    while True:
+        complete_count = sum([1 for x in multi_res if x.ready()])
+        if complete_count == all_tasks_num:
+            bar.finish()
+            break
+        bar.update(complete_count)
+        time.sleep(0.1)
+
+    # results
     primers = {}
     for result in multi_res:
         primers_in_each_site = result.get()
@@ -94,7 +112,8 @@ if __name__ == "__main__":
                 'pos':1,
                 'length':600,
                 'size_min':75,
-                'size_max':1000
+                'size_max':1000,
+                'primer_num_return':30
             }, 
             {
                 'id':'B-SEQUENCE_TARGET-200-10', 
@@ -103,7 +122,8 @@ if __name__ == "__main__":
                 'pos':200,
                 'length':10,
                 'size_min':75,
-                'size_max':1000
+                'size_max':1000,
+                'primer_num_return':30
             },
             {
                 'id':'C-FORCE_END-319-1', 
@@ -112,6 +132,7 @@ if __name__ == "__main__":
                 'pos':319,
                 'length':1,
                 'size_min':75,
-                'size_max':1000
+                'size_max':1000,
+                'primer_num_return':30
             }
             ]), indent=4))

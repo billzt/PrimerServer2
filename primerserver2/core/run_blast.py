@@ -3,12 +3,14 @@ import json
 import os
 import subprocess
 import multiprocessing as mp
+import time
 
 import primer3
+import progressbar
 
-from .analysis_blast import filter_len, filter_Tm, add_amplicon_seq
-from .make_sites import faidx
-from .make_primers import make_primers
+from primerserver2.core.analysis_blast import filter_len, filter_Tm, add_amplicon_seq
+from primerserver2.core.make_sites import faidx
+from primerserver2.core.make_primers import make_primers
 
 def run_blast(p3_input):
     '''
@@ -34,8 +36,11 @@ def run_blast(p3_input):
 
 def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, \
     report_amplicon_seq=False, Tm_diff=20, use_3_end=False):
+
+    # distribute tasks
     pool = mp.Pool(processes=cpu)
     multi_res = []
+    all_tasks_num = 0
     for (id, primer) in primers.items():
         primer_num = primer['PRIMER_PAIR_NUM_RETURNED']
         for rank in range(0, primer_num):
@@ -53,7 +58,22 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
                     'use_3_end': use_3_end
                 }
                 multi_res.append(pool.apply_async(run_blast, (p3_input,)))
+                all_tasks_num += 1
     
+    # monitor
+    widgets = ['Checking specificity: ', progressbar.Counter(), ' Finished', ' (', progressbar.Percentage(), ')', \
+        progressbar.Bar(), progressbar.ETA()]
+    bar = progressbar.ProgressBar(widgets=widgets, max_value=all_tasks_num).start()
+
+    while True:
+        complete_count = sum([1 for x in multi_res if x.ready()])
+        if complete_count == all_tasks_num:
+            bar.finish()
+            break
+        bar.update(complete_count)
+        time.sleep(1)
+        
+    # Results
     for result in multi_res:
         result_data = result.get()
         id = result_data['id']
