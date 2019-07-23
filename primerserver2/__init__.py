@@ -11,6 +11,6 @@ External Dependencies:
 
 blastn and makeblastdb (from NCBI BLAST+)
 
-samtools (>=v1.0)
+samtools (>=v1.9)
 
 '''

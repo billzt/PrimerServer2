@@ -1,5 +1,9 @@
-# design primers and check specificity (the default mode)
-primertool tests/query_design_multiple tests/example.fa -p 2 -o example_design_check.json -t example_design_check.tsv
+# design primers and check specificity
+primertool full tests/query_design_multiple tests/example.fa -o full.json -t full.tsv
+
+# design primers only
+primertool design tests/query_design_multiple tests/example.fa -o design.json -t design.tsv
 
 # check specificity only
-primertool tests/query_check_multiple tests/example.fa --only-specificity -p 2 -o example_check.json -t example_check.tsv
+primertool check tests/query_check_multiple tests/example.fa -o check.json -t check.tsv
+

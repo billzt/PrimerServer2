@@ -9,8 +9,10 @@ def single(site):
     '''
         Using the primer3-module to design primers for a single site, return a list (one or two items)
         in DICT format
-        site: site['id'], site['template'], site['type'], site['pos'], site['length'], 
-        site['size_max'], site['size_min']
+
+        Site format: 
+        site['id'], site['template'], site['type'], site['pos'], site['length'], 
+        site['size_max'], site['size_min'], site['primer_num_return']
     '''
     id = site['id']
     template = site['template']
@@ -19,9 +21,12 @@ def single(site):
     length = site['length']
     size_max = site['size_max']
     size_min = site['size_min']
+    primer_num_return = site['primer_num_return']
+
     p3_json = os.path.join(os.path.dirname(__file__), '../data/p3_settings.json')
     p3_settings = dict(json.load(open(p3_json)))
     p3_settings['PRIMER_PRODUCT_SIZE_RANGE'] = [[size_min, size_max]]
+    p3_settings['PRIMER_NUM_RETURN'] = primer_num_return
 
     if type=='SEQUENCE_TARGET' or type=='SEQUENCE_INCLUDED_REGION':
         primer3.bindings.setP3Globals(p3_settings)

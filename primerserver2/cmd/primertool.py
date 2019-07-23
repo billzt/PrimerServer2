@@ -20,7 +20,7 @@ import shutil
 
 from distutils.version import LooseVersion
 
-from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
+from ..core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
 
 
 def error(msg, judge):
@@ -43,8 +43,8 @@ def make_args():
             specificity')
 
     group_all = parent_parser_all.add_argument_group('Overall Setttings')
-    group_all.add_argument('-r', '--primer-num-retain', type=int, help='The maximum number of primers to return in each site.', \
-        default=10)
+    group_all.add_argument('--primer-num-retain', type=int, help='The maximum number of primers to retain in each \
+        site in the final report.', default=10)
     group_all.add_argument('-p', '--cpu', type=int, help='Used CPU number.', default=2)
     group_all.add_argument('--json-debug', help="Output debug information in JSON mode", action='store_true')
     group_all.add_argument('-o', '--out', help="Output primers in JSON format. (Default is STDIN)", type=argparse.FileType('w'))
@@ -55,6 +55,8 @@ def make_args():
     group_design = parent_parser_design.add_argument_group('Design Primers')
     group_design.add_argument('--type', choices=['SEQUENCE_TARGET', 'SEQUENCE_INCLUDED_REGION', 'FORCE_END'],\
         help='designing primer types', default='SEQUENCE_TARGET')
+    group_design.add_argument('--primer-num-return', type=int, help='The maximum number of primers to return in Primer3 \
+        desining results.', default=30)
     
     # These arguments are used by check and full
     parent_parser_check = argparse.ArgumentParser(add_help=False)
@@ -121,7 +123,12 @@ def run(args):
     if args.run_mode=='check':
         primers = make_primers.make_primers(query=query_string)
     else:
-        sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=args.type)
+        if args.run_mode=='design':
+            sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=args.type, \
+                primer_num_return=args.primer_num_retain)
+        else:
+            sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=args.type, \
+                primer_num_return=args.primer_num_return)
         primers = design_primer.multiple(sites, cpu=args.cpu)
 
     ###################  Checking specificity  #############
@@ -138,7 +145,7 @@ def run(args):
         print(json.dumps(primers, indent=4))
 
     if args.tsv is not None:
-        output.after_check(primers, dbs, file=args.tsv)
+        output.tsv(primers, dbs, file=args.tsv)
 
 def main():
     args = make_args()

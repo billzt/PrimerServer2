@@ -6,9 +6,9 @@ import multiprocessing as mp
 
 import primer3
 
-from primerserver2.core.analysis_blast import filter_len, filter_Tm, add_amplicon_seq
-from primerserver2.core.make_sites import faidx
-from primerserver2.core.make_primers import make_primers
+from .analysis_blast import filter_len, filter_Tm, add_amplicon_seq
+from .make_sites import faidx
+from .make_primers import make_primers
 
 def run_blast(p3_input):
     '''

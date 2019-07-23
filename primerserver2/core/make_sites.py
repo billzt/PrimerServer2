@@ -25,7 +25,7 @@ def faidx(template_file, region_string):
         result_seqs[seq_split[0]] = ''.join(seq_split[1:])
     return result_seqs
 
-def build(query, template_file, primer_type):
+def build(query, template_file, primer_type, primer_num_return=30):
     '''
         Input:
             query: a string in multi-lines
@@ -38,7 +38,8 @@ def build(query, template_file, primer_type):
                 'pos': ,
                 'length':,
                 'size_min':,
-                'size_max':
+                'size_max':,
+                'primer_num_return':,
             }]
     '''
     primer_sites = []
@@ -71,12 +72,13 @@ def build(query, template_file, primer_type):
             'pos': pos-retrieve_start,
             'length':length,
             'size_min':size_min,
-            'size_max':size_max
+            'size_max':size_max,
+            'primer_num_return':primer_num_return
         })
     
     return primer_sites
 
 if __name__ == "__main__":
     with open('tests/query_design_multiple') as f:
-        primer_sites = build(query=f.read(), template_file='tests/example.fa', primer_type='SEQUENCE_TARGET')
+        primer_sites = build(query=f.read(), template_file='tests/example.fa', primer_type='SEQUENCE_TARGET', primer_num_return=30)
         print(json.dumps(primer_sites, indent=4))
