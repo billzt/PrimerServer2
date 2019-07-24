@@ -2,12 +2,12 @@ import json
 import sys
 import os
 
-def tsv(primers, dbs, file):
+def tsv(primers_dict, dbs, file):
     print('#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Target_Amplicon_Size', \
         'Primer_Pair_Penalty_Score', 'Database', 'Possible_Amplicon_Number', \
             'Primer_Rank_in_Primer3_output', 'Tm_left', 'Tm_Right', sep='\t', file=file)
     for db in dbs:
-        for (id, primers) in primers.items():
+        for (id, primers) in primers_dict.items():
             # No primers
             if primers['PRIMER_PAIR_NUM_RETURNED']==0:
                 print(id, 'No_Primer\t', sep='\t', end='', file=file)
