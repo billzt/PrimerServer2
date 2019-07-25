@@ -17,6 +17,8 @@ def run_blast(p3_inputs):
     '''
         run blastn for a single primer pair, then use analysis_blast.py to obtain amplicons within Tm thredsholds
     '''
+    if len(p3_inputs)==0 :  # unfortunately, these sites have no primers
+        return {'db': '', 'amplicons': {}}
     db = p3_inputs[0]['db']  # dbs are the same
     blast_query = ''
     query_primer_seq_dict = {}  # for the func: filter_Tm
@@ -92,6 +94,8 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
     for result in multi_res:
         result_data = result.get()  # db and amplicons
         db = result_data['db']
+        if db== '': # unfortunately, these sites have no primers
+            continue
         amplicons = result_data['amplicons']
         for id in amplicons.keys():
             if db not in primers[id]:
