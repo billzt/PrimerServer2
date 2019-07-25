@@ -6,7 +6,7 @@ from primerserver2.core.make_sites import faidx
 from primerserver2.core.Santalucia_NN_Tm import complement, rev_complement, NN_Tm
 from primerserver2.core.make_primers import make_primers
 
-def filter_len(blast_out, len_min, len_max):
+def filter_len(blast_out, len_min, len_max):    # 1s
     '''
         return 
             'amplicons': 
@@ -20,78 +20,79 @@ def filter_len(blast_out, len_min, len_max):
     for line in blast_out.splitlines():
         (qseqid, qlen, qstart, qend, sseqid, slen, sstart, send, sstrand) = line.strip().split('\t')
         # qseqid: primer_id.primer_rank.LEFT|RIGHT
-        (primer_id, primer_rank) = re.search(r'^(.*)\.(\d+)\.(L|R)$', qseqid).group(1,2)
+        # (primer_id, primer_rank) = re.search(r'^(.*)\.(\d+)\.(L|R)$', qseqid).group(1,2)
+        (primer_id, primer_rank) = qseqid.split('.')[0:2]
         if primer_id not in primer_hits_all_sites:
             primer_hits_all_sites[primer_id] = {}
         if primer_rank not in primer_hits_all_sites[primer_id]:
-            primer_hits_all_sites[primer_id][primer_rank] = []
-        primer_hits_all_sites[primer_id][primer_rank].append({
+            primer_hits_all_sites[primer_id][primer_rank] = {}
+        if sseqid not in primer_hits_all_sites[primer_id][primer_rank]:
+            primer_hits_all_sites[primer_id][primer_rank][sseqid] = []
+        primer_hits_all_sites[primer_id][primer_rank][sseqid].append({
             'qseqid': qseqid,
             'qlen': int(qlen),
             'qstart': int(qstart),
             'qend': int(qend),
-            'sseqid': sseqid,
             'slen': int(slen),
             'sstart': int(sstart),
             'send': int(send),
             'sstrand': sstrand
         })
     
-    # filter length between plus and minus
+    # # filter length between plus and minus
     amplicons = {}
     hits_regions = {}   # make region file (FASTA)
 
     for primer_id in primer_hits_all_sites.keys():
         for primer_rank in primer_hits_all_sites[primer_id].keys():
-            primer_hits = sorted(primer_hits_all_sites[primer_id][primer_rank], key=lambda i: i['sstart'])
-            for i in range(0, len(primer_hits)):
-                if primer_hits[i]['sstrand'] != 'plus':
-                    continue
-                for j in range(i+1, len(primer_hits)):
-                    if primer_hits[j]['sstrand'] != 'minus':
-                        continue
-                    size = primer_hits[j]['sstart']-primer_hits[i]['sstart']
-                    if size>len_min and size<len_max and primer_hits[i]['sseqid']==primer_hits[j]['sseqid']:
-                        # extend this pair:
-                        # plus
-                        start_plus = primer_hits[i]['sstart']-(primer_hits[i]['qstart']-1)
-                        if start_plus<1:    # extension failed
-                            continue
-                        end_plus = primer_hits[i]['send']+(primer_hits[i]['qlen']-primer_hits[i]['qend'])
-                        if end_plus>primer_hits[i]['slen']: # extension failed
-                            continue
-                        
-                        # minus
-                        start_minus = primer_hits[j]['sstart']+(primer_hits[j]['qstart']-1)
-                        if start_minus>primer_hits[j]['slen']: # extension failed
-                            continue
-                        end_minus = primer_hits[j]['send']-(primer_hits[j]['qlen']-primer_hits[j]['qend'])
-                        if end_minus<1:  # extension failed
-                            continue
+            for sseqid in primer_hits_all_sites[primer_id][primer_rank].keys():
+                primer_hits = sorted(primer_hits_all_sites[primer_id][primer_rank][sseqid], key=lambda i: i['sstart'])
+                primer_hits_plus = [x for x in primer_hits if x['sstrand']=='plus']
+                primer_hits_minus = [x for x in primer_hits if x['sstrand']=='minus']
+                for hit_plus in primer_hits_plus: 
+                    for hit_minus in primer_hits_minus:
+                        size = hit_minus['sstart']-hit_plus['sstart']
+                        if size>len_min and size<len_max:
+                            # extend this pair:
+                            # plus
+                            start_plus = hit_plus['sstart']-(hit_plus['qstart']-1)
+                            if start_plus<1:    # extension failed
+                                continue
+                            end_plus = hit_plus['send']+(hit_plus['qlen']-hit_plus['qend'])
+                            if end_plus>hit_plus['slen']: # extension failed
+                                continue
+                            
+                            # minus
+                            start_minus = hit_minus['sstart']+(hit_minus['qstart']-1)
+                            if start_minus>hit_minus['slen']: # extension failed
+                                continue
+                            end_minus = hit_minus['send']-(hit_minus['qlen']-hit_minus['qend'])
+                            if end_minus<1:  # extension failed
+                                continue
 
-                        # store this pair
-                        if primer_id not in amplicons:
-                            amplicons[primer_id] = {}
-                        if primer_rank not in amplicons[primer_id]:
-                            amplicons[primer_id][primer_rank] = []
-                        amplicons[primer_id][primer_rank].append({
-                            'plus': {
-                                'qseqid': primer_hits[i]['qseqid'], # LEFT or RIGHT
-                                'sseqid': primer_hits[i]['sseqid'],
-                                'sstart': start_plus,
-                                'send': end_plus
-                            },
-                            'minus': {
-                                'qseqid': primer_hits[j]['qseqid'], # LEFT or RIGHT
-                                'sseqid': primer_hits[j]['sseqid'],
-                                'sstart': end_minus,    # flip
-                                'send': start_minus
-                            }
-                        })
+                            # store this pair
+                            if primer_id not in amplicons:
+                                amplicons[primer_id] = {}
+                            if primer_rank not in amplicons[primer_id]:
+                                amplicons[primer_id][primer_rank] = []
+                            amplicons[primer_id][primer_rank].append({
+                                'plus': {
+                                    'qseqid': hit_plus['qseqid'], # LEFT or RIGHT
+                                    'sseqid': sseqid,
+                                    'sstart': start_plus,
+                                    'send': end_plus
+                                },
+                                'minus': {
+                                    'qseqid': hit_minus['qseqid'], # LEFT or RIGHT
+                                    'sseqid': sseqid,
+                                    'sstart': end_minus,    # flip
+                                    'send': start_minus
+                                }
+                            })
 
-                        # store regions
-                        hits_regions[primer_hits[i]['sseqid']+':'+str(start_plus)+'-'+str(end_plus)] = 1
-                        hits_regions[primer_hits[j]['sseqid']+':'+str(end_minus)+'-'+str(start_minus)] = 1 # flip
+                            # store regions
+                            hits_regions[sseqid+':'+str(start_plus)+'-'+str(end_plus)] = 1
+                            hits_regions[sseqid+':'+str(end_minus)+'-'+str(start_minus)] = 1 # flip
 
     return {'amplicons':amplicons, 'regions_primer': '\n'.join(hits_regions.keys()) }
 
@@ -172,7 +173,6 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
     return amplicons_filter
 
 def add_amplicon_seq(amplicons, template_file):
-    #amplicon_regions = '\n'.join([x['region'] for x in amplicons])
     amplicon_regions = ''
     for primer_id in amplicons.keys():
         for primer_rank in amplicons[primer_id]:
@@ -187,10 +187,17 @@ def add_amplicon_seq(amplicons, template_file):
 
 
 if __name__ == "__main__":
-    blast_out = open('tests/_internal_/query_blast.fa.out').read()
+    blast_out = open('tests/_internal_/query_blast.fa.out.large').read()
     amplicons = filter_len(blast_out=blast_out, len_min=75, len_max=1000)
-    hits_seqs = faidx(template_file='tests/example.fa', region_string=amplicons['regions_primer'])
-    report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq={'P1.0.L':'CTTCTGCAATGCCAAGTCCAG',\
-        'P1.0.R': 'GTGGTGAAGGGTCGGTTGAA'}, hits_seqs=hits_seqs)
-    report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file='tests/example.fa')
+    # filter_len(blast_out=blast_out, len_min=75, len_max=1000)
+    # hits_seqs = faidx(template_file='tests/example.fa', region_string=amplicons['regions_primer'])
+    hits_seqs = faidx(template_file='tests/_internal_/Ghir.JGI.genomic', region_string=amplicons['regions_primer'])
+    # query_primer_seq={'P1.0.L':'CTTCTGCAATGCCAAGTCCAG',\
+    #         'P1.0.R': 'GTGGTGAAGGGTCGGTTGAA'}
+    query_primer_seq_lines = open('tests/_internal_/query_blast.fa.out.large.primer.seq').read().splitlines()
+    i = iter(query_primer_seq_lines)
+    query_primer_seq = dict(zip(i, i))
+    report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq=query_primer_seq, hits_seqs=hits_seqs)
+    #report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file='tests/example.fa')
+    report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file='tests/_internal_/Ghir.JGI.genomic')
     print(json.dumps(report_amplicons, indent=4))
