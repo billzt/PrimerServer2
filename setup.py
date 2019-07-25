@@ -1,14 +1,14 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '2.0.0a2'
+VERSION = '2.0.0b1'
 
 setup(name='primerserver2',
       version=VERSION,
       description="a high-throughput primer design and specificity-checking platform",
       long_description=__doc__,
       classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 4 - Beta',
           'Environment :: Console',
           'Intended Audience :: Science/Research',
           'License :: OSI Approved :: MIT License',
