@@ -20,7 +20,7 @@ import shutil
 
 from distutils.version import LooseVersion
 
-from ..core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
+from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
 
 
 def error(msg, judge):
