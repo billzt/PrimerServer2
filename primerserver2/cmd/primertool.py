@@ -2,14 +2,8 @@
 
 '''PrimerServer2: a high-throughput primer design and specificity-checking platform
 Github: https://github.com/billzt/PrimerServer2
+This is a CLI script for PrimerServer2
 '''
-
-__author__ = 'Tao Zhu'
-__copyright__ = 'Copyright 2019'
-__license__ = 'GPL'
-__version__ = '0.1'
-__email__ = 'taozhu@mail.bnu.edu.cn'
-__status__ = 'Development'
 
 import argparse
 import re

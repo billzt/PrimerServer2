@@ -1,7 +1,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '2.0.0b1'
+VERSION = '2.0.0b2'
 
 setup(name='primerserver2',
       version=VERSION,
@@ -30,7 +30,8 @@ setup(name='primerserver2',
       ],
       entry_points={
           'console_scripts': [
-              'primertool = primerserver2.cmd.primertool:main'
+              'primertool = primerserver2.cmd.primertool:main',
+              'primerserver-config = primerserver2.web.config:main'
           ]
       },
 )

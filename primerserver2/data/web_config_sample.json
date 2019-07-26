@@ -1,0 +1,9 @@
+{
+    "cpu": 2,
+    "templates": {
+        "example.fa": {
+            "description": "Example Database",
+            "group": "example"
+        }
+    }
+}

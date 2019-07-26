@@ -109,3 +109,11 @@ venv.bak/
 
 # test
 tests/_internal_
+
+# templates
+primerserver2/templates
+
+# sample
+primerserver2/data/web_config.json
+
+
