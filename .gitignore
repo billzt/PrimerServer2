@@ -111,7 +111,8 @@ venv.bak/
 tests/_internal_
 
 # templates
-primerserver2/templates
+primerserver2/templates/*
+!primerserver2/templates/example.fa*
 
 # sample
 primerserver2/data/web_config.json
