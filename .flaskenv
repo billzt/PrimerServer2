@@ -1,0 +1,2 @@
+FLASK_APP=primerserver2.web
+FLASK_ENV=development

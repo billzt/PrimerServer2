@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title> PrimerServer </title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">   <!-- For IE -->
+        <meta name="renderer" content="webkit">   <!-- For some Chinese web browser -->
+        <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- For mobile device -->
+        <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
+        
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" >
+        <!-- Bootstrap-Select plugin CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-select.min.css') }}" >
+        <!-- Bootstrap Table plugin CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-table.min.css') }}"  >
+        
+        <!-- font-awesome CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+        
+        <!-- JQuery Validation CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/validationEngine.jquery.css') }}" />
+        
+        <!-- Fork me on github -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/gh-fork-ribbon.min.css') }}" />
+        
+        <!-- Back to Top -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/back-to-top.css') }}" />
+        
+        <!-- Own CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+    
+        <div class="container" role="main">
+            <h1>PrimerServer: PCR Primers Batch Design &amp; Specificity Check</h1>
+            <form class="form-horizontal" method="post" enctype="multipart/form-data" id="form-primer">
+                <input type="hidden" name="app-type" value="design" class="save-input" />
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active">
+                        <a href="#design" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-edit"></span> Design &amp; Check</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#check" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-search"></span> Specificity Check Only</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#saved" role="tab" data-toggle="tab"><span class="glyphicon glyphicon-star"></span> Recently Saved Results</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade in active" id="design">
+                        <fieldset>
+                            <legend>Define Regions 
+                                <small><span class="glyphicon glyphicon-question-sign help-icon" data-toggle="modal"
+                                data-target="#input-help"></span></small> 
+                            </legend>
+                            <div class="row">
+                                <div class="col-md-9">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Species</span>
+                                        <select class="form-control selectpicker show-tick show-menu-arrow save-input validate[required]" 
+                                        name="select-database[]" data-size="10" data-live-search="true" title="Select your templates (Databases)"
+                                        multiple data-selected-text-format="count > 1" data-max-options="2">
+                                        </select>
+                                    </div>
+                                    <textarea class="form-control monospace-style validate[required, maxSize[100000]]" rows="12"
+                                    style="background-color: #bfffdf"
+                                    placeholder="Input your regions, one per line, blank delimited: TemplateID TargetPos TargetLength" 
+                                    name="template-regions"></textarea>
+                                    <fieldset class="hidden">
+                                        <legend>Input Custom Template Sequences</legend>
+                                        <textarea class="form-control monospace-style validate[required, maxSize[1000000]]" rows="8"
+                                        style="background-color: #bfdfff"
+                                        placeholder="Input your template sequences in FASTA format..." name="custom-template-sequences"></textarea>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-3">
+                                    <fieldset>
+                                        <legend>Region Type</legend>
+                                        <div class="radio">
+                                            <label><input type="radio" name="region_type" value="SEQUENCE_TARGET" checked />Target Region</label>
+                                        </div>
+                                        <div class="radio">
+                                            <label><input type="radio" name="region_type" value="SEQUENCE_INCLUDED_REGION"  />Include Region</label>
+                                        </div>
+                                        <div class="radio">
+                                            <label><input type="radio" name="region_type" value="FORCE_END"  />Force 3' End</label>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset>
+                                        <legend>Product Size</legend>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Min</span>
+                                            <input type="text" name="product_size_min" value="100"
+                                            class="form-control save-input validate[required, custom[integer], min[30], max[50000]]" />
+                                            <span class="input-group-addon">bp</span>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">Max</span>
+                                            <input type="text" name="product_size_max" value="1000"
+                                            class="form-control save-input validate[required, custom[integer], min[30], max[50000]]" />
+                                            <span class="input-group-addon">bp</span>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h2 class="panel-title">
+                                    Setting Primer Design Parameters
+                                    <span data-toggle="collapse" data-target="#parameter-design">
+                                        <i title="cilck to hide/show" data-toggle="tooltip" class="fa fa-caret-up help-icon"></i>
+                                    </span>
+                                </h2>
+                            </div>
+                            <div id="parameter-design" class="panel-body collapse">
+                                <input type="hidden" name="parameter-design" value="hide" class="save-input" />
+                                <fieldset>
+                                    <legend>Primer3 Settings</legend>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">Primer Size (bp):</label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Min</span>
+                                                <input type="text" name="PRIMER_MIN_SIZE" value="18" 
+                                                    class="form-control save-input validate[required, custom[integer], min[1], max[35]]" />
+                                                <span class="input-group-addon">Opt</span>
+                                                <input type="text" name="PRIMER_OPT_SIZE" value="20" 
+                                                    class="form-control save-input validate[required, custom[integer], min[1], max[35]]" />
+                                                <span class="input-group-addon">Max</span>
+                                                <input type="text" name="PRIMER_MAX_SIZE" value="23" 
+                                                    class="form-control save-input validate[required, custom[integer], min[1], max[35]]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">Primer G+C (%):</label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Min</span>
+                                                <input type="text" name="PRIMER_MIN_GC" value="35.0" 
+                                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                                <span class="input-group-addon">Opt</span>
+                                                <input type="text" name="PRIMER_OPT_GC_PERCENT" value="50.0" 
+                                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                                <span class="input-group-addon">Max</span>
+                                                <input type="text" name="PRIMER_MAX_GC" value="65.0" 
+                                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">Primer Tm (&deg;C):</label>
+                                        <div class="col-sm-9">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Min</span>
+                                                <input type="text" name="PRIMER_MIN_TM" value="57.0" 
+                                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                                <span class="input-group-addon">Opt</span>
+                                                <input type="text" name="PRIMER_OPT_TM" value="60.0" 
+                                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                                <span class="input-group-addon">Max</span>
+                                                <input type="text" name="PRIMER_MAX_TM" value="63.0" 
+                                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">Primer Pair Tm Max Diff. (&deg;C):</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" name="PRIMER_PAIR_MAX_DIFF_TM" value="3.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                        </div>
+                                        <label class="col-sm-3 control-label">No. Primers To Return:</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" name="PRIMER_NUM_RETURN" value="30" 
+                                            class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">3' End Distance (bp) Between:</label>
+                                        <div class="col-sm-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">Left Primers</span>
+                                                <input type="text" name="PRIMER_MIN_LEFT_THREE_PRIME_DISTANCE" value="3" 
+                                                class="form-control save-input validate[required, custom[integer], min[-1]]" />
+                                                <span class="input-group-addon">Right Primers</span>
+                                                <input type="text" name="PRIMER_MIN_RIGHT_THREE_PRIME_DISTANCE" value="3" 
+                                                class="form-control save-input validate[required, custom[integer], min[-1]]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">Max 3' Stability:</label>
+                                        <div class="col-sm-3">
+                                            <input type="text" name="PRIMER_MAX_END_STABILITY" value="9.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[999]]" />
+                                        </div>
+                                        <label class="col-sm-3 control-label">Lowercase masking:</label>
+                                        <div class="col-sm-3">
+                                            <div class="radio">
+                                                <label><input type="radio" name="PRIMER_LOWERCASE_MASKING" value=1  />Yes</label>
+                                            </div>
+                                            <div class="radio">
+                                                <label><input type="radio" name="PRIMER_LOWERCASE_MASKING" value=0 checked />No</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Thermodynamic Secondary Structure Alignments Setting</legend>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label">TH: Max Self Complementarity (&deg;C):</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" name="PRIMER_MAX_SELF_ANY_TH" value="45.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                        </div>
+                                        <label class="col-sm-4 control-label">TH: Max Pair Complementarity (&deg;C):</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" name="PRIMER_PAIR_MAX_COMPL_ANY_TH" value="45.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label">TH: Max 3' Self Complementarity (&deg;C):</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" name="PRIMER_MAX_SELF_END_TH" value="35.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                        </div>
+                                        <label class="col-sm-4 control-label">TH: Max 3' Pair Complementarity (&deg;C):</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" name="PRIMER_PAIR_MAX_COMPL_END_TH" value="35.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 control-label">TH: Max Primer Hairpin (&deg;C):</label>
+                                        <div class="col-sm-2">
+                                            <input type="text" name="PRIMER_MAX_HAIRPIN_TH" value="24.0" 
+                                            class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="check">
+                        <!-- <fieldset>
+                            <legend>Input Primer Sequences (5' to 3')
+                                <small><span class="glyphicon glyphicon-question-sign help-icon" data-toggle="modal"
+                                data-target="#input-help"></span></small> 
+                            </legend>
+                            <textarea class="form-control monospace-style validate[required, maxSize[100000]]" rows="8"
+                            style="background-color: #ffdfbf"
+                            placeholder="Input your primer groups, one per line, space delimited: SiteID [PrimerRank] Seq1 Seq2 ..." 
+                            name="check-primers"></textarea>
+                        </fieldset> -->
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="saved">
+                        <h2>Recent Saved Results</h2>
+                        <div class="alert alert-info" role="alert"></div>
+                        <div id="saved_toolbar">
+                            <button class="btn btn-danger" type="button" disabled>Delete</button>
+                        </div>
+                        <table class="table table-no-bordered bootstrap-table-responsive"
+                        data-toolbar="#saved_toolbar" id="saved_table"
+                        data-search="true" data-escape="false" data-show-export="false" 
+                        data-pagination="true" data-page-list="[10,20,50]" data-side-pagination="client" data-maintain-selected="true"
+                        data-sort-name="time" data-sort-order="desc"
+                        >
+                            <thead>
+                                <tr>
+                                    <th data-field="state" data-checkbox="true"></th>
+                                    <th data-field="time" data-sortable="true" data-formatter="toURL">Time</th>
+                                    <th data-field="title" data-formatter="toURL">Title</th>
+                                    <th data-field="file_status">Status</th>
+                                    <th data-field="url" data-visible="false">URL</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="panel panel-default" id="parameter-panel">
+                    <div class="panel-heading">
+                        <h2 class="panel-title">
+                            Setting Specificity Checking Parameters
+                            <span data-toggle="collapse" data-target="#parameter-check">
+                                <i title="cilck to hide/show" data-toggle="tooltip" class="fa fa-caret-up help-icon"></i>
+                            </span>
+                        </h2>
+                    </div>
+                    <div id="parameter-check" class="panel-body collapse">
+                        <input type="hidden" name="parameter-check" value="hide" class="save-input" />
+                        <fieldset>
+                            <legend>Setting Filter Parameters</legend>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Checking Prodcut Size (bp):</label>
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Min</span>
+                                        <input type="text" name="size_start" value="50" 
+                                        class="form-control save-input validate[required, custom[integer], min[1], max[100000]]" />
+                                        <span class="input-group-addon">Max</span>
+                                        <input type="text" name="size_stop" value="5000" 
+                                        class="form-control save-input validate[required, custom[integer], min[1], max[100000]]" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Min. Tm Difference:</label>
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <input type="text" name="min_Tm_diff" value="20" 
+                                        class="form-control save-input validate[required, custom[integer], min[10], max[100]]" />
+                                        <span class="input-group-addon">(&deg;C) lower</span>
+                                    </div>
+                                </div>
+                                <label class="col-sm-3 control-label">Max. Primers Return Number:</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="retain" value="10" 
+                                    class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Filter with 3' End Validation:</label>
+                                <div class="col-sm-2">
+                                    <div class="radio">
+                                        <label><input type="radio" name="use_3_end" value=1 />Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="use_3_end" value=0 checked />No</label>
+                                    </div>
+                                </div>
+                                <label class="col-sm-3 control-label">Max. Amplicons Return Per Primer:</label>
+                                <div class="col-sm-2">
+                                    <div class="input-group">
+                                        <input type="text" name="max_report_amplicon" value="50" 
+                                        class="form-control save-input validate[required, custom[integer], min[10]]" />
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Setting BLAST</legend>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">E-value:</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="blast_e_value" value="30000" 
+                                    class="form-control save-input validate[required, custom[number], min[100]]" />
+                                </div>
+                                <label class="col-sm-3 control-label">Word Size:</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="blast_word_size" value="7" 
+                                    class="form-control save-input validate[required, custom[integer], min[4], max[11]]" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Min. Identity (%):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="blast_identity" value="60" 
+                                    class="form-control save-input validate[required, custom[number], min[0], max[100]]" />
+                                </div>
+                                <label class="col-sm-3 control-label">Max. HSPs:</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="blast_max_hsps" value="100" 
+                                    class="form-control save-input validate[required, custom[integer], min[1]]" />
+                                </div>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Setting Experimental Conditions</legend>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Concentration of primers (nM):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="conc_primer" value="100" 
+                                    class="form-control save-input validate[required, custom[number], min[0]]" />
+                                </div>
+                                <label class="col-sm-3 control-label">Concentration of dNTPs (mM):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="conc_dNTPs" value="0.2" 
+                                    class="form-control save-input validate[required, custom[number], min[0]]" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Concentration of Na<sup>+</sup> (mM):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="conc_Na" value="0" 
+                                    class="form-control save-input validate[required, custom[number], min[0]]" />
+                                </div>
+                                <label class="col-sm-3 control-label">Concentration of K<sup>+</sup> (mM):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="conc_K" value="50" 
+                                    class="form-control save-input validate[required, custom[number], min[0]]" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-3 control-label">Concentration of Tris (mM):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="conc_Tris" value="10" 
+                                    class="form-control save-input validate[required, custom[number], min[0]]" />
+                                </div>
+                                <label class="col-sm-3 control-label">Concentration of Mg<sup>2+</sup> (mM):</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="conc_Mg" value="1.5" 
+                                    class="form-control save-input validate[required, custom[number], min[0]]" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9">
+                            <fieldset>
+                                <legend>Select Checking Databases</legend>
+                                <div class="input-group">
+                                    <span class="input-group-addon">Checking Databases</span>
+                                    <select class="form-control save-input selectpicker show-tick show-menu-arrow validate[required]" name="select-database[]" 
+                                    data-size="10" data-live-search="true" multiple data-selected-text-format="count > 1" >
+                                    </select>
+                                </div>
+                            </fieldset>
+                            <fieldset class="hidden">
+                                <legend>Input Custom Database Sequences</legend>
+                                <textarea class="form-control monospace-style validate[required, maxSize[1000000]]" rows="8"
+                                style="background-color: #bfffff"
+                                placeholder="Input your database sequences in FASTA format..." name="custom-db-sequences"></textarea>
+                            </fieldset>
+                        </div>
+                        <div class="col-md-3">
+                            <fieldset>
+                                <legend>Selected Databases</legend>
+                                <ul class="list-group" id="show-selected-databases"></ul>
+                                <input type="hidden" name="selected-databases" value="" />
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <input type="submit" value="Submit" class="btn btn-primary" /> 
+                <input type="reset"  value="Reset" class="btn btn-default" />
+
+            </form>
+            
+            <div class="row">
+                <div id="result"></div>
+                <div id="test"></div>
+            </div>
+            
+            <div class="row hidden" id="footer-button">
+                <div class="col-sm-3">
+                    <div class="input-group" id="download-primer">
+                      <div class="input-group-btn dropup">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" >
+                            Download Primers <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>    
+                                <div class="radio">
+                                    <label><input type="radio" name="download_hit" value=1 checked />Primer: Unique Hit</label>
+                                </div>
+                            </li>
+                            <li>    
+                                <div class="radio">
+                                    <label><input type="radio" name="download_hit" value=0 />Primer: all Hits</label>
+                                </div>
+                            </li>
+                            <li>    
+                                <div class="radio">
+                                    <label><input type="radio" name="download_site" value=1 checked />Best Primer per Site</label>
+                                </div>
+                            </li>
+                            <li>    
+                                <div class="radio">
+                                    <label><input type="radio" name="download_site" value=0 />All Primers per Site</label>
+                                </div>
+                            </li>
+                        </ul>
+                        <button class="btn btn-primary" type="button">
+                            <span class="glyphicon glyphicon-download"></span>
+                        </button>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-sm-9" id="save-webpage">
+                    <div class="input-group">
+                        <span class="input-group-addon">Save this result:</span>
+                        <input type="text" class="form-control" title="Input your title here" data-toggle="tooltip" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-success" type="button">
+                                <span class="glyphicon glyphicon-star"></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <!-- Modal for Showing Specificity Check Result -->
+        <div class="modal fade" id="specificity-check-modal" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document" style="width:80%">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Specificity Check Result</h4>
+              </div>
+              <div class="modal-body">
+                <span class="fa fa-spinner fa-spin fa-4x"></span>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div id="ve"></div>
+                        </div>
+                        <div class="col-md-9">
+                            <pre class="pre-scrollable" style="max-height:600px"></pre>
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal for Running -->
+        <div class="modal fade" id="running-modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Running <span class="fa fa-spinner fa-spin"></span></h4>
+              </div>
+              <div class="modal-body">
+                <h4><span class="fa fa-spinner fa-spin fa-4x"></span></h4>
+                <div class="progress">
+                  <div class="progress-bar progress-bar-striped active" role="progressbar"></div>
+                </div>
+                <div class="alert alert-warning" role="alert">
+                    If you did not get any result in &ge; 5 minites, then you might reduce the amount of your input sites.
+                </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="stop">Stop</button>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Modal for saving results -->
+        <div class="modal fade" id="save-result-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Saving Succeed!</h4>
+                  </div>
+                  <div class="modal-body">
+                    <button type="button" class="btn btn-success" id="save-result-modal-button">See your saved results</button>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal for help information -->
+        <div class="modal fade" id="input-help" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Input Help</h4>
+              </div>
+              <div class="modal-body">
+                <p>See <a href="https://github.com/billzt/PrimerServer" target="_blank">Github</a> for detailed help</p>
+                <h4 class="page-header">Design Primers &amp; Check</h4>
+                <p>Format: One site per line, space delimited <code>TemplateID TargetPos TargetLength</code></p>
+                <p>Example (Using Example Database):</p>
+                <pre>
+seq1 200 10
+seq1 400 10</pre>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">Acceptable Template IDs</h4>
+                    </div>
+                    <div class="panel-body">
+                        <p>Click here to download a text file showing currently acceptable template IDs and their lengths:</p>
+                        <div class="list-group pre-scrollable" id="help-modal-ID-list"></div>
+                    </div>
+                </div>
+                
+                
+                <h4 class="page-header">Check Primers Only</h4>
+                <p>Format: One primer group per line, space delimited: <code>PrimerID Seq1 Seq2 ...</code></p>
+                <p>Example: (Using Example Database):</p>
+                <pre>
+P1 CTTCTGCAATGCCAAGTCCAG   GTGGTGAAGGGTCGGTTGAA
+P2 ACCAAACCCCAGAGTCAATTAA  TCTATCTATTGCACTGCCTGTTG</pre>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+
+        <!-- jQuery -->
+        <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+        <!-- Bootstrap JS -->
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <!-- Bootstrap Select JS -->
+        <script src="{{ url_for('static', filename='js/bootstrap-select.min.js') }}"></script>
+        <!-- Bootstrap Table JS -->
+        <script src="{{ url_for('static', filename='js/bootstrap-table.min.js') }}"></script>
+        <!-- jQuery Validation -->
+        <script src="{{ url_for('static', filename='js/jquery.validationEngine.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/jquery.validationEngine-en.js') }}"></script>
+        <!-- jQuery Saves Form State -->
+        <script src="{{ url_for('static', filename='js/jquery.phoenix.min.js') }}"></script>
+        <!-- D3 -->
+        <script src="{{ url_for('static', filename='js/d3.v4.min.js') }}"></script>
+        <!-- SVG zoom -->
+        <script src="{{ url_for('static', filename='js/svg-pan-zoom.min.js') }}"></script>
+        <!-- JQuery Timer -->
+        <script src="{{ url_for('static', filename='js/jquery.timer.js') }}"></script>
+        <!-- File Download -->
+        <script src="{{ url_for('static', filename='js/FileSaver.min.js') }}"></script>
+        <!-- Virtual electrophoresis -->
+        <script src="{{ url_for('static', filename='js/d3-electrophoresis.js') }}"></script>
+        <!-- Back to Top -->
+        <script src="{{ url_for('static', filename='js/back-to-top.js') }}"></script>
+        <!-- Own JS -->
+        <script src="{{ url_for('static', filename='js/primer.js') }}"></script>
+        
+        <a class="github-fork-ribbon" href="https://github.com/billzt/PrimerServer2" title="Fork me on GitHub" \
+        target="_blank">Fork me on GitHub</a>
+    </body>
+</html>

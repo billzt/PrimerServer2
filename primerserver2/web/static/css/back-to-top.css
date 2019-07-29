@@ -1,0 +1,65 @@
+/*Back to top */
+
+.back-to-top {
+
+position: fixed;
+bottom: 220px;
+right: 5%;
+padding:10px;
+z-index: 999;
+display: none;
+color: #ffffff;
+background-color: #555;
+opacity: .5;
+}
+
+.back-to-top:hover {
+
+color: #ffffff;
+opacity: 1;
+			
+			
+	-webkit-animation: back-to-top .6s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: back-to-top .6s; /* Firefox < 16 */
+        -ms-animation: back-to-top .6s; /* Internet Explorer */
+         -o-animation: back-to-top .6s; /* Opera < 12.1 */
+            animation: back-to-top .6s;	
+			
+			
+}
+
+@keyframes back-to-top {
+    0% { opacity: .5; }
+    100%   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes back-to-top {
+    0% { opacity: .5; }
+    100%   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes hero-name {
+    0% { opacity: .5; }
+    100%   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes hero-name {
+    0% { opacity: .5; }
+    100%   { opacity: 1; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes hero-name {
+    0% { opacity: .5; }
+    100%   { opacity: 1; }
+}
+
+
+.back-to-top i {
+  font-size: 1.5em;
+}
+
+/*************/

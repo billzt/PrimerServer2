@@ -32,13 +32,17 @@ def make_args():
     args = parser.parse_args()
     return args
 
+def load():
+    web_config = json.load(open(os.path.join(os.path.dirname(__file__), '../data/web_config.json')))
+    return web_config
+
 def main():
     # init conf
     if os.path.isfile(os.path.join(os.path.dirname(__file__), '../data/web_config.json')) is False:
         os.system(f"cp {os.path.join(os.path.dirname(__file__), '../data/web_config_sample.json')} \
             {os.path.join(os.path.dirname(__file__), '../data/web_config.json')}")
 
-    web_config = json.load(open(os.path.join(os.path.dirname(__file__), '../data/web_config.json')))
+    web_config = load()
 
     # args
     args = make_args()
@@ -81,7 +85,7 @@ def main():
             # Add to config
             if db_basename not in web_config['templates']:
                 web_config['templates'][db_basename] = {}
-            web_config['templates'][db_basename] = {'name': db_basename, 'group': 'group'}
+            web_config['templates'][db_basename] = {'description': db_basename, 'group': 'group'}
 
         
     # db descriptions
@@ -95,9 +99,9 @@ def main():
                 web_config['templates'][db_file] = {}
             if len(db_desc)==2:
                 (name, group) = db_desc
-                web_config['templates'][db_file] = {'name': name, 'group': group}
+                web_config['templates'][db_file] = {'description': name, 'group': group}
             elif len(db_desc)==1:
-                web_config['templates'][db_file] = {'name': db_desc[0], 'group': 'group'}
+                web_config['templates'][db_file] = {'description': db_desc[0], 'group': 'group'}
             else:
                 raise Exception(f'the file {args.description_file.name} does not have two or three columns seprated by tabs')
     

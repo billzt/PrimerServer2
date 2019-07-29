@@ -54,7 +54,7 @@ def make_args():
     group_design.add_argument('--product-size-max', type=int, help='Upper limit of the product amplicon size range (bp).', \
         default=1000)
     group_design.add_argument('--primer-num-return', type=int, help='The maximum number of primers to return in Primer3 \
-        desining results.', default=30)
+        designing results.', default=30)
     
     # These arguments are used by check and full
     parent_parser_check = argparse.ArgumentParser(add_help=False)
