@@ -25,7 +25,7 @@ def faidx(template_file, region_string):
         result_seqs[seq_split[0]] = ''.join(seq_split[1:])
     return result_seqs
 
-def build(query, template_file, primer_type, primer_num_return=30):
+def build(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000):
     '''
         Input:
             query: a string in multi-lines

@@ -49,6 +49,10 @@ def make_args():
     group_design = parent_parser_design.add_argument_group('Design Primers')
     group_design.add_argument('--type', choices=['SEQUENCE_TARGET', 'SEQUENCE_INCLUDED_REGION', 'FORCE_END'],\
         help='designing primer types', default='SEQUENCE_TARGET')
+    group_design.add_argument('--product-size-min', type=int, help='Lower limit of the product amplicon size range (bp).', \
+        default=70)
+    group_design.add_argument('--product-size-max', type=int, help='Upper limit of the product amplicon size range (bp).', \
+        default=1000)
     group_design.add_argument('--primer-num-return', type=int, help='The maximum number of primers to return in Primer3 \
         desining results.', default=30)
     
@@ -61,10 +65,10 @@ def make_args():
         position with templates would not be considered to produce off-target amplicon, even if their melting temperatures \
             are high. Turn on this would find more candidate primers, but might also have more false positives\
                 ', action='store_true')
-    group_check.add_argument('-l', '--checking-size-min', type=int, help='Lower limit of the checking amplicon size range (bp).', \
-        default=70)
-    group_check.add_argument('-u', '--checking-size-max', type=int, help='Upper limit of the checking amplicon size range (bp).', \
-        default=1000)
+    group_check.add_argument('--checking-size-min', type=int, help='Lower limit of the checking amplicon size range (bp).', \
+        default=50)
+    group_check.add_argument('--checking-size-max', type=int, help='Upper limit of the checking amplicon size range (bp).', \
+        default=2000)
     group_check.add_argument('-a', '--report-amplicon-seqs', help="Get amplicon seqs (might be slow)", action='store_true')
 
     # sub commands
@@ -119,10 +123,10 @@ def run(args):
     else:
         if args.run_mode=='design':
             sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=args.type, \
-                primer_num_return=args.primer_num_retain)
+                primer_num_return=args.primer_num_retain, size_min=args.product_size_min, size_max=args.product_size_max)
         else:
             sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=args.type, \
-                primer_num_return=args.primer_num_return)
+                primer_num_return=args.primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max)
         primers = design_primer.multiple(sites, cpu=args.cpu)
 
     ###################  Checking specificity  #############
