@@ -253,12 +253,12 @@ $(function () {
         })
         
         // In help modal, list IDs (After the options completely loaded)
-        var options = $('[name="select-template"] option');
+        var options = $('[name="templates[]"] option');
         for (var i=0; i<options.length; i++) {
             var option_val = $(options[i]).val();
             if (option_val!='' && option_val!='custom') {
                 var option_text = $(options[i]).html();
-                $('#help-modal-ID-list').append('<a href="script/modal_help_list_ID.php?file='+option_val+'" class="list-group-item">'
+                $('#help-modal-ID-list').append('<a href="/dbdownload/'+option_val+'" class="list-group-item">'
                 +option_text+' <span class="glyphicon glyphicon-download"></span></a>');
             }
         }
