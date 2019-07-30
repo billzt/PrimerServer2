@@ -46,7 +46,7 @@ def build(query, template_file, primer_type, primer_num_return=30, size_min=70, 
     retrieve_region2raw_region = {}
     for line in query.splitlines():
         query_data = re.split(r'\s+', line.strip())
-        (chr, pos, length, size_min, size_max) = (query_data[0], 1, 1, 70, 1000)
+        (chr, pos, length) = (query_data[0], 1, 1)
         if len(query_data)>1 :     # seq ID and pos
             pos = int(query_data[1].replace(',', ''))
         if len(query_data)>2 :

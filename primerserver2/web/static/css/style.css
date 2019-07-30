@@ -22,6 +22,12 @@ legend {
     cursor: pointer;
 }
 
+.div-fake-hidden {
+    width:0px;
+    height:0px;
+    overflow:hidden;
+}
+
 .table-borderless tbody tr td,
 .table-borderless tbody tr th,
 .table-borderless thead tr th,

@@ -66,14 +66,17 @@
                                 data-target="#input-help"></span></small> 
                             </legend>
                             <select class="form-control selectpicker show-tick show-menu-arrow save-input validate[required]" 
-                            name="templates[]" data-size="10" data-live-search="true" title="Select your templates (Databases)"
+                            name="templates" data-size="10" data-live-search="true" title="Select your templates (Databases)"
                             multiple data-selected-text-format="count > 1" data-max-options="2">
                             </select>
+                            <input type="hidden" name="selected_dbs" />
                             <textarea class="form-control monospace-style validate[required, maxSize[100000]]" rows="20"
                             style="background-color: #bfffdf"
                             placeholder="One per line, blank delimited: TemplateID TargetPos TargetLength" 
                             name="query"></textarea>
                         </fieldset>
+                        <input type="submit" value="Submit" class="btn btn-primary" /> 
+                        <input type="reset"  value="Reset" class="btn btn-default" />
                     </div>
                     <div class="col-md-6">
                         <fieldset>
@@ -220,6 +223,10 @@
             </div>
         </div>
 
+        <script>
+            // script root
+            $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        </script>
 
         <!-- jQuery -->
         <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
@@ -251,5 +258,11 @@
         
         <a class="github-fork-ribbon" href="https://github.com/billzt/PrimerServer2" title="Fork me on GitHub" \
         target="_blank">Fork me on GitHub</a>
+
+        <!-- This fake div hidden preloads our web font! -->
+        <div class="div-fake-hidden">
+            <i class="fa fa-spinner fa-spin fa-4x"></i>
+            <span class="glyphicon glyphicon-ok check-mark"></span>
+        </div>
     </body>
 </html>

@@ -47,7 +47,7 @@ def run_blast(p3_inputs):
     return {'db': os.path.basename(db), 'amplicons': report_amplicons}
 
 def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, \
-    report_amplicon_seq=False, Tm_diff=20, use_3_end=False):
+    report_amplicon_seq=False, Tm_diff=20, use_3_end=False, monitor=True):
 
     # distribute tasks
     pool = mp.Pool(processes=cpu)
@@ -77,18 +77,19 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
             multi_res.append(pool.apply_async(run_blast, (p3_inputs[sub_start:sub_end],)))
 
     # monitor
-    widgets = ['Checking specificity: ', progressbar.Counter(),\
-        ' Finished', ' (', progressbar.Percentage(), ')', \
-            progressbar.Bar(), progressbar.ETA()]
-    bar = progressbar.ProgressBar(widgets=widgets, max_value=all_tasks_num*5).start()
+    if monitor is True:
+        widgets = ['Checking specificity: ', progressbar.Counter(),\
+            ' Finished', ' (', progressbar.Percentage(), ')', \
+                progressbar.Bar(), progressbar.ETA()]
+        bar = progressbar.ProgressBar(widgets=widgets, max_value=all_tasks_num*5).start()
 
-    while True:
-        complete_count = sum([1 for x in multi_res if x.ready()])
-        if complete_count == all_tasks_num:
-            bar.finish()
-            break
-        bar.update(complete_count*5)
-        time.sleep(1)
+        while True:
+            complete_count = sum([1 for x in multi_res if x.ready()])
+            if complete_count == all_tasks_num:
+                bar.finish()
+                break
+            bar.update(complete_count*5)
+            time.sleep(1)
         
     # Results
     for result in multi_res:

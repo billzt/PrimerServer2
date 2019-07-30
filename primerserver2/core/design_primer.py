@@ -65,7 +65,7 @@ def single(site):
         ])
 
 
-def multiple(sites, cpu=2):
+def multiple(sites, cpu=2, monitor=True):
     # distribute
     pool = mp.Pool(processes=cpu)
     multi_res = []
@@ -73,18 +73,19 @@ def multiple(sites, cpu=2):
         multi_res.append(pool.apply_async(single, (site,)))
 
     # monitor
-    all_tasks_num = len(sites)
-    widgets = ['Designning Primers: ', progressbar.Counter(), ' Finished', ' (', progressbar.Percentage(), ')', \
-        progressbar.Bar(), progressbar.ETA()]
-    bar = progressbar.ProgressBar(widgets=widgets, max_value=all_tasks_num).start()
+    if monitor is True:
+        all_tasks_num = len(sites)
+        widgets = ['Designning Primers: ', progressbar.Counter(), ' Finished', ' (', progressbar.Percentage(), ')', \
+            progressbar.Bar(), progressbar.ETA()]
+        bar = progressbar.ProgressBar(widgets=widgets, max_value=all_tasks_num).start()
 
-    while True:
-        complete_count = sum([1 for x in multi_res if x.ready()])
-        if complete_count == all_tasks_num:
-            bar.finish()
-            break
-        bar.update(complete_count)
-        time.sleep(0.1)
+        while True:
+            complete_count = sum([1 for x in multi_res if x.ready()])
+            if complete_count == all_tasks_num:
+                bar.finish()
+                break
+            bar.update(complete_count)
+            time.sleep(0.1)
 
     # results
     primers = {}

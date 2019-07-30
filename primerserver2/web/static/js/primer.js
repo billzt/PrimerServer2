@@ -207,11 +207,10 @@ $(function () {
     
     // select template: options
     var originalValFor = new Object;
-    var group_data = new Object;
-    $.get('/dbselect', function(data){
-        group_data = JSON.parse(data);
+    $.get($SCRIPT_ROOT + '/dbselect', function(data){
+        var group_data = JSON.parse(data);
         for (group in group_data) {
-            $('[name="templates[]"]').append('<optgroup label="'+group+'">');
+            $('[name="templates"]').append('<optgroup label="'+group+'">');
             for (template in group_data[group]) {
                 $('optgroup[label="'+group+'"]').append('<option data-subtext="seq IDs:'+group_data[group][template]['IDs']
                     +'" value="'+template+'">'+group_data[group][template]['desc']+'</option>');
@@ -229,7 +228,7 @@ $(function () {
         $('.save-input').phoenix({
             saveInterval: 1000,
         });
-        $('[name="templates[]"]').selectpicker('refresh');
+        $('[name="templates"]').selectpicker('refresh');
         
         // Highlight Changed Field
         for (var i=0; i<inputs.length; i++) {
@@ -253,12 +252,12 @@ $(function () {
         })
         
         // In help modal, list IDs (After the options completely loaded)
-        var options = $('[name="templates[]"] option');
+        var options = $('[name="templates"] option');
         for (var i=0; i<options.length; i++) {
             var option_val = $(options[i]).val();
             if (option_val!='' && option_val!='custom') {
                 var option_text = $(options[i]).html();
-                $('#help-modal-ID-list').append('<a href="/dbdownload/'+option_val+'" class="list-group-item">'
+                $('#help-modal-ID-list').append('<a href="'+$SCRIPT_ROOT+'/dbdownload/'+option_val+'" class="list-group-item">'
                 +option_text+' <span class="glyphicon glyphicon-download"></span></a>');
             }
         }
@@ -286,12 +285,52 @@ $(function () {
         else {
             $('#parameter-check').collapse('show');
         }
+
+        // Show initial selected databases
+        var selected_dbs = localStorage.getItem('primer-templates:'+location.href);
+        $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
+        $('[name="selected_dbs"]').val(selected_dbs);
+        if (!selected_dbs) {    // inintialize
+            $('[name="templates"]').on('refreshed.bs.select', function (event) {
+                var selectedOptions = event.target.selectedOptions;
+                selected_dbs = '';
+                for (var i=0; i<selectedDBNum; i++) {
+                    selected_dbs += selectedOptions[i].value+',';
+                }
+                selected_dbs = selected_dbs.replace(/,$/, '');
+                localStorage.setItem('primer-templates:'+location.href, selected_dbs);
+                $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
+                $('[name="selected_dbs"]').val(selected_dbs);
+            });
+        }
+        
+        // Change selected databases
+        var vals = [];
+        $('[name="templates"]').change(function (event) {
+            for(var i=0; i <$('[name="templates"] option').length; i++) {
+                if ($($('[name="templates"] option')[i]).prop('selected') ) {
+                    if (!vals.includes(i)) {
+                        vals.push(i);
+                    }
+                } 
+                else if (vals.includes(i)) {
+                    vals.splice(vals.indexOf(i), 1);
+                }
+            }
+            selected_dbs = '';
+            vals.forEach(function(ele) {
+            selected_dbs += $($('[name="templates"] option')[ele]).val() + ',';
+            })
+            selected_dbs = selected_dbs.replace(/,$/, '');
+            $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
+            localStorage.setItem('primer-templates:'+location.href, selected_dbs);
+            $('[name="selected_dbs"]').val(selected_dbs);
+        });
     });
-    
     
     // modify reset button to satisfy selector
     $(':reset').click(function(){
-        $('[name="templates[]"]').selectpicker('val', '');
+        $('[name="templates"]').selectpicker('val', '');
         localStorage.setItem('primer-templates:'+location.href, '');
         $('#show-selected-templates').html('');
     });
@@ -371,7 +410,7 @@ $(function () {
 
     // If users select (Or inintially load) custom template, then showing custom template FASTA sequence input textarea
     var selectedDBNum;
-    $('[name="templates[]"]').on('changed.bs.select refreshed.bs.select', function (event) {
+    $('[name="templates"]').on('changed.bs.select refreshed.bs.select', function (event) {
         var selectedOptions = event.target.selectedOptions;
         var hideCustomDB = 1;
         selectedDBNum = selectedOptions.length;
@@ -388,48 +427,6 @@ $(function () {
         }
     });
 
-    // Show initial selected databases
-    var selected_dbs = localStorage.getItem('primer-templates:'+location.href);
-    $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
-    $('[name="templates"]').val(selected_dbs);
-    if (!selected_dbs) {    // inintialize
-        $('[name="templates[]"]').on('refreshed.bs.select', function (event) {
-            var selectedOptions = event.target.selectedOptions;
-            selected_dbs = '';
-            for (var i=0; i<selectedDBNum; i++) {
-                selected_dbs += selectedOptions[i].value+',';
-            }
-            selected_dbs = selected_dbs.replace(/,$/, '');
-            localStorage.setItem('primer-templates:'+location.href, selected_dbs);
-            $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
-            $('[name="templates"]').val(selected_dbs);
-        });
-    }
-    
-    // Change selected databases
-    var vals = [];
-    $('[name="templates[]"]').change(function (event) {
-        for(var i=0; i <$('[name="templates[]"] option').length; i++) {
-            if ($($('[name="templates[]"] option')[i]).prop('selected') ) {
-                if (!vals.includes(i)) {
-                    vals.push(i);
-                }
-            } 
-            else if (vals.includes(i)) {
-                vals.splice(vals.indexOf(i), 1);
-            }
-        }
-        selected_dbs = '';
-        vals.forEach(function(ele) {
-          selected_dbs += $($('[name="templates[]"] option')[ele]).val() + ',';
-        })
-        selected_dbs = selected_dbs.replace(/,$/, '');
-        $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
-        $('[name="templates"]').val(selected_dbs);
-        localStorage.setItem('primer-templates:'+location.href, selected_dbs);
-    });
-    
-
     // form validation & submit
     function ScrollToResult() {
         $('html,body').animate({
@@ -437,10 +434,12 @@ $(function () {
         }, 1000);
     };
     function AjaxSubmit() {
-        $('#running-modal .modal-body h4').html('<span class="fa fa-spinner fa-spin fa-4x"></span>');
-        $('#running-modal .progress-bar').css('width', '0%').html('');
-        $('#running-modal').modal('show');
-        var currentAjax = $.post('script/primer.php', $('#form-primer').serialize(), function(data){
+        // $('#running-modal .modal-body h4').html('<span class="fa fa-spinner fa-spin fa-4x"></span>');
+        // $('#running-modal .progress-bar').css('width', '0%').html('');
+        // $('#running-modal').modal('show');
+        var currentAjax = $.post($SCRIPT_ROOT + '/run', $('#form-primer').serialize(), function(data){
+            $('#result').html(data);
+            /*
             $('#result').html(data);
             $('#running-modal').modal('hide');
             ScrollToResult();
@@ -475,7 +474,7 @@ $(function () {
                         scrollTop: $(offset).offset().top-20
                     }, 1000); 
                 }
-            });
+            }); */
         });
         
         // Allow users to stop their running
@@ -489,20 +488,6 @@ $(function () {
         });
     };
     $('#form-primer').validationEngine('attach', {
-        autoHidePrompt: true,
-        autoHideDelay: 5000,
-        onFieldFailure: function(field) {
-            if (field) {    // A bug: it will return an extra undef field
-                field.parents('.panel').find('[data-target]').removeAttr('data-toggle');
-                field.parents('.panel').find('i').css('cursor', 'not-allowed');
-            }
-        },
-        onFieldSuccess: function(field) {
-            if (field) {
-                field.parents('.panel').find('[data-target]').attr('data-toggle', 'collapse');
-                field.parents('.panel').find('i').css('cursor', 'pointer');
-            }
-        },
         onValidationComplete: function(form, status) {
             if (status) {
                 AjaxSubmit();
