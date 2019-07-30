@@ -2,6 +2,7 @@
     "cpu": 2,
     "templates": {
         "example.fa": {
+            "IDs": "seq1, seq2",
             "description": "Example Database",
             "group": "example"
         }

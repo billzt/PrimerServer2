@@ -113,6 +113,12 @@ def main():
         if args.cpu>os.cpu_count()-1:
             raise Exception(f'CPU numbers cannot be larger than your system resources: {os.cpu_count()}')
         web_config['cpu'] = args.cpu
+
+    # IDs
+    for db_file in web_config['templates']:
+        if 'IDs' not in web_config['templates'][db_file]:
+            ids = os.popen(f'sort -k2,2nr {db_dir}/{db_file}.fai | cut -f 1 | head -n 3').read().splitlines()
+            web_config['templates'][db_file]['IDs'] = '; '.join(ids)
     
     # write configure file
     with open(os.path.join(os.path.dirname(__file__), '../data/web_config.json'), 'w') as f:
