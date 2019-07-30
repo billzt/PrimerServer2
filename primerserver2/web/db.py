@@ -10,9 +10,12 @@ def dbselect():
     web_config = load()
     dbs_in_select = {}
     for (template, meta) in web_config['templates'].items():
-        (desc, group) = (meta['description'], meta['group'])
+        (desc, group, ids) = (meta['description'], meta['group'], meta['IDs'])
         if group not in dbs_in_select:
             dbs_in_select[group] = {}
-        dbs_in_select[group][template] = desc
+        if template not in dbs_in_select[group]:
+            dbs_in_select[group][template] = {}
+        dbs_in_select[group][template]['desc'] = desc
+        dbs_in_select[group][template]['IDs'] = ids
     return json.dumps(dbs_in_select, indent=4)
     

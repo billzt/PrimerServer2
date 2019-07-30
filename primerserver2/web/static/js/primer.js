@@ -171,18 +171,25 @@ function toURL(value, row) {
 }
 
 // function to show selected databases
-function dbShow(str) {
+function dbShow(str, group_data) {
     if (!str) {
         return '';
     }
     var dbs = str.split(',');
     var display_str = '';
+    // db file name to descriptions
+    var db_name_change = new Object;
+    for (group in group_data){
+        for (template in group_data[group]) {
+            db_name_change[template] = group_data[group][template]['desc']
+        }
+    }
     for (var i=0; i<dbs.length; i++) {
         if (i==0) {
-            display_str += '<li class="list-group-item">' + dbs[i] + ' <span class="glyphicon glyphicon-star"></span></li>'
+            display_str += '<li class="list-group-item">' + db_name_change[dbs[i]] + ' <span class="glyphicon glyphicon-star"></span></li>'
         }
         else {
-            display_str += '<li class="list-group-item">' + dbs[i] + '</li>'
+            display_str += '<li class="list-group-item">' + db_name_change[dbs[i]] + '</li>'
         }
     }
     return display_str;
@@ -200,13 +207,14 @@ $(function () {
     
     // select template: options
     var originalValFor = new Object;
-
+    var group_data = new Object;
     $.get('/dbselect', function(data){
-        var group_data = JSON.parse(data);
+        group_data = JSON.parse(data);
         for (group in group_data) {
             $('[name="templates[]"]').append('<optgroup label="'+group+'">');
             for (template in group_data[group]) {
-                $('optgroup[label="'+group+'"]').append('<option value="'+template+'">'+group_data[group][template]+'</option>')
+                $('optgroup[label="'+group+'"]').append('<option data-subtext="seq IDs:'+group_data[group][template]['IDs']
+                    +'" value="'+template+'">'+group_data[group][template]['desc']+'</option>');
             }
         }
 
@@ -382,7 +390,7 @@ $(function () {
 
     // Show initial selected databases
     var selected_dbs = localStorage.getItem('primer-templates:'+location.href);
-    $('#show-selected-templates').html(dbShow(selected_dbs));
+    $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
     $('[name="templates"]').val(selected_dbs);
     if (!selected_dbs) {    // inintialize
         $('[name="templates[]"]').on('refreshed.bs.select', function (event) {
@@ -393,7 +401,7 @@ $(function () {
             }
             selected_dbs = selected_dbs.replace(/,$/, '');
             localStorage.setItem('primer-templates:'+location.href, selected_dbs);
-            $('#show-selected-templates').html(dbShow(selected_dbs));
+            $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
             $('[name="templates"]').val(selected_dbs);
         });
     }
@@ -416,7 +424,7 @@ $(function () {
           selected_dbs += $($('[name="templates[]"] option')[ele]).val() + ',';
         })
         selected_dbs = selected_dbs.replace(/,$/, '');
-        $('#show-selected-templates').html(dbShow(selected_dbs));
+        $('#show-selected-templates').html(dbShow(selected_dbs, group_data));
         $('[name="templates"]').val(selected_dbs);
         localStorage.setItem('primer-templates:'+location.href, selected_dbs);
     });
