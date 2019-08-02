@@ -8,6 +8,11 @@ function getMinOfArray(numArray) {
 function GenerateGraph(el, specificity) {
     // empty the element
     el.find('.PrimerFigure').html('');
+
+    // whether has primers?
+    if (el.find('.alert-danger').length>0) {
+        return;
+    }
     
     // svg
     var svg = d3.select(el.find('.PrimerFigure')[0])

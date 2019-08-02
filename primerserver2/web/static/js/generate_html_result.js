@@ -157,6 +157,16 @@ function generate_html_result(selected_dbs, db_name_change, data){
 
             $('#site-'+site_rank).find('.list-group-primers').append($('#primers-result-template-primer').html());
             $('#primers-result-template-primer').html(raw_html_primer);
-        } 
+        }
+
+        // no primer
+        if (primer_num==0) {
+            var el = $('#site-'+site_rank).find('.list-group-primers')
+            el.append($('#primers-result-template-error').html());
+            el.find('.alert-danger').append('<h5>No primers</h5>');
+            el.find('.alert-danger').append('<p>PRIMER_LEFT_EXPLAIN: '+result_data[site_id]['PRIMER_LEFT_EXPLAIN']+'</p>');
+            el.find('.alert-danger').append('<p>PRIMER_RIGHT_EXPLAIN: '+result_data[site_id]['PRIMER_RIGHT_EXPLAIN']+'</p>');
+            el.find('.alert-danger').append('<p>PRIMER_PAIR_EXPLAIN: '+result_data[site_id]['PRIMER_PAIR_EXPLAIN']+'</p>');
+        }
     }
 }
