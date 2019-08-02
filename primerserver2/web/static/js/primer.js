@@ -21,6 +21,8 @@ function menu_init(data) {
             $('optgroup[label="'+group+'"]').append('<option data-subtext="seq IDs:'+group_data[group][template]['IDs']
                 +'" value="'+template+'">'+group_data[group][template]['desc']+'</option>');
             db_name_change[template] = group_data[group][template]['desc'];
+            $('#help-modal-ID-list').append('<a href="'+$SCRIPT_ROOT+'/dbdownload/'+template+'/" class="list-group-item">'
+            +group_data[group][template]['desc']+' <span class="glyphicon glyphicon-download"></span></a>');
         }
     }
     return db_name_change

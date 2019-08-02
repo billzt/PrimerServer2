@@ -22,7 +22,7 @@ def dbselect():
         dbs_in_select[group][template]['IDs'] = ids
     return json.dumps(dbs_in_select, indent=4)
     
-@bp.route('/dbdownload/<template>')
+@bp.route('/dbdownload/<template>/')
 def dbdownload(template):
     result = os.popen(f'cut -f 1,2 {db_dir}/{template}.fai').read()
     response = make_response(result)
