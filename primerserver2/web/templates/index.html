@@ -33,35 +33,34 @@
     <body>
         <div class="container" role="main">
             <h1>PrimerServer: PCR Primers Batch Design &amp; Specificity Check</h1>
-
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#full" role="tab" data-toggle="tab">
+                        <span class="glyphicon glyphicon-edit"></span> Full (Design &amp; Check)
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#design" role="tab" data-toggle="tab">
+                        <span class="glyphicon glyphicon-search"></span> Design Only
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#check" role="tab" data-toggle="tab">
+                        <span class="glyphicon glyphicon-search"></span> Check Only
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#saved" role="tab" data-toggle="tab">
+                        <span class="glyphicon glyphicon-star"></span> Recently Saved Results
+                    </a>
+                </li>
+            </ul>
             <form class="form-horizontal" method="post" enctype="multipart/form-data" id="form-primer">
-                <input type="hidden" name="app-type" value="design" class="save-input" />
-                <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active">
-                        <a href="#full" role="tab" data-toggle="tab">
-                            <span class="glyphicon glyphicon-edit"></span> Full (Design &amp; Check)
-                        </a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#design" role="tab" data-toggle="tab">
-                            <span class="glyphicon glyphicon-search"></span> Design Only
-                        </a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#check" role="tab" data-toggle="tab">
-                            <span class="glyphicon glyphicon-search"></span> Check Only
-                        </a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#saved" role="tab" data-toggle="tab">
-                            <span class="glyphicon glyphicon-star"></span> Recently Saved Results
-                        </a>
-                    </li>
-                </ul>
+                <input type="hidden" name="app-type" value="full" class="save-input" />
                 <div class="row">
                     <div class="col-md-6">
                         <fieldset>
-                            <legend>Input
+                            <legend><span id="textarea-title">Input: Design primers and check specificity</span>
                                 <small><span class="glyphicon glyphicon-question-sign help-icon" data-toggle="modal"
                                 data-target="#input-help"></span></small> 
                             </legend>
@@ -69,7 +68,7 @@
                             name="templates" data-size="10" data-live-search="true" title="Select your templates (Databases)"
                             multiple data-selected-text-format="count > 1" data-max-options="2">
                             </select>
-                            <input type="hidden" name="selected_dbs" />
+                            <input type="hidden" name="selected_dbs" value="" class="save-input" />
                             <textarea class="form-control monospace-style validate[required, maxSize[100000]]" rows="20"
                             style="background-color: #bfffdf"
                             placeholder="One per line, blank delimited: TemplateID TargetPos TargetLength" 
@@ -146,19 +145,21 @@
                                 <label class="col-sm-4 control-label">Filter with 3' End Validation:</label>
                                 <div class="col-sm-2">
                                     <div class="radio">
-                                        <label><input type="radio" name="use_3_end" value=1 />Yes</label>
+                                        <label><input type="radio" name="use_3_end" id="use_3_end_1" value=1 />Yes</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="use_3_end" value=0 checked />No</label>
+                                        <label><input type="radio" name="use_3_end" id="use_3_end_0" value=0 checked />No</label>
                                     </div>
                                 </div>
                                 <label class="col-sm-4 control-label">Get Amplicon Seq:</label>
                                 <div class="col-sm-2">
                                     <div class="radio">
-                                        <label><input type="radio" name="report_amplicon_seqs" value=1 />Yes</label>
+                                        <label><input type="radio" name="report_amplicon_seqs" 
+                                            id="report_amplicon_seqs_1" value=1 />Yes</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="report_amplicon_seqs" value=0 checked />No</label>
+                                        <label><input type="radio" name="report_amplicon_seqs" 
+                                            id="report_amplicon_seqs_0" value=0 checked />No</label>
                                     </div>
                                 </div>
                             </div>
@@ -176,9 +177,83 @@
             </form>
 
             <div class="row">
-                <div id="result"></div>
-                <div id="test"></div>
+                <div id="result" class="hidden">
+                    <h2 class="page-header">Results</h2>
+                    <div class="alert alert-info alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <b><span id="num_sites_detected">1</span></b> site(s) detected; <b><span id="num_sites_used">1</span></b> site(s) used
+                    </div>
+                    <div class="panel-group" id="primers-result" role="tablist"></div>
+                </div>
             </div>
+        </div>
+
+        <!-- Template for the result HTML: site, for JS use only -->
+        <div class="hidden" id="primers-result-template-site">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab">
+                    <div class="row row-site-info">
+                        <h4 class="panel-title col-md-1">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#primers-result" 
+                                href="#site-0"> <!-- site-0 shoud be changed -->
+                                Site 0 <span class="caret"></span>
+                            </a>
+                        </h4>
+                        <div class="col-md-3">
+                            <small class="site-detail">
+                                Template seq0; Target Pos: 200; Target Length: 10 <!-- shoud be changed -->
+                            </small>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge site-primer-num">9</span> Primer(s) <!-- shoud be changed -->
+                        </div>
+                        <!-- Add this if this site contains a unique primer
+                        <div class="col-md-1">
+                            <span class="glyphicon glyphicon-ok"></span>
+                        </div>
+                        -->
+                    </div>
+                </div>
+
+                <!-- id shoud be changed; Add class "in" for the first group -->
+                <div id="site-0" class="panel-collapse collapse panel-site" role="tabpanel">   
+                    <div class="panel-body">
+                        <div class="PrimerFigure"></div>  <!-- draw pictures -->
+                        <ul class="list-group list-group-primers"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template for the result HTML: primer, for JS use only -->
+        <div class="hidden" id="primers-result-template-primer">
+            <li class="list-group-item list-group-item-primer"> <!-- Add class "list-group-item-success" if it is a unique primer -->
+                <h4 class="list-group-item-heading" id="Site0-Primer0">Primer 0</h4> <!-- Site0-Primer0 shoud be changed -->
+                <div class="list-group-item-text">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Sequence (5' -&gt; 3')</th>
+                                    <th>Length</th>
+                                    <th>Position</th>
+                                    <th>Tm(°C)</th>
+                                    <th>GC(%)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="primer-seq-detail"></tbody>
+                        </table>
+                        <table class="table table-bordered amplicons_table">
+                            <tr class="database-list">
+                                <th class="col-sm-2" rowspan="3">Possible Amplicons</th>
+                            </tr>
+                            <tr class="amplicons_number"></tr>
+                            <tr class="amplicons_region"></tr>
+                        </table>
+                    </div>
+                </div>
+            </li> 
         </div>
 
         <!-- Modal for help information -->
@@ -195,8 +270,8 @@
                     <p>Format: One site per line, space delimited <code>TemplateID TargetPos TargetLength</code></p>
                     <p>Example (Using Example Database):</p>
                     <pre>
-    seq1 200 10
-    seq1 400 10</pre>
+seq1 200 10
+seq1 400 10</pre>
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">Acceptable Template IDs</h4>
@@ -212,8 +287,8 @@
                     <p>Format: One primer group per line, space delimited: <code>PrimerID Seq1 Seq2 ...</code></p>
                     <p>Example: (Using Example Database):</p>
                     <pre>
-    P1 CTTCTGCAATGCCAAGTCCAG   GTGGTGAAGGGTCGGTTGAA
-    P2 ACCAAACCCCAGAGTCAATTAA  TCTATCTATTGCACTGCCTGTTG</pre>
+P1 CTTCTGCAATGCCAAGTCCAG   GTGGTGAAGGGTCGGTTGAA
+P2 ACCAAACCCCAGAGTCAATTAA  TCTATCTATTGCACTGCCTGTTG</pre>
                     
                 </div>
                 <div class="modal-footer">
@@ -222,6 +297,29 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal for Running -->
+        <div class="modal fade" id="running-modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Running <span class="fa fa-spinner fa-spin"></span></h4>
+                </div>
+                <div class="modal-body">
+                  <h4><span class="fa fa-spinner fa-spin fa-4x"></span></h4>
+                  <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar"></div>
+                  </div>
+                  <div class="alert alert-warning" role="alert">
+                      If you did not get any result in &ge; 5 minites, then you might reduce the amount of your input sites.
+                  </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-danger" id="stop">Stop</button>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
         <script>
             // script root
@@ -253,6 +351,10 @@
         <script src="{{ url_for('static', filename='js/d3-electrophoresis.js') }}"></script>
         <!-- Back to Top -->
         <script src="{{ url_for('static', filename='js/back-to-top.js') }}"></script>
+        <!-- Own generate HTML result JS -->
+        <script src="{{ url_for('static', filename='js/generate_html_result.js') }}"></script>
+        <!-- Own draw figure JS -->
+        <script src="{{ url_for('static', filename='js/draw_figure.js') }}"></script>
         <!-- Own JS -->
         <script src="{{ url_for('static', filename='js/primer.js') }}"></script>
         
