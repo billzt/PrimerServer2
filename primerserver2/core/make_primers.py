@@ -7,6 +7,12 @@ def calculate_GC(seq):
     gc = len([x for x in seq.upper() if x=='G' or x=='C'])
     return gc/len(seq)*100
 
+def check_primer_seq(seq):
+    if len(seq)<10 or len(seq)>40:
+        return False
+    if re.search('[^ATGCN]', seq) is not None:
+        return False
+
 def make_primers(query):
     '''
         In case of user's input, make list of primer dicts similar as the result of design_primer module
@@ -24,8 +30,15 @@ def make_primers(query):
             (id, seq_F, seq_R) = line_data
             rank = 0
         else:
-            continue
+            return {'error': f'Your input: {line} does not have three or four columns'}
         
+        # whether seq_F and seq_R are valid primer seqs
+        if check_primer_seq(seq_F) is False:
+            return {'error': f'Your input: {seq_F} does not seem like a vaild primer seq'}
+        if check_primer_seq(seq_R) is False:
+            return {'error': f'Your input: {seq_R} does not seem like a vaild primer seq'}
+        
+        # generate primers
         if id not in primers:
             primers[id] = {}
         primers[id]['PRIMER_PAIR_NUM_RETURNED'] = rank+1

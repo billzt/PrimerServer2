@@ -17,6 +17,10 @@ def run():
     dbs = [db_dir+'/'+x for x in request.form['selected_dbs'].split(',')]
     if request.form['app-type']=='check':
         primers = make_primers.make_primers(query=query_string)
+        if 'error' in primers:
+            return json.dumps({'error': '<p>'+primers['error']+'</p>'+'<p>Your inputs might be invalid; Check the \
+                <a href="javascript:void(0)" data-toggle="modal" data-target="#input-help">manual</a> carefully \
+                to ensure that your inputs are in correct formats</p>'}, indent=4)
     else:
         if request.form['app-type']=='design':
             sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
@@ -26,11 +30,11 @@ def run():
             sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
                 primer_num_return=int(request.form['primer_num_return']), size_min=int(request.form['product_size_min']), \
                     size_max=int(request.form['product_size_max']))
+        if 'error' in sites:
+            return json.dumps({'error': '<p>'+sites['error']+'</p>'+'<p>Your inputs might be invalid; Check the \
+                <a href="javascript:void(0)" data-toggle="modal" data-target="#input-help">manual</a> carefully \
+                to ensure that your inputs are in correct formats</p>'}, indent=4)
         primers = design_primer.multiple(sites, cpu=web_config['cpu'], monitor=False)
-    if len(primers)==0:
-        return json.dumps({'error': 'Your inputs might be invalid; Check the \
-        <a href="javascript:void(0)" data-toggle="modal" data-target="#input-help">manual</a> carefully \
-        to ensure that your inputs are in correct formats'}, indent=4)
 
     ###################  Checking specificity  #############
     if request.form['app-type']!='design':

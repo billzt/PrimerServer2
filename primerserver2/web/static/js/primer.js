@@ -143,7 +143,7 @@ function AjaxSubmit(selected_dbs, mode) {
         // no results
         if ('error' in result_data) {
             $('#primers-result').append($('#primers-result-template-error').html()).find('.alert-danger')
-                .append(result_data['error']);
+                .append('<h5><strong>ERROR</strong></h5>'+result_data['error']);
             return;
         }
 

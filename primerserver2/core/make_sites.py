@@ -66,9 +66,9 @@ def build(query, template_file, primer_type, primer_num_return=30, size_min=70, 
 
     result_seqs = faidx(template_file, retrieve_region_string)
     for (result_seq_id, result_seq) in result_seqs.items():
-        if result_seq=='':
-            continue
         (chr, pos, length, size_min, size_max, retrieve_start) = retrieve_region2raw_region[result_seq_id]
+        if result_seq=='':
+            return {'error': f'Your input: seq={chr} pos={pos} length={length} has no template seqs'}
         primer_sites.append({
             'id': chr+'-'+str(pos)+'-'+str(length), 
             'template': result_seq,
