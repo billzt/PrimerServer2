@@ -20,9 +20,11 @@ def make_primers(query):
         if len(line_data)==4:
             (id, rank, seq_F, seq_R) = line_data
             rank = int(rank)
-        else:
+        elif len(line_data)==3:
             (id, seq_F, seq_R) = line_data
             rank = 0
+        else:
+            continue
         
         if id not in primers:
             primers[id] = {}

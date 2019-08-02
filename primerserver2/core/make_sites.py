@@ -46,6 +46,8 @@ def build(query, template_file, primer_type, primer_num_return=30, size_min=70, 
     retrieve_region2raw_region = {}
     for line in query.splitlines():
         query_data = re.split(r'\s+', line.strip())
+        if query_data[0]=='':
+            continue
         (chr, pos, length) = (query_data[0], 1, 1)
         if len(query_data)>1 :     # seq ID and pos
             pos = int(query_data[1].replace(',', ''))
@@ -64,6 +66,8 @@ def build(query, template_file, primer_type, primer_num_return=30, size_min=70, 
 
     result_seqs = faidx(template_file, retrieve_region_string)
     for (result_seq_id, result_seq) in result_seqs.items():
+        if result_seq=='':
+            continue
         (chr, pos, length, size_min, size_max, retrieve_start) = retrieve_region2raw_region[result_seq_id]
         primer_sites.append({
             'id': chr+'-'+str(pos)+'-'+str(length), 

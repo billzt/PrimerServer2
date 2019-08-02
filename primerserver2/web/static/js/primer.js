@@ -135,8 +135,18 @@ function AjaxSubmit(selected_dbs, mode) {
     $('#running-modal .progress-bar').css('width', '0%').html('');
     $('#running-modal').modal('show');
     var currentAjax = $.post($SCRIPT_ROOT + '/run', $('#form-primer').serialize(), function(data){
-        $('#result').removeClass('hidden');
         var result_data = JSON.parse(data);
+        $('#result').removeClass('hidden');
+        $('#running-modal').modal('hide');
+        $('#primers-result').html('');
+        ScrollToResult();
+        // no results
+        if ('error' in result_data) {
+            $('#primers-result').append($('#primers-result-template-error').html()).find('.alert-danger')
+                .append(result_data['error']);
+            return;
+        }
+
         generate_html_result(selected_dbs, db_name_change, result_data);
         if (mode=='full') {
             GenerateGraph($('#site-1'), true);
@@ -158,8 +168,6 @@ function AjaxSubmit(selected_dbs, mode) {
                 $(this).find('.PrimerFigureControl').remove();
             });
         }
-        $('#running-modal').modal('hide');
-        ScrollToResult();
         move_webpage_when_browsing_result_panels();
     });
 

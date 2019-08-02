@@ -27,6 +27,10 @@ def run():
                 primer_num_return=int(request.form['primer_num_return']), size_min=int(request.form['product_size_min']), \
                     size_max=int(request.form['product_size_max']))
         primers = design_primer.multiple(sites, cpu=web_config['cpu'], monitor=False)
+    if len(primers)==0:
+        return json.dumps({'error': 'Your inputs might be invalid; Check the \
+        <a href="javascript:void(0)" data-toggle="modal" data-target="#input-help">manual</a> carefully \
+        to ensure that your inputs are in correct formats'}, indent=4)
 
     ###################  Checking specificity  #############
     if request.form['app-type']!='design':
