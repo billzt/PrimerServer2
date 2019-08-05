@@ -34,8 +34,8 @@ function switch_parameter_fieldset(mode) {
     }
     else {
         $('#form-primer').removeClass('hidden');
-        $('#result').removeClass('hidden');
-        if ($('#result').html()!='') {
+        if ($('#primers-result').html()!='') {
+            $('#result').removeClass('hidden');
             $('#footer-button').removeClass('hidden');
         }
         switch(mode) {
@@ -209,6 +209,15 @@ $(function () {
 
     tooltip_init();
 
+    // var es = new EventSource($SCRIPT_ROOT + '/test');
+    // es.onmessage = function(e) {
+    //     result = JSON.parse(e.data)
+    //     console.log(result)
+    //     if (result.x==-1) {
+    //         console.log('Hello');
+    //         es.close();
+    //     }
+    // }
 });
 
 // ********* Switch Running mode (init load change or by user change) and update UI *********
@@ -283,4 +292,26 @@ $('#form-primer').validationEngine('attach', {
             AjaxSubmit(selected_dbs, mode);
         }
     }
+});
+
+// ********* The running modal *******************************************************
+var evtSource;
+$('#running-modal').on('shown.bs.modal', function(){
+    evtSource = new EventSource($SCRIPT_ROOT + '/monitor');
+    evtSource.onmessage = function(e) {
+        var progress_data = JSON.parse(e.data);
+        if (progress_data.all_tasks_num>0) {
+            $('#running-modal .modal-body h4').html('Waiting for BLAST: '+ progress_data.all_tasks_num*5 + ' tasks');
+            var progress_per = progress_data.complete_count/progress_data.all_tasks_num*100
+            $('#running-modal .progress-bar').css('width', progress_per+'%')
+                .html(progress_data.complete_count*5 +' tasks finished');
+        }
+        if (progress_data.complete_count>0 && progress_data.complete_count==progress_data.all_tasks_num) {
+            $('.progress-bar').removeClass('active').html('Completed. Waiting for generating results...');
+            evtSource.close();
+        }
+    }
+});
+$('#running-modal').on('hidden.bs.modal', function(){
+    evtSource.close();
 });

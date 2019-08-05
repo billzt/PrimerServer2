@@ -1,13 +1,24 @@
 import os
 import json
+import time
 
-from flask import Blueprint, request, current_app
+from flask import Blueprint, request, current_app, Response
 
 from primerserver2.web.config import load
-from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
+from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, global_var
 
 web_config = load()
 db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
+
+# for running progress
+global_var.init()
+def progress():
+    while True:
+        yield "data:" + json.dumps({'complete_count': global_var.complete_count, 'all_tasks_num': global_var.all_tasks_num}) + '\n\n'
+        time.sleep(0.5)
+        if global_var.complete_count>0 and global_var.complete_count==global_var.all_tasks_num:
+            break
+    yield "data:" + json.dumps({'complete_count': global_var.complete_count, 'all_tasks_num': global_var.all_tasks_num}) + '\n\n'
 
 bp = Blueprint('run', __name__)
 @bp.route('/run', methods=['POST'])
@@ -38,14 +49,15 @@ def run():
 
     ###################  Checking specificity  #############
     if request.form['app-type']!='design':
+        global_var.init()
         primers = run_blast.run_blast_parallel(primers=primers, dbs=dbs, cpu=web_config['cpu'],\
             checking_size_max=int(request.form['checking_size_max']), checking_size_min=int(request.form['checking_size_min']), \
                 report_amplicon_seq=bool(int(request.form['report_amplicon_seqs'])), Tm_diff=int(request.form['Tm_diff']), \
                     use_3_end=bool(int(request.form['use_3_end'])), monitor=False)
         primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=int(request.form['retain']))
-
     return json.dumps(primers, indent=4)
     
-    # user_input = request.form['user_input']
-    # population = request.form.getlist('population')
-    
+
+@bp.route('/monitor')
+def monitor():
+    return Response(progress(), mimetype= 'text/event-stream')
