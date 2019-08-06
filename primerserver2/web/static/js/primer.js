@@ -146,9 +146,11 @@ function AjaxSubmit(selected_dbs, mode) {
         if ('error' in result_data) {
             $('#primers-result').append($('#primers-result-template-error').html()).find('.alert-danger')
                 .append('<h5><strong>ERROR</strong></h5>'+result_data['error']);
+            $('#btn-download-tsv,#btn-download-json').prop('disabled', true);
             return;
         }
 
+        // valid results
         generate_html_result(selected_dbs, db_name_change, result_data);
         if (mode=='full') {
             GenerateGraph($('#site-1'), true);
@@ -171,6 +173,7 @@ function AjaxSubmit(selected_dbs, mode) {
             });
         }
         move_webpage_when_browsing_result_panels();
+        $('#btn-download-tsv,#btn-download-json').prop('disabled', false);
     });
 
     // Allow users to stop their running
