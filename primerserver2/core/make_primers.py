@@ -52,6 +52,7 @@ def make_primers(query):
         primers[id][f'PRIMER_LEFT_{rank}_GC_PERCENT'] = calculate_GC(seq_F)
         primers[id][f'PRIMER_RIGHT_{rank}_GC_PERCENT'] = calculate_GC(seq_R)
         primers[id][f'PRIMER_PAIR_{rank}_PRODUCT_SIZE'] = -1
+        primers[id]['SEQUENCE_RELATIVE_TARGET_START'] = 0
     
     return primers
 

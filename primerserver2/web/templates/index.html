@@ -12,8 +12,6 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" >
         <!-- Bootstrap-Select plugin CSS -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-select.min.css') }}" >
-        <!-- Bootstrap Table plugin CSS -->
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-table.min.css') }}"  >
         
         <!-- font-awesome CSS -->
         <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
@@ -47,6 +45,11 @@
                 <li role="presentation">
                     <a href="#check" role="tab" data-toggle="tab">
                         <span class="glyphicon glyphicon-search"></span> Check Only
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#visulize" role="tab" data-toggle="tab">
+                        <span class="glyphicon glyphicon-eye-open"></span> Visulize
                     </a>
                 </li>
             </ul>
@@ -140,20 +143,20 @@
                                 <label class="col-sm-4 control-label">Filter with 3' End Validation:</label>
                                 <div class="col-sm-2">
                                     <div class="radio">
-                                        <label><input type="radio" name="use_3_end" id="use_3_end_1" value=1 />Yes</label>
+                                        <label><input type="radio" class="save-input" name="use_3_end" id="use_3_end_1" value=1 />Yes</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="use_3_end" id="use_3_end_0" value=0 checked />No</label>
+                                        <label><input type="radio" class="save-input" name="use_3_end" id="use_3_end_0" value=0 checked />No</label>
                                     </div>
                                 </div>
                                 <label class="col-sm-4 control-label">Get Amplicon Seq:</label>
                                 <div class="col-sm-2">
                                     <div class="radio">
-                                        <label><input type="radio" name="report_amplicon_seqs" 
+                                        <label><input type="radio" class="save-input" name="report_amplicon_seqs" 
                                             id="report_amplicon_seqs_1" value=1 />Yes</label>
                                     </div>
                                     <div class="radio">
-                                        <label><input type="radio" name="report_amplicon_seqs" 
+                                        <label><input type="radio" class="save-input" name="report_amplicon_seqs" 
                                             id="report_amplicon_seqs_0" value=0 checked />No</label>
                                     </div>
                                 </div>
@@ -171,6 +174,13 @@
                 </div>
             </form>
 
+            <!-- visulization -->
+            <input type="file" id="file-visulization" accept="application/json" class="hidden">
+            <button type="file" id="btn-visulization" class="btn btn-primary btn-lg btn-block hidden">
+                Upload JSON file <span class="glyphicon glyphicon-upload"></span>
+            </button>
+
+            <!-- results -->
             <div class="row">
                 <div id="result" class="hidden">
                     <h2 class="page-header">
@@ -341,8 +351,6 @@ P2 ACCAAACCCCAGAGTCAATTAA  TCTATCTATTGCACTGCCTGTTG</pre>
         <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
         <!-- Bootstrap Select JS -->
         <script src="{{ url_for('static', filename='js/bootstrap-select.min.js') }}"></script>
-        <!-- Bootstrap Table JS -->
-        <script src="{{ url_for('static', filename='js/bootstrap-table.min.js') }}"></script>
         <!-- jQuery Validation -->
         <script src="{{ url_for('static', filename='js/jquery.validationEngine.min.js') }}"></script>
         <script src="{{ url_for('static', filename='js/jquery.validationEngine-en.js') }}"></script>
@@ -352,8 +360,6 @@ P2 ACCAAACCCCAGAGTCAATTAA  TCTATCTATTGCACTGCCTGTTG</pre>
         <script src="{{ url_for('static', filename='js/d3.v4.min.js') }}"></script>
         <!-- SVG zoom -->
         <script src="{{ url_for('static', filename='js/svg-pan-zoom.min.js') }}"></script>
-        <!-- JQuery Timer -->
-        <script src="{{ url_for('static', filename='js/jquery.timer.js') }}"></script>
         <!-- File Download -->
         <script src="{{ url_for('static', filename='js/FileSaver.min.js') }}"></script>
         <!-- Virtual electrophoresis -->

@@ -23,6 +23,9 @@ def progress():
 bp = Blueprint('run', __name__)
 @bp.route('/run', methods=['POST'])
 def run():
+    ###################  init #############################
+    global_var.init()
+
     ###################  Design primers ###################
     query_string = request.form['query']
     dbs = [db_dir+'/'+x for x in request.form['selected_dbs'].split(',')]
@@ -49,7 +52,6 @@ def run():
 
     ###################  Checking specificity  #############
     if request.form['app-type']!='design':
-        global_var.init()
         primers = run_blast.run_blast_parallel(primers=primers, dbs=dbs, cpu=web_config['cpu'],\
             checking_size_max=int(request.form['checking_size_max']), checking_size_min=int(request.form['checking_size_min']), \
                 report_amplicon_seq=bool(int(request.form['report_amplicon_seqs'])), Tm_diff=int(request.form['Tm_diff']), \
@@ -60,4 +62,5 @@ def run():
 
 @bp.route('/monitor')
 def monitor():
+    time.sleep(1)
     return Response(progress(), mimetype= 'text/event-stream')

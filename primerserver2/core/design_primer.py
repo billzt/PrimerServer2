@@ -38,6 +38,7 @@ def single(site):
                 'SEQUENCE_TEMPLATE': template,
                 type: [pos,length]
             })
+        p3['SEQUENCE_RELATIVE_TARGET_START'] = pos
         return([{'id': id, 'primers': p3}])
     if type=='FORCE_END':
         p3_settings['PRIMER_MIN_LEFT_THREE_PRIME_DISTANCE'] = -1
@@ -49,6 +50,7 @@ def single(site):
                 'SEQUENCE_TEMPLATE': template,
                 'SEQUENCE_FORCE_LEFT_END': pos
             })
+        p3_L['SEQUENCE_RELATIVE_TARGET_START'] = pos
 
         p3_settings['PRIMER_MIN_LEFT_THREE_PRIME_DISTANCE'] = 3
         p3_settings['PRIMER_MIN_RIGHT_THREE_PRIME_DISTANCE'] = -1
@@ -59,6 +61,7 @@ def single(site):
                 'SEQUENCE_TEMPLATE': template,
                 'SEQUENCE_FORCE_RIGHT_END': pos
             })
+        p3_R['SEQUENCE_RELATIVE_TARGET_START'] = pos
 
         return([{'id': id+'-LEFT', 'primers': p3_L},
                 {'id': id+'-RIGHT', 'primers': p3_R}

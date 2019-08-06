@@ -29,10 +29,12 @@ function menu_init(data) {
 }
 
 function switch_parameter_fieldset(mode) {
-    if (mode=='saved') {
+    if (mode=='visulize') {
         $('#form-primer,#result').addClass('hidden');
+        $('#btn-visulization').removeClass('hidden');
     }
     else {
+        $('#btn-visulization').addClass('hidden');
         $('#form-primer').removeClass('hidden');
         if ($('#primers-result').html()!='') {
             $('#result').removeClass('hidden');
@@ -111,18 +113,18 @@ function visualize(json_data) {
     $('#primers-result').html('');
     ScrollToResult();
 
+    // no results
+    if ('error' in result_data) {
+        $('#primers-result').append($('#primers-result-template-error').html()).find('.alert-danger')
+            .append('<h5><strong>ERROR</strong></h5>'+result_data['error']);
+        $('#btn-download-tsv,#btn-download-json').prop('disabled', true);
+        return;
+    }
+    
     // meta and primers
     var mode = result_data['meta']['mode'];
     var selected_dbs = result_data['meta']['dbs'].map(x=>basename(x)).join(',');
     var primer_data = result_data['primers'];
-
-    // no results
-    if ('error' in primer_data) {
-        $('#primers-result').append($('#primers-result-template-error').html()).find('.alert-danger')
-            .append('<h5><strong>ERROR</strong></h5>'+primer_data['error']);
-        $('#btn-download-tsv,#btn-download-json').prop('disabled', true);
-        return;
-    }
 
     // valid results
     generate_html_result(selected_dbs, db_name_change, primer_data);
@@ -182,7 +184,7 @@ $(function () {
         db_name_change = menu_init(data);
 
         // load last save
-        $(':text,:radio,input:hidden,select').phoenix();
+        $('.save-input').phoenix();
 
         // refresh menu (and show databases in paramter column)
         $('[name="templates"]').selectpicker('refresh');
@@ -223,6 +225,10 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         case 'check':
             textarea_color = '#ffdfbf';
             placeholder = "One primer group per line, space delimited: PrimerID SeqF SeqR";
+            break;
+        default:
+            textarea_color = '#bfffdf';
+            placeholder = "One per line, blank delimited: TemplateID TargetPos TargetLength";
             break;
     }
     $('textarea').html('').val('').css('background-color', textarea_color).attr('placeholder', placeholder);
@@ -307,3 +313,17 @@ $('#btn-download-tsv').click(function(){
         saveAs(blob, "primers.txt"); 
     });
 });
+
+// ********* Upload and visulization *****************************************************
+$('#btn-visulization').click(function(){
+    $('#file-visulization').click();
+})
+$('#file-visulization').on('change', function(){
+    files = $('#file-visulization')[0].files;
+    var reader = new FileReader();
+    reader.readAsText(files[0]);
+    reader.onload = function(e){
+        json_data = e.target.result;
+        visualize(json_data);
+    };
+})

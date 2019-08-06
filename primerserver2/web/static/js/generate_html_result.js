@@ -42,6 +42,8 @@ function generate_html_result(selected_dbs, db_name_change, data){
         $('#primers-result').append($('#primers-result-template-site').html());
         $('#primers-result-template-site').html(raw_html_site);
 
+        var retrieve_start = site_pos - result_data[site_id]['SEQUENCE_RELATIVE_TARGET_START']
+
         // primer
         for (var i=0; i<primer_num; i++) {
             var raw_html_primer = $('#primers-result-template-primer').html();
@@ -65,7 +67,7 @@ function generate_html_result(selected_dbs, db_name_change, data){
                 .html('Primer '+primer_rank);
             
             var p_start = result_data[site_id]['PRIMER_LEFT_'+raw_rank][0]+1;
-            p_start = p_start==0 ? '' : p_start;
+            p_start = p_start==0 ? '' : p_start+retrieve_start;
             var p_len = result_data[site_id]['PRIMER_LEFT_'+raw_rank][1];
             var p_end = p_start=='' ? '' : p_start+p_len-1;
             $('#primers-result-template-primer .primer-seq-detail')
@@ -78,7 +80,7 @@ function generate_html_result(selected_dbs, db_name_change, data){
                     +'</tr>')
 
             p_start = result_data[site_id]['PRIMER_RIGHT_'+raw_rank][0]+1;
-            p_start = p_start==0 ? '' : p_start;
+            p_start = p_start==0 ? '' : p_start+retrieve_start;
             p_len = result_data[site_id]['PRIMER_RIGHT_'+raw_rank][1];
             p_end = p_start=='' ? '' : p_start+p_len-1;
             $('#primers-result-template-primer .primer-seq-detail')
