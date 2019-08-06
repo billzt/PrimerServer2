@@ -147,7 +147,7 @@ def run(args):
         print(json.dumps(primers, indent=4))
 
     if args.tsv is not None:
-        output.tsv(primers, dbs, file=args.tsv)
+        print(output.tsv(primers, dbs), file=args.tsv)
 
 def main():
     args = make_args()

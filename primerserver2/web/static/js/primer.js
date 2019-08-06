@@ -100,41 +100,43 @@ function move_webpage_when_browsing_result_panels() {
 }
 
 // ***********************  for test only ***********************
-function test(selected_dbs, json_file, mode) {
-    $.ajaxSetup({ cache: false });
-    $.getJSON($SCRIPT_ROOT+'/static/'+json_file, function(data){
-        $('#result').removeClass('hidden');
-        generate_html_result(selected_dbs, db_name_change, data);
-        if (mode=='full') {
-            GenerateGraph($('#site-1'), true);
-            $('#primers-result .collapse').on('shown.bs.collapse', function () {
-                GenerateGraph($(this), true);
-            });
-            $('#primers-result .collapse').on('hidden.bs.collapse', function () {
-                $(this).find('.PrimerFigure').html('');
-                $(this).find('.PrimerFigureControl').remove();
-            });
-        }
-        else if (mode=='design') {
-            GenerateGraph($('#site-1'), false);
-            $('#primers-result .collapse').on('shown.bs.collapse', function () {
-                GenerateGraph($(this), false);
-            });
-            $('#primers-result .collapse').on('hidden.bs.collapse', function () {
-                $(this).find('.PrimerFigure').html('');
-                $(this).find('.PrimerFigureControl').remove();
-            });
-        }
-        move_webpage_when_browsing_result_panels();
-    });
-}
+// function test(selected_dbs, json_file, mode) {
+//     $.ajaxSetup({ cache: false });
+//     $.getJSON($SCRIPT_ROOT+'/static/'+json_file, function(data){
+//         $('#result').removeClass('hidden');
+//         generate_html_result(selected_dbs, db_name_change, data);
+//         if (mode=='full') {
+//             GenerateGraph($('#site-1'), true);
+//             $('#primers-result .collapse').on('shown.bs.collapse', function () {
+//                 GenerateGraph($(this), true);
+//             });
+//             $('#primers-result .collapse').on('hidden.bs.collapse', function () {
+//                 $(this).find('.PrimerFigure').html('');
+//                 $(this).find('.PrimerFigureControl').remove();
+//             });
+//         }
+//         else if (mode=='design') {
+//             GenerateGraph($('#site-1'), false);
+//             $('#primers-result .collapse').on('shown.bs.collapse', function () {
+//                 GenerateGraph($(this), false);
+//             });
+//             $('#primers-result .collapse').on('hidden.bs.collapse', function () {
+//                 $(this).find('.PrimerFigure').html('');
+//                 $(this).find('.PrimerFigureControl').remove();
+//             });
+//         }
+//         move_webpage_when_browsing_result_panels();
+//     });
+// }
 // ***********************  ***********************  ***********************  
 
+var json_data = '';
 function AjaxSubmit(selected_dbs, mode) {
     $('#running-modal .modal-body h4').html('<span class="fa fa-spinner fa-spin fa-4x"></span>');
     $('#running-modal .progress-bar').css('width', '0%').html('');
     $('#running-modal').modal('show');
     var currentAjax = $.post($SCRIPT_ROOT + '/run', $('#form-primer').serialize(), function(data){
+        json_data = data;
         var result_data = JSON.parse(data);
         $('#result').removeClass('hidden');
         $('#running-modal').modal('hide');
@@ -209,15 +211,6 @@ $(function () {
 
     tooltip_init();
 
-    // var es = new EventSource($SCRIPT_ROOT + '/test');
-    // es.onmessage = function(e) {
-    //     result = JSON.parse(e.data)
-    //     console.log(result)
-    //     if (result.x==-1) {
-    //         console.log('Hello');
-    //         es.close();
-    //     }
-    // }
 });
 
 // ********* Switch Running mode (init load change or by user change) and update UI *********
@@ -314,4 +307,16 @@ $('#running-modal').on('shown.bs.modal', function(){
 });
 $('#running-modal').on('hidden.bs.modal', function(){
     evtSource.close();
+});
+
+// ********* Download ******************************************************************
+$('#btn-download-json').click(function(){
+    var blob = new Blob([json_data], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "primers.json"); 
+});
+$('#btn-download-tsv').click(function(){
+    $.post($SCRIPT_ROOT + '/download_tsv', {json: json_data, dbs: $('[name="selected_dbs"]').val()}, function(data){
+        var blob = new Blob([data], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "primers.txt"); 
+    });
 });

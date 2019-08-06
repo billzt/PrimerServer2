@@ -49,11 +49,6 @@
                         <span class="glyphicon glyphicon-search"></span> Check Only
                     </a>
                 </li>
-                <li role="presentation">
-                    <a href="#saved" role="tab" data-toggle="tab">
-                        <span class="glyphicon glyphicon-star"></span> Recently Saved Results
-                    </a>
-                </li>
             </ul>
             <form class="form-horizontal" method="post" enctype="multipart/form-data" id="form-primer">
                 <input type="hidden" name="app-type" value="full" class="save-input" />
@@ -178,7 +173,17 @@
 
             <div class="row">
                 <div id="result" class="hidden">
-                    <h2 class="page-header">Results</h2>
+                    <h2 class="page-header">
+                        Results
+                        <small>
+                            <div class="btn-group" role="group">
+                                <button type="button" id="btn-download-tsv" class="btn btn-primary">Download Table 
+                                <span class="glyphicon glyphicon-download"></span></button>
+                                <button type="button" id="btn-download-json" class="btn btn-warning">Download JSON 
+                                <span class="glyphicon glyphicon-download"></span></button>
+                            </div>
+                        </small>
+                    </h2>
                     <div class="panel-group" id="primers-result" role="tablist"></div>
                 </div>
                 <div id="test"></div>
@@ -323,7 +328,7 @@ P2 ACCAAACCCCAGAGTCAATTAA  TCTATCTATTGCACTGCCTGTTG</pre>
                 </div>
               </div>
             </div>
-          </div>
+        </div>
 
         <script>
             // script root

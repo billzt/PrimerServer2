@@ -2,20 +2,24 @@ import json
 import sys
 import os
 
-def tsv(primers_dict, dbs, file):
-    print('#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Target_Amplicon_Size', \
+def tsv(primers_dict, dbs):
+    print_line = []
+    header_line = '\t'.join(['#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Target_Amplicon_Size', \
         'Primer_Pair_Penalty_Score', 'Primer_Rank_in_Primer3_output', 'Tm_left', 'Tm_Right', \
-            'Database\tPossible_Amplicon_Number\tAmplicon_Size_in_DB\t'*len(dbs), sep='\t', file=file)
+            'Database\tPossible_Amplicon_Number\tAmplicon_Size_in_DB\t'*len(dbs)])
+    print_line.append(header_line)
     for (id, primers) in primers_dict.items():
         # No primers
         if primers['PRIMER_PAIR_NUM_RETURNED']==0:
-            print(id, 'No_Primer\t', sep='\t', end='', file=file)
+            print_data = []
+            print_data.append(id)
+            print_data.append('No_Primer')
             if 'PRIMER_LEFT_EXPLAIN' in primers:
-                print(primers['PRIMER_LEFT_EXPLAIN'].replace(' ', '_'), \
-                    primers['PRIMER_RIGHT_EXPLAIN'].replace(' ', '_'), \
-                        primers['PRIMER_PAIR_EXPLAIN'].replace(' ', '_'), \
-                            sep='\t', file=file)
-            print('###', file=file)
+                print_data.append(primers['PRIMER_LEFT_EXPLAIN'].replace(' ', '_'))
+                print_data.append(primers['PRIMER_RIGHT_EXPLAIN'].replace(' ', '_'))
+                print_data.append(primers['PRIMER_PAIR_EXPLAIN'].replace(' ', '_'))
+            print_line.append('\t'.join(print_data))
+            print_line.append('###')
             continue
 
         if 'PRIMER_PAIR_NUM_RETURNED_FINAL' in primers:
@@ -56,11 +60,13 @@ def tsv(primers_dict, dbs, file):
                     print_data.append('NA')
             
 
-            print('\t'.join(print_data), file=file)
-        print('###', file=file)
+            print_line.append('\t'.join(print_data))
+        print_line.append('###')
+
+    return '\n'.join(print_line)
 
 
 if __name__ == "__main__":
     primers = json.load(open('tests/_internal_/sort_primers2.json'))
     dbs = ["Ghir.JGI.genomic", "Gbar.IGDB.genomic"]
-    tsv(primers, dbs, file=sys.stdout)
+    print(tsv(primers, dbs))
