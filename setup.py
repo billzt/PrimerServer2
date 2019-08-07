@@ -1,7 +1,7 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '2.0.0b2'
+VERSION = '2.0.0b3'
 
 setup(name='primerserver2',
       version=VERSION,

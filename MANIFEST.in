@@ -1,5 +1,9 @@
 include tests/example*
 include tests/query*
-include primerserver2/data/*
+include primerserver2/data/p3_settings.json
+include primerserver2/data/web_config_sample.json
 include example_cmd.sh
 include primerserver2/templates/example.fa*
+include primerserver2/templates/example2.fa*
+recursive-include primerserver2/web/static *
+include primerserver2/web/templates/*
