@@ -43,11 +43,11 @@ def run():
         if make_sites.judge_input_type(query_string)=='pos':
             sites = make_sites.build_by_pos(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
                 primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
-                    size_max=int(request.form['product_size_max']))
+                    size_max=int(request.form['product_size_max']), pick_internal=bool(int(request.form['pick_internal'])))
         else:
             sites = make_sites.build_by_seq(query=query_string, primer_type=request.form['region_type'], \
                 primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
-                    size_max=int(request.form['product_size_max']))
+                    size_max=int(request.form['product_size_max']), pick_internal=bool(int(request.form['pick_internal'])))
         if 'error' in sites:
             return json.dumps({'error': '<p>'+sites['error']+'</p>'+'<p>Your inputs might be invalid; Check the \
                 <a href="javascript:void(0)" data-toggle="modal" data-target="#input-help">manual</a> carefully \

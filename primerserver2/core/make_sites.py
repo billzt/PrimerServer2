@@ -48,7 +48,7 @@ def judge_input_type(query):
     else:
         return 'pos'
 
-def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max=1000):
+def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max=1000, pick_internal=False):
     '''
         Input:
             query: a string in multi-lines
@@ -105,13 +105,14 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
                     'length':length,
                     'size_min':size_min,
                     'size_max':size_max,
-                    'primer_num_return':primer_num_return
+                    'primer_num_return':primer_num_return,
+                    'pick_internal': pick_internal
                 })
     return primer_sites
 
 
 
-def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000):
+def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000, pick_internal=False):
     '''
         Input:
             query: a string in multi-lines
@@ -186,7 +187,8 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
             'length':length,
             'size_min':size_min,
             'size_max':size_max,
-            'primer_num_return':primer_num_return
+            'primer_num_return':primer_num_return,
+            'pick_internal': pick_internal
         })
     
     return primer_sites

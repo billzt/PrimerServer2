@@ -108,8 +108,17 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-4 control-label">Pick Internal Oligo (Probe):</label>
+                                <div class="col-sm-2">
+                                    <div class="radio">
+                                        <label><input type="radio" class="save-input" name="pick_internal" id="pick_internal_1" value=1 />Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" class="save-input" name="pick_internal" id="pick_internal_0" value=0 checked />No</label>
+                                    </div>
+                                </div>
                                 <label class="col-sm-4 control-label">No. Primers To Return</label>
-                                <div class="col-sm-3">
+                                <div class="col-sm-2">
                                     <input type="text" name="primer_num_return" value="30" 
                                     class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
                                 </div>

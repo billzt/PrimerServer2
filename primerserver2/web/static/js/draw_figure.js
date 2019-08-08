@@ -30,9 +30,14 @@ function GenerateGraph(el, specificity) {
         var id = $(primers[i]).find('.list-group-item-heading').attr('id');
         var primer_left = $(primers[i]).find('.primer-left-region');
         var primer_right = $(primers[i]).find('.primer-right-region');
+        var primer_internal = $(primers[i]).find('.primer-internal-region');
         var region_1 = $(primer_left[0]).html().split('-');
         var region_2 = $(primer_right[0]).html().split('-');
         primers2region[id] = [region_1, region_2];
+        if (primer_internal.length>0) {
+            var region_3 = $(primer_internal[0]).html().split('-');
+            primers2region[id] = [region_1, region_2, region_3];
+        }
         Array.prototype.push.apply(allPoses, region_1);
         Array.prototype.push.apply(allPoses, region_2);
         if (specificity==true) {
@@ -72,7 +77,7 @@ function GenerateGraph(el, specificity) {
     
     // Primer Group
     var colorScale = d3.scaleLinear().domain([1, 100]).range([0, 32]);
-    function AddPrimer(LprimerStart, LprimerEnd, RprimerStart, RprimerEnd, i, h, id) {
+    function AddPrimer(LprimerStart, LprimerEnd, RprimerStart, RprimerEnd, IprimerStart, IprimerEnd, i, h, id) {
         var primerGroup = svg.append('a').attr('xlink:href','#'+id).attr('class', 'primerGroup')
                         .attr('title', 'Primer '+i).append('g');
         var baseY = rectHight+30*(i-1);
@@ -104,6 +109,14 @@ function GenerateGraph(el, specificity) {
         // Center Line
         var LineData = [{"x": LprimerEnd, "y": baseY}, {"x": RprimerStart, "y": baseY}];
         primerGroup.append('path').attr('d', lineFunction(LineData)).attr("fill", color).attr('stroke', color);
+
+        // optional internal probe
+        if (IprimerStart != -1) {
+            var Ilength = IprimerEnd-IprimerStart+1;
+            var IlineData = [ {"x": IprimerStart, "y": baseY-2}, {"x": IprimerEnd, "y": baseY-2},
+                              {"x": IprimerEnd, "y": baseY+2}, {"x": IprimerStart, "y": baseY+2},];
+            primerGroup.append('path').attr('d', lineFunction(IlineData)).attr("fill", color).attr('stroke', color);
+        }
         
         // Text
         if (h==1) {
@@ -130,7 +143,14 @@ function GenerateGraph(el, specificity) {
         var RprimerStart=primers2region[id][1][0];
         var RprimerEnd=primers2region[id][1][1];
         var h = specificity==true ? primers2hit[id] : -1;
-        AddPrimer(LprimerStart*1, LprimerEnd*1, RprimerStart*1, RprimerEnd*1, primerRank*1, h*1, id);
+        var IprimerStart = -1;
+        var IprimerEnd = -1;
+        if (primers2region[id].length>2) {
+            IprimerStart = primers2region[id][2][0];
+            IprimerEnd = primers2region[id][2][1];
+        }
+
+        AddPrimer(LprimerStart*1, LprimerEnd*1, RprimerStart*1, RprimerEnd*1, IprimerStart*1, IprimerEnd*1, primerRank*1, h*1, id);
         primerRank++;
         //break;
     }

@@ -4,8 +4,8 @@ import os
 
 def tsv(primers_dict, dbs):
     print_line = []
-    header_line = '\t'.join(['#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Target_Amplicon_Size', \
-        'Primer_Pair_Penalty_Score', 'Primer_Rank_in_Primer3_output', 'Tm_left', 'Tm_Right', \
+    header_line = '\t'.join(['#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Primer_Seq_Oligo', 'Target_Amplicon_Size', \
+        'Primer_Pair_Penalty_Score', 'Primer_Rank_in_Primer3_output', 'Tm_left', 'Tm_Right', 'Tm_Oligo', \
             'Database\tPossible_Amplicon_Number\tAmplicon_Size_in_DB\t'*len(dbs)])
     print_line.append(header_line)
     for (id, primers) in primers_dict.items():
@@ -36,11 +36,19 @@ def tsv(primers_dict, dbs):
                 raw_rank = amplicon_rank
             print_data.append(primers[f'PRIMER_LEFT_{raw_rank}_SEQUENCE'])
             print_data.append(primers[f'PRIMER_RIGHT_{raw_rank}_SEQUENCE'])
+            if f'PRIMER_INTERNAL_{raw_rank}_SEQUENCE' in primers:
+                print_data.append(primers[f'PRIMER_INTERNAL_{raw_rank}_SEQUENCE'])
+            else:
+                print_data.append('NA')
             print_data.append(str(primers[f'PRIMER_PAIR_{raw_rank}_PRODUCT_SIZE']))
             print_data.append(str(round(primers[f'PRIMER_PAIR_{raw_rank}_PENALTY'],2)))
             print_data.append(str(raw_rank))
             print_data.append(str(round(primers[f'PRIMER_LEFT_{raw_rank}_TM'], 2)))
             print_data.append(str(round(primers[f'PRIMER_RIGHT_{raw_rank}_TM'], 2)))
+            if f'PRIMER_INTERNAL_{raw_rank}_TM' in primers:
+                print_data.append(str(round(primers[f'PRIMER_INTERNAL_{raw_rank}_TM'], 2)))
+            else:
+                print_data.append('NA')
             for db in dbs:
                 db_base = os.path.basename(db)
                 print_data.append(db_base)

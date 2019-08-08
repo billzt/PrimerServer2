@@ -14,7 +14,7 @@ def single(site):
 
         Site format: 
         site['id'], site['template'], site['type'], site['pos'], site['length'], 
-        site['size_max'], site['size_min'], site['primer_num_return']
+        site['size_max'], site['size_min'], site['primer_num_return'], site['pick_internal']
     '''
     id = site['id']
     template = site['template']
@@ -29,6 +29,8 @@ def single(site):
     p3_settings = dict(json.load(open(p3_json)))
     p3_settings['PRIMER_PRODUCT_SIZE_RANGE'] = [[size_min, size_max]]
     p3_settings['PRIMER_NUM_RETURN'] = primer_num_return
+    if site['pick_internal'] is True:
+        p3_settings['PRIMER_PICK_INTERNAL_OLIGO'] = 1
 
     if type=='SEQUENCE_TARGET' or type=='SEQUENCE_INCLUDED_REGION':
         primer3.bindings.setP3Globals(p3_settings)
@@ -109,15 +111,36 @@ if __name__ == "__main__":
         del seq1[0]
         template = ''.join([x.strip() for x in seq1])
         print(json.dumps(multiple([
-            {
-                "id": "seq1-100-1",
-                "template": "ACTGAGAGTACAACCGCTTCTGCAATGCCAAGTCCAGCAGCAAGTGCTAAGGAAGGGAAGAACTTTCTTGCCTTGATGCTCAAATTCACCATCTTAATTATACCAAACCCCAGAGTCAATTAAAAGTTCAACCAAACGATCATTTTCATGAAGTATTGCAGTTATTGTATAATCTTTTCACTGAAAATTACCATCCTTGCTTTTACTAATCAATGCTTGCTCTTCAGCAACAAAGGATGTTGTGATATTAAGTAAAGGAACATTAAACAATCTCGACACCAGATTGAATATCGATACAGATACCCCAACTGCCGCCAATTCAACCGACCCTTCACCACAAAAAAACTAATATTTATCAGCCAATAGTTACCTGTGTGATTAATAGATAAAGCTACAAAAGCAAGCTTGGTATGATAGTATTAATAATAAAAAAAGAAAAAACAAGTATCCAAATGGCCAACAAAGGCTGTATCAACAAGTGAAGCAATGGGATCAGCAGCCAAAGCCAATGCAACAGGCAGTGCAATAGATAGATGCCAATTTTTAACGATAGTTACATGATTCAACTAATTTGATGAATCAAGTCTTAAACTTTCTAAAACCTGAAACTAATGCATGATTCAATTTCTAGAAATGTTGAATCTTCCATCATAGA",
-                "type": "FORCE_END",
-                "pos": 99,
-                "length": 1,
-                "size_min": 70,
-                "size_max": 1000,
-                "primer_num_return": 30
-            }
-        
-            ]), indent=4))
+                {
+                    'id':'A-SEQUENCE_INCLUDED_REGION-1-600', 
+                    'template':template,
+                    'type':'SEQUENCE_INCLUDED_REGION',
+                    'pos':1,
+                    'length':600,
+                    'size_min':75,
+                    'size_max':1000,
+                    'primer_num_return':10,
+                    'pick_internal': True
+                }, 
+                {
+                    'id':'B-SEQUENCE_TARGET-200-10', 
+                    'template':template,
+                    'type':'SEQUENCE_TARGET',
+                    'pos':200,
+                    'length':10,
+                    'size_min':75,
+                    'size_max':1000,
+                    'primer_num_return':10,
+                    'pick_internal': False
+                },
+                {
+                    'id':'C-FORCE_END-319-1', 
+                    'template':template,
+                    'type':'FORCE_END',
+                    'pos':319,
+                    'length':1,
+                    'size_min':75,
+                    'size_max':1000,
+                    'primer_num_return':10,
+                    'pick_internal': False
+                }]), indent=4))

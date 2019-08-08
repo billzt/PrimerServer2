@@ -49,6 +49,7 @@ def make_args():
     group_design = parent_parser_design.add_argument_group('Design Primers')
     group_design.add_argument('--type', choices=['SEQUENCE_TARGET', 'SEQUENCE_INCLUDED_REGION', 'FORCE_END'],\
         help='designing primer types', default='SEQUENCE_TARGET')
+    group_design.add_argument('--pick-oligo', action='store_true', help='Pick internal Oligos (Probes) for qRT-PCR')
     group_design.add_argument('--product-size-min', type=int, help='Lower limit of the product amplicon size range (bp).', \
         default=70)
     group_design.add_argument('--product-size-max', type=int, help='Upper limit of the product amplicon size range (bp).', \
@@ -129,10 +130,12 @@ def run(args):
             primer_num_return = args.primer_num_return
         if make_sites.judge_input_type(query_string)=='pos':
             sites = make_sites.build_by_pos(query=query_string, template_file=dbs[0], primer_type=args.type, \
-                primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max)
+                primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max, \
+                    pick_internal=args.pick_oligo)
         else:
             sites = make_sites.build_by_seq(query=query_string, primer_type=args.type, \
-                primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max)
+                primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max, \
+                    pick_internal=args.pick_oligo)
 
         if 'error' in sites:
             error(sites['error'], args.json_debug)
