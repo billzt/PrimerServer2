@@ -265,6 +265,7 @@ $('[name="templates"]').on('changed.bs.select refreshed.bs.select', function (ev
 // ********* The reset buttton *******************************************************
 $(':reset').click(function(){
     $('[name="templates"]').selectpicker('val', '');
+    $('[name="region_type"]').selectpicker('val', 'SEQUENCE_TARGET');
     $('[name="selected_dbs"]').val('');
     $('#show-selected-templates').html('');
 });
