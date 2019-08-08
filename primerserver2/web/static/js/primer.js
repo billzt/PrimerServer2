@@ -31,10 +31,10 @@ function menu_init(data) {
 function switch_parameter_fieldset(mode) {
     if (mode=='visulize') {
         $('#form-primer,#result').addClass('hidden');
-        $('#btn-visulization').removeClass('hidden');
+        $('#block-visulization').removeClass('hidden');
     }
     else {
-        $('#btn-visulization').addClass('hidden');
+        $('#block-visulization').addClass('hidden');
         $('#form-primer').removeClass('hidden');
         if ($('#primers-result').html()!='') {
             $('#result').removeClass('hidden');

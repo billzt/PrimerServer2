@@ -49,10 +49,11 @@
                 </li>
                 <li role="presentation">
                     <a href="#visulize" role="tab" data-toggle="tab">
-                        <span class="glyphicon glyphicon-eye-open"></span> Visulize
+                        <span class="glyphicon glyphicon-eye-open"></span> Visualize
                     </a>
                 </li>
             </ul>
+
             <form class="form-horizontal" method="post" enctype="multipart/form-data" id="form-primer">
                 <input type="hidden" name="app-type" value="full" class="save-input" />
                 <div class="row">
@@ -175,10 +176,15 @@
             </form>
 
             <!-- visulization -->
-            <input type="file" id="file-visulization" accept="application/json" class="hidden">
-            <button type="file" id="btn-visulization" class="btn btn-primary btn-lg btn-block hidden">
-                Upload JSON file <span class="glyphicon glyphicon-upload"></span>
-            </button>
+            <div class="row">
+                <div id="block-visulization" class="col-md-6 hidden">
+                    <h2>Visualize Primer Results</h2>
+                    <input type="file" id="file-visulization" accept="application/json" class="hidden">
+                    <button type="file" id="btn-visulization" class="btn btn-primary btn-lg btn-block">
+                        Upload JSON file <span class="glyphicon glyphicon-upload"></span>
+                    </button>
+                </div>
+            </div>
 
             <!-- results -->
             <div class="row">

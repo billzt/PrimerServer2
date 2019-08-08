@@ -36,7 +36,82 @@ def faidx(template_file, region_string):
         result_seqs[seq_split[0]] = ''.join(seq_split[1:])
     return result_seqs
 
-def build(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000):
+def judge_input_type(query):
+    '''
+        whether input by pos or by seq?
+        return: pos or seq
+    '''
+    line1 = query.splitlines()[0]
+    data1 = re.split(r'\s+', line1.strip())[0]
+    if re.search(r'[^ATGCNatgcn\[\]]', data1) is None and len(data1)>40:
+        return 'seq'
+    else:
+        return 'pos'
+
+def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max=1000):
+    '''
+        Input:
+            query: a string in multi-lines
+        Return:
+            a list of primer sites dict that can be passed to the design_primer module
+            [{
+                'id': , 
+                'template': ,
+                'type': ,
+                'pos': ,
+                'length':,
+                'size_min':,
+                'size_max':,
+                'primer_num_return':,
+            }]
+    '''
+    primer_sites = []
+    primer_site_rank = 0
+    for line in query.splitlines():
+        primer_site_rank += 1
+        seq = re.split(r'\s+', line.strip())[0]
+
+        # SEQUENCE_TARGET, FORCE_END
+        if primer_type=='SEQUENCE_TARGET' or primer_type=='FORCE_END':
+            if '[' not in seq or ']' not in seq:
+                return {'error': f'seq {seq} has no [target regions]'}
+            if seq.count('[')>1 or seq.count(']')>1:
+                return {'error': f'multiple [target regions] in {seq}'}
+            pos = seq.find('[')
+            length = seq.find(']')-seq.find('[')
+            primer_sites.append({
+                'id': 'S'+str(primer_site_rank)+'-'+str(pos)+'-'+str(length), 
+                'template': seq.replace('[','').replace(']',''),
+                'type': primer_type,
+                'pos': pos,
+                'length':length,
+                'size_min':size_min,
+                'size_max':size_max,
+                'primer_num_return':primer_num_return
+            })
+        # SEQUENCE_INCLUDED_REGION
+        if primer_type=='SEQUENCE_INCLUDED_REGION':
+            if '[' not in seq and ']' not in seq:
+                pos = 1
+                length = len(seq)
+            else:
+                pos = seq.find('[')
+                length = seq.find(']')-seq.find('[')
+                primer_sites.append({
+                    'id': 'S'+str(primer_site_rank)+'-'+str(pos)+'-'+str(length), 
+                    'template': seq.replace('[','').replace(']',''),
+                    'type': primer_type,
+                    'pos': pos,
+                    'length':length,
+                    'size_min':size_min,
+                    'size_max':size_max,
+                    'primer_num_return':primer_num_return
+                })
+    return primer_sites
+
+
+
+def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000):
     '''
         Input:
             query: a string in multi-lines
@@ -122,6 +197,10 @@ if __name__ == "__main__":
     parser.add_argument('query_design', help='input file', type=argparse.FileType('r'))
     parser.add_argument('type', help='SEQUENCE_TARGET, SEQUENCE_INCLUDED_REGION, FORCE_END')
     args = parser.parse_args()
-    primer_sites = build(query=args.query_design.read(), template_file='tests/example.fa', primer_type=args.type, \
-        primer_num_return=30)
+    query = args.query_design.read()
+    input_type = judge_input_type(query)
+    if input_type=='pos':
+        primer_sites = build_by_pos(query=query, template_file='tests/example.fa', primer_type=args.type, primer_num_return=30)
+    else:
+        primer_sites = build_by_seq(query=query, primer_type=args.type, primer_num_return=30)
     print(json.dumps(primer_sites, indent=4))

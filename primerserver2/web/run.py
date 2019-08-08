@@ -37,12 +37,16 @@ def run():
                 to ensure that your inputs are in correct formats</p>'}, indent=4)
     else:
         if request.form['app-type']=='design':
-            sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
-                primer_num_return=int(request.form['retain']), size_min=int(request.form['product_size_min']), \
+            primer_num_return = request.form['retain']
+        else:
+            primer_num_return = request.form['primer_num_return']
+        if make_sites.judge_input_type(query_string)=='pos':
+            sites = make_sites.build_by_pos(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
+                primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
                     size_max=int(request.form['product_size_max']))
         else:
-            sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
-                primer_num_return=int(request.form['primer_num_return']), size_min=int(request.form['product_size_min']), \
+            sites = make_sites.build_by_seq(query=query_string, primer_type=request.form['region_type'], \
+                primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
                     size_max=int(request.form['product_size_max']))
         if 'error' in sites:
             return json.dumps({'error': '<p>'+sites['error']+'</p>'+'<p>Your inputs might be invalid; Check the \
