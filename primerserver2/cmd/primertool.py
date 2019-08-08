@@ -129,8 +129,8 @@ def run(args):
         else:
             sites = make_sites.build(query=query_string, template_file=dbs[0], primer_type=args.type, \
                 primer_num_return=args.primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max)
-            if 'error' in sites:
-                error(sites['error'], args.json_debug)
+        if 'error' in sites:
+            error(sites['error'], args.json_debug)
         primers = design_primer.multiple(sites, cpu=args.cpu)
 
     ###################  Checking specificity  #############

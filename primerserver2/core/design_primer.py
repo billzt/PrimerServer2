@@ -110,33 +110,14 @@ if __name__ == "__main__":
         template = ''.join([x.strip() for x in seq1])
         print(json.dumps(multiple([
             {
-                'id':'A-SEQUENCE_INCLUDED_REGION-1-600', 
-                'template':template,
-                'type':'SEQUENCE_INCLUDED_REGION',
-                'pos':1,
-                'length':600,
-                'size_min':75,
-                'size_max':1000,
-                'primer_num_return':30
-            }, 
-            {
-                'id':'B-SEQUENCE_TARGET-200-10', 
-                'template':template,
-                'type':'SEQUENCE_TARGET',
-                'pos':200,
-                'length':10,
-                'size_min':75,
-                'size_max':1000,
-                'primer_num_return':30
-            },
-            {
-                'id':'C-FORCE_END-319-1', 
-                'template':template,
-                'type':'FORCE_END',
-                'pos':319,
-                'length':1,
-                'size_min':75,
-                'size_max':1000,
-                'primer_num_return':30
+                "id": "seq1-100-1",
+                "template": "ACTGAGAGTACAACCGCTTCTGCAATGCCAAGTCCAGCAGCAAGTGCTAAGGAAGGGAAGAACTTTCTTGCCTTGATGCTCAAATTCACCATCTTAATTATACCAAACCCCAGAGTCAATTAAAAGTTCAACCAAACGATCATTTTCATGAAGTATTGCAGTTATTGTATAATCTTTTCACTGAAAATTACCATCCTTGCTTTTACTAATCAATGCTTGCTCTTCAGCAACAAAGGATGTTGTGATATTAAGTAAAGGAACATTAAACAATCTCGACACCAGATTGAATATCGATACAGATACCCCAACTGCCGCCAATTCAACCGACCCTTCACCACAAAAAAACTAATATTTATCAGCCAATAGTTACCTGTGTGATTAATAGATAAAGCTACAAAAGCAAGCTTGGTATGATAGTATTAATAATAAAAAAAGAAAAAACAAGTATCCAAATGGCCAACAAAGGCTGTATCAACAAGTGAAGCAATGGGATCAGCAGCCAAAGCCAATGCAACAGGCAGTGCAATAGATAGATGCCAATTTTTAACGATAGTTACATGATTCAACTAATTTGATGAATCAAGTCTTAAACTTTCTAAAACCTGAAACTAATGCATGATTCAATTTCTAGAAATGTTGAATCTTCCATCATAGA",
+                "type": "FORCE_END",
+                "pos": 99,
+                "length": 1,
+                "size_min": 70,
+                "size_max": 1000,
+                "primer_num_return": 30
             }
+        
             ]), indent=4))

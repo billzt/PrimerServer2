@@ -11,7 +11,7 @@ function generate_html_result(selected_dbs, db_name_change, data){
             .html('Site '+site_rank+' <span class="caret"></span>');
         $('#primers-result-template-site .site-detail').html('Site: '+site_id);
         if (mode!='check') {
-            let i = site_id.split('-');
+            let i = site_id.replace('-LEFT', '').replace('-RIGHT', '').split('-');
             site_seq = i.slice(0,-2).join('-');
             site_pos = i[i.length-2];
             site_len = i[i.length-1];
@@ -66,8 +66,8 @@ function generate_html_result(selected_dbs, db_name_change, data){
             $('#primers-result-template-primer h4').attr('id', 'Site'+site_rank+'-Primer'+primer_rank)
                 .html('Primer '+primer_rank);
             
-            var p_start = result_data[site_id]['PRIMER_LEFT_'+raw_rank][0]+1;
-            p_start = p_start==0 ? '' : p_start+retrieve_start;
+            var p_start = result_data[site_id]['PRIMER_LEFT_'+raw_rank][0];
+            p_start = p_start==-1 ? '' : p_start+retrieve_start;
             var p_len = result_data[site_id]['PRIMER_LEFT_'+raw_rank][1];
             var p_end = p_start=='' ? '' : p_start+p_len-1;
             $('#primers-result-template-primer .primer-seq-detail')
@@ -79,10 +79,10 @@ function generate_html_result(selected_dbs, db_name_change, data){
                     +'<td>'+result_data[site_id]['PRIMER_LEFT_'+raw_rank+'_GC_PERCENT'].toFixed(1)+'</td>'
                     +'</tr>')
 
-            p_start = result_data[site_id]['PRIMER_RIGHT_'+raw_rank][0]+1;
-            p_start = p_start==0 ? '' : p_start+retrieve_start;
+            p_end = result_data[site_id]['PRIMER_RIGHT_'+raw_rank][0];
+            p_end = p_end==-1 ? '' : p_end+retrieve_start;
             p_len = result_data[site_id]['PRIMER_RIGHT_'+raw_rank][1];
-            p_end = p_start=='' ? '' : p_start+p_len-1;
+            p_start = p_end=='' ? '' : p_end-p_len+1;
             $('#primers-result-template-primer .primer-seq-detail')
                 .append('<tr><th>Right Primer</th>'
                     +'<td><span class="monospace-style">'+result_data[site_id]['PRIMER_RIGHT_'+raw_rank+'_SEQUENCE']+'</span></td>'

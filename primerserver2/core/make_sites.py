@@ -4,6 +4,17 @@ import os
 import json
 import subprocess
 
+def get_template_len(template_file):
+    '''
+        return a dict of each seq's len based on the faidx
+    '''
+    template_len_for = {}
+    with open(template_file+'.fai') as f:
+        for line in f:
+            (id, length) = line.split('\t')[0:2]
+            template_len_for[id] = int(length)
+    return template_len_for
+
 def faidx(template_file, region_string):
     '''
         return a list of sequence dict using samtools faidx based on sequence file (fa)
@@ -42,26 +53,49 @@ def build(query, template_file, primer_type, primer_num_return=30, size_min=70, 
                 'primer_num_return':,
             }]
     '''
+    template_len_for = get_template_len(template_file)
+
     primer_sites = []
     retrieve_region2raw_region = {}
     for line in query.splitlines():
         query_data = re.split(r'\s+', line.strip())
         if query_data[0]=='':
-            continue
-        (chr, pos, length) = (query_data[0], 1, 1)
-        if len(query_data)>1 :     # seq ID and pos
+            return {'error': f'Your input {line.strip()} has no template seqs'}
+        (chr, pos, length) = (query_data[0], -1, -1)
+        if chr not in template_len_for:
+            return {'error': f'Your input {line.strip()} has no template seqs'}
+        chr_len = template_len_for[chr]
+        if len(query_data)>1 :     # pos is provided
             pos = int(query_data[1].replace(',', ''))
-        if len(query_data)>2 :
+            if pos<0 or pos>chr_len:
+                return {'error': f'Your input {line.strip()} has wrong pos: {pos}: it must be between 1 and {chr_len}'}
+        if len(query_data)>2 :      # len is provided
             length = int(query_data[2])
+            if pos+length > chr_len:
+                return {'error': f'Your input {line.strip()} has wrong region: {pos}+{length}: it cannot be exceed {chr_len}'}
         if len(query_data)>3 :
             size_min = int(query_data[3])
             size_max = int(query_data[4])
+        
+        # some adjustion
+        if primer_type=='SEQUENCE_TARGET' or primer_type=='FORCE_END':
+            if pos==-1:
+                return {'error': f'Your input {line.strip()} lack position, which is required by {primer_type}'}
+            if length==-1:
+                length=1
+        if primer_type=='SEQUENCE_INCLUDED_REGION':
+            if pos==-1:
+                pos=1
+            if length==-1:
+                length=chr_len-pos
 
         # retrieve_start and retrieve_end are used by samtools to extract template sequences
         retrieve_start = max(pos-size_max, 1)
         retrieve_end = pos+length+size_max
         retrieve_region2raw_region[f'{chr}:{retrieve_start}-{retrieve_end}'] = [chr, pos, length, size_min, size_max, retrieve_start]
     
+    if (len(retrieve_region2raw_region)==0):
+        return {'error': f'Your input has no template seqs'}
     retrieve_region_string = '\n'.join(retrieve_region2raw_region.keys())
 
     result_seqs = faidx(template_file, retrieve_region_string)
@@ -83,6 +117,11 @@ def build(query, template_file, primer_type, primer_num_return=30, size_min=70, 
     return primer_sites
 
 if __name__ == "__main__":
-    with open('tests/query_design_multiple') as f:
-        primer_sites = build(query=f.read(), template_file='tests/example.fa', primer_type='SEQUENCE_TARGET', primer_num_return=30)
-        print(json.dumps(primer_sites, indent=4))
+    import argparse
+    parser = argparse.ArgumentParser(description='Your title here')
+    parser.add_argument('query_design', help='input file', type=argparse.FileType('r'))
+    parser.add_argument('type', help='SEQUENCE_TARGET, SEQUENCE_INCLUDED_REGION, FORCE_END')
+    args = parser.parse_args()
+    primer_sites = build(query=args.query_design.read(), template_file='tests/example.fa', primer_type=args.type, \
+        primer_num_return=30)
+    print(json.dumps(primer_sites, indent=4))
