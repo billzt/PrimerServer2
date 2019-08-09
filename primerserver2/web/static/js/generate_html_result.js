@@ -11,7 +11,7 @@ function generate_html_result(selected_dbs, db_name_change, data){
             .html('Site '+site_rank+' <span class="caret"></span>');
         $('#primers-result-template-site .site-detail').html('Site: '+site_id);
         if (mode!='check') {
-            let i = site_id.replace('-LEFT', '').replace('-RIGHT', '').split('-');
+            let i = site_id.replace(/-PARTA$/, '').replace(/-PARTAB$/, '').split('-');
             site_seq = i.slice(0,-2).join('-');
             site_pos = i[i.length-2];
             site_len = i[i.length-1];

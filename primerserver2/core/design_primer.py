@@ -48,7 +48,7 @@ def single(site):
         primer3.bindings.setP3Globals(p3_settings)
         p3_L = primer3.bindings.designPrimers(
             {
-                'SEQUENCE_ID': id+'-LEFT',
+                'SEQUENCE_ID': id+'-PARTA',
                 'SEQUENCE_TEMPLATE': template,
                 'SEQUENCE_FORCE_LEFT_END': pos
             })
@@ -59,14 +59,14 @@ def single(site):
         primer3.bindings.setP3Globals(p3_settings)
         p3_R = primer3.bindings.designPrimers(
             {
-                'SEQUENCE_ID': id+'-RIGHT',
+                'SEQUENCE_ID': id+'-PARTB',
                 'SEQUENCE_TEMPLATE': template,
                 'SEQUENCE_FORCE_RIGHT_END': pos
             })
         p3_R['SEQUENCE_RELATIVE_TARGET_START'] = pos
 
-        return([{'id': id+'-LEFT', 'primers': p3_L},
-                {'id': id+'-RIGHT', 'primers': p3_R}
+        return([{'id': id+'-PARTA', 'primers': p3_L},
+                {'id': id+'-PARTB', 'primers': p3_R}
         ])
 
 
