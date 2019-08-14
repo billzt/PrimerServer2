@@ -187,7 +187,7 @@ $(function () {
         $('.save-input').phoenix();
 
         // refresh menu (and show databases in paramter column)
-        $('[name="templates"]').selectpicker('refresh');
+        $('select').selectpicker('refresh');
 
         // refresh running mode
         mode = $("[name='app-type']").val()
