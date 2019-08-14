@@ -114,6 +114,10 @@ def check_templates(args):
             code = os.system(f'samtools faidx {template} 2>/dev/null')
             if code != 0:
                 error(f'File {template} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format', args.json_debug)
+        if os.path.isfile(template+'.nhr') is False:
+            code = os.system(f'makeblastdb -dbtype nucl -in {template} 2>/dev/null')
+            if code != 0:
+                error(f'File {template} cannot be indexed by makeblastdb.', args.json_debug)
 
 def run(args):
     ###################  Design primers ###################
