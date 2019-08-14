@@ -6,7 +6,7 @@ from primerserver2.core.make_sites import faidx
 from primerserver2.core.Santalucia_NN_Tm import complement, rev_complement, NN_Tm
 from primerserver2.core.make_primers import make_primers
 
-def filter_len(blast_out, len_min, len_max):    # 1s
+def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
     '''
         return 
             'amplicons': 
@@ -19,8 +19,12 @@ def filter_len(blast_out, len_min, len_max):    # 1s
     primer_hits_all_sites = {}
     for line in blast_out.splitlines():
         (qseqid, qlen, qstart, qend, sseqid, slen, sstart, send, sstrand) = line.strip().split('\t')
-        # qseqid: primer_id.primer_rank.LEFT|RIGHT
-        # (primer_id, primer_rank) = re.search(r'^(.*)\.(\d+)\.(L|R)$', qseqid).group(1,2)
+        
+        # include main chrs only
+        if 'random' in sseqid or 'alt' in sseqid or 'Un' in sseqid or 'scaffold' in sseqid:
+            continue
+
+        # collect
         (primer_id, primer_rank) = qseqid.split('.')[0:2]
         if primer_id not in primer_hits_all_sites:
             primer_hits_all_sites[primer_id] = {}
