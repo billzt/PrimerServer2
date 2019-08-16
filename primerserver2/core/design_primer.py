@@ -32,16 +32,44 @@ def single(site):
     if site['pick_internal'] is True:
         p3_settings['PRIMER_PICK_INTERNAL_OLIGO'] = 1
 
+    #  mode: target or include
     if type=='SEQUENCE_TARGET' or type=='SEQUENCE_INCLUDED_REGION':
         primer3.bindings.setP3Globals(p3_settings)
-        p3 = primer3.bindings.designPrimers(
-            {
-                'SEQUENCE_ID': id,
-                'SEQUENCE_TEMPLATE': template,
-                type: [pos,length]
-            })
-        p3['SEQUENCE_RELATIVE_TARGET_START'] = pos
-        return([{'id': id, 'primers': p3}])
+        if len(site['junction'])==0:
+            p3 = primer3.bindings.designPrimers(
+                {
+                    'SEQUENCE_ID': id,
+                    'SEQUENCE_TEMPLATE': template,
+                    type: [pos,length]
+                })
+            p3['SEQUENCE_RELATIVE_TARGET_START'] = pos
+            return [{'id': id, 'primers': p3}]
+        else:
+            # qPCR: primer pairs separated by at least one intron on the corresponding genomic DNA
+            p3_A = primer3.bindings.designPrimers(
+                {
+                    'SEQUENCE_ID': id+'-PARTA',
+                    'SEQUENCE_TEMPLATE': template,
+                    'SEQUENCE_INCLUDED_REGION': [pos,length],
+                    'SEQUENCE_TARGET': [[x,1] for x in site['junction']]
+                })
+            p3_A['SEQUENCE_RELATIVE_TARGET_START'] = pos
+
+            # qPCR: primers must span an exon-exon junction
+            p3_B = primer3.bindings.designPrimers(
+                {
+                    'SEQUENCE_ID': id+'-PARTA',
+                    'SEQUENCE_TEMPLATE': template,
+                    'SEQUENCE_INCLUDED_REGION': [pos,length],
+                    'SEQUENCE_OVERLAP_JUNCTION_LIST': site['junction']
+                })
+            p3_B['SEQUENCE_RELATIVE_TARGET_START'] = pos
+        
+            return([{'id': id+'-PARTA', 'primers': p3_A},
+                    {'id': id+'-PARTB', 'primers': p3_B}
+            ])
+
+    #  mode: force
     if type=='FORCE_END':
         p3_settings['PRIMER_MIN_LEFT_THREE_PRIME_DISTANCE'] = -1
         p3_settings['PRIMER_MIN_RIGHT_THREE_PRIME_DISTANCE'] = 3

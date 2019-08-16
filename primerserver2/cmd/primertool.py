@@ -16,12 +16,6 @@ from distutils.version import LooseVersion
 
 from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
 
-
-def error(msg, judge):
-    if judge is True:
-        print(json.dumps({'ERROR': msg}))
-    raise Exception(msg)
-
 def make_args():
     parser = argparse.ArgumentParser(description='primertool: the command-line version of PrimerServer2', \
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -40,7 +34,6 @@ def make_args():
     group_all.add_argument('--primer-num-retain', type=int, help='The maximum number of primers to retain in each \
         site in the final report.', default=10)
     group_all.add_argument('-p', '--cpu', type=int, help='Used CPU number.', default=2)
-    group_all.add_argument('--json-debug', help="Output debug information in JSON mode", action='store_true')
     group_all.add_argument('-o', '--out', help="Output primers in JSON format. (Default is STDIN)", type=argparse.FileType('w'))
     group_all.add_argument('-t', '--tsv', help="Output primers in TSV format", type=argparse.FileType('w'))
 
@@ -56,6 +49,10 @@ def make_args():
         default=1000)
     group_design.add_argument('--primer-num-return', type=int, help='The maximum number of primers to return in Primer3 \
         designing results.', default=30)
+    # qRT-PCR specific
+    group_design.add_argument('--junction', help='Primer pair must be separated by at least one intron on the \
+        corresponding genomic DNA; or primers must span an exon-exon junction. Junction data in JSON format should be prepared by \
+            the command-line primertool-junctions', action='store_true')
     
     # These arguments are used by check and full
     parent_parser_check = argparse.ArgumentParser(add_help=False)
@@ -71,6 +68,9 @@ def make_args():
     group_check.add_argument('--checking-size-max', type=int, help='Upper limit of the checking amplicon size range (bp).', \
         default=2000)
     group_check.add_argument('-a', '--report-amplicon-seqs', help="Get amplicon seqs (might be slow)", action='store_true')
+    # qRT-PCR specific
+    group_check.add_argument('--isoform', help="Allow primers targeting on alternative isoforms and still regard them \
+        as specific ones. Isoform data in JSON format should be prepared by the command-line primertool-isoforms", action='store_true')
 
     # sub commands
     subparsers = parser.add_subparsers(help='Sub commands: running mode')
@@ -94,30 +94,40 @@ def make_args():
 
 def check_environments(args):
     if shutil.which('samtools') is None:
-        error('No samtools detected in your system', args.json_debug)
+        raise Exception('No samtools detected in your system')
 
     samtools_version = os.popen('samtools --version').readlines()[0].strip().split(' ')[1]
     if LooseVersion(samtools_version) < LooseVersion('1.9'):
-        error(f'Your samtools version is v{samtools_version}, but >=v1.9 is required', args.json_debug)
+        raise Exception(f'Your samtools version is v{samtools_version}, but >=v1.9 is required')
 
     if shutil.which('blastn') is None:
-        error('No NCBI-BLAST+ (blastn) detected in your system', args.json_debug)
+        raise Exception('No NCBI-BLAST+ (blastn) detected in your system')
 
     if shutil.which('makeblastdb') is None:
-        error('No NCBI-BLAST+ (makeblastdb) detected in your system', args.json_debug)
+        raise Exception('No NCBI-BLAST+ (makeblastdb) detected in your system')
 
 def check_templates(args):
     for template in args.templates.split(','):
         if os.path.isfile(template) is False:
-            error(f'File not found: {template}', args.json_debug)
+            raise Exception(f'File not found: {template}')
         if os.path.isfile(template+'.fai') is False:
             code = os.system(f'samtools faidx {template} 2>/dev/null')
             if code != 0:
-                error(f'File {template} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format', args.json_debug)
+                raise Exception(f'File {template} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format')
         if os.path.isfile(template+'.nhr') is False:
             code = os.system(f'makeblastdb -dbtype nucl -in {template} 2>/dev/null')
             if code != 0:
-                error(f'File {template} cannot be indexed by makeblastdb.', args.json_debug)
+                raise Exception(f'File {template} cannot be indexed by makeblastdb.')
+        
+        # qPCR specific
+        if os.path.isfile(template+'.junctions.json') is False and args.junction is True:
+            raise Exception(f'The junction file for {template} is not ready. Parameter --junction is not allowed')
+        if os.path.isfile(template+'.isoforms.json') is False and args.isoform is True:
+            raise Exception(f'The isoform file for {template} is not ready. Parameter --isoform is not allowed')
+
+def check_qPCR(args):
+    if args.junction is True and args.type!='SEQUENCE_INCLUDED_REGION':
+        raise Exception('Parameter --junction must be used with --type=SEQUENCE_INCLUDED_REGION')
 
 def run(args):
     ###################  Design primers ###################
@@ -126,7 +136,7 @@ def run(args):
     if args.run_mode=='check':
         primers = make_primers.make_primers(query=query_string)
         if 'error' in primers:
-            error(primers['error'], args.json_debug)
+            raise Exception(primers['error'])
     else:
         if args.run_mode=='design':
             primer_num_return = args.primer_num_retain
@@ -135,14 +145,13 @@ def run(args):
         if make_sites.judge_input_type(query_string)=='pos':
             sites = make_sites.build_by_pos(query=query_string, template_file=dbs[0], primer_type=args.type, \
                 primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max, \
-                    pick_internal=args.pick_oligo)
+                    pick_internal=args.pick_oligo, use_junction=args.junction)
         else:
             sites = make_sites.build_by_seq(query=query_string, primer_type=args.type, \
                 primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max, \
                     pick_internal=args.pick_oligo)
-
         if 'error' in sites:
-            error(sites['error'], args.json_debug)
+            raise Exception(sites['error'])
         primers = design_primer.multiple(sites, cpu=args.cpu)
 
     ###################  Checking specificity  #############
@@ -165,6 +174,7 @@ def main():
     args = make_args()
     check_environments(args)
     check_templates(args)
+    check_qPCR(args)
     run(args)
 
 if __name__ == "__main__":

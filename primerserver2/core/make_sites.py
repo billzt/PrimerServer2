@@ -36,6 +36,19 @@ def faidx(template_file, region_string):
         result_seqs[seq_split[0]] = ''.join(seq_split[1:])
     return result_seqs
 
+def read_junction(template_file):
+    if os.path.isfile(f'{template_file}.junctions.json') is True:
+        return json.load(open(f'{template_file}.junctions.json'))
+    else:
+        return {}
+
+def get_junction_poses(junction_data, id):
+    if id not in junction_data:
+        return []
+    else:
+        return [x['pos'] for x in junction_data[id]['junctions'] if x['intron_len']>100]
+
+
 def judge_input_type(query):
     '''
         whether input by pos or by seq?
@@ -87,7 +100,9 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
                 'length':length,
                 'size_min':size_min,
                 'size_max':size_max,
-                'primer_num_return':primer_num_return
+                'primer_num_return':primer_num_return,
+                'pick_internal': pick_internal,
+                'junction': []
             })
         # SEQUENCE_INCLUDED_REGION
         if primer_type=='SEQUENCE_INCLUDED_REGION':
@@ -106,13 +121,14 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
                     'size_min':size_min,
                     'size_max':size_max,
                     'primer_num_return':primer_num_return,
-                    'pick_internal': pick_internal
+                    'pick_internal': pick_internal,
+                    'junction': []
                 })
     return primer_sites
 
 
 
-def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000, pick_internal=False):
+def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000, pick_internal=False, use_junction=False):
     '''
         Input:
             query: a string in multi-lines
@@ -175,10 +191,15 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
     retrieve_region_string = '\n'.join(retrieve_region2raw_region.keys())
 
     result_seqs = faidx(template_file, retrieve_region_string)
+    if use_junction is True:
+        junction_data = read_junction(template_file)
     for (result_seq_id, result_seq) in result_seqs.items():
         (chr, pos, length, size_min, size_max, retrieve_start) = retrieve_region2raw_region[result_seq_id]
         if result_seq=='':
             return {'error': f'Your input: seq={chr} pos={pos} length={length} has no template seqs'}
+        junctions = []
+        if use_junction is True:
+            junctions = get_junction_poses(junction_data, chr)
         primer_sites.append({
             'id': chr+'-'+str(pos)+'-'+str(length), 
             'template': result_seq,
@@ -188,7 +209,8 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
             'size_min':size_min,
             'size_max':size_max,
             'primer_num_return':primer_num_return,
-            'pick_internal': pick_internal
+            'pick_internal': pick_internal,
+            'junction': junctions
         })
     
     return primer_sites
