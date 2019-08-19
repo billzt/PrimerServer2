@@ -61,7 +61,8 @@ def run():
                 report_amplicon_seq=bool(int(request.form['report_amplicon_seqs'])), Tm_diff=int(request.form['Tm_diff']), \
                     use_3_end=bool(int(request.form['use_3_end'])), monitor=False)
         primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=int(request.form['retain']))
-    return json.dumps({'meta':{'mode':request.form['app-type'], 'dbs':dbs}, 'primers':primers}, indent=4)
+    return json.dumps({'meta':{'mode':request.form['app-type'], 'dbs':dbs, 'region_type': request.form['region_type']}, \
+        'primers':primers}, indent=4)
     
 
 @bp.route('/monitor')

@@ -1,4 +1,4 @@
-function generate_html_result(selected_dbs, db_name_change, data){
+function generate_html_result(selected_dbs, db_name_change, data, visualize_mode){
     $('#primers-result').html('');
     var result_data = data; 
     var site_rank = 0;
@@ -10,13 +10,16 @@ function generate_html_result(selected_dbs, db_name_change, data){
         $('#primers-result-template-site a.collapsed').attr('href', '#site-'+site_rank)
             .html('Site '+site_rank+' <span class="caret"></span>');
         $('#primers-result-template-site .site-detail').html('Site: '+site_id);
-        if (mode!='check') {
-            let i = site_id.replace(/-PARTA$/, '').replace(/-PARTAB$/, '').split('-');
+        if (visualize_mode!='check') {
+            let i = site_id.replace(/-PARTA$/, '').replace(/-PARTB$/, '').split('-');
             site_seq = i.slice(0,-2).join('-');
             site_pos = i[i.length-2];
             site_len = i[i.length-1];
             $('#primers-result-template-site .site-detail').attr('data-seq', site_seq).attr('data-pos', site_pos)
                 .attr('data-length', site_len);
+        }
+        else {
+            site_seq = site_id;
         }
         var primer_num = 0;
         if ('PRIMER_PAIR_NUM_RETURNED_FINAL' in result_data[site_id]) {
@@ -29,7 +32,8 @@ function generate_html_result(selected_dbs, db_name_change, data){
         var main_db = selected_dbs.split(',')[0];
         if (main_db in result_data[site_id]) {
             var least_amplicon_num_in_main_db = result_data[site_id][main_db]['PRIMER_PAIR_'
-                +result_data[site_id]['PRIMER_PAIR_AMPLICON_NUM_RANK_0']+'_AMPLICONS'].length;
+                +result_data[site_id]['PRIMER_PAIR_AMPLICON_NUM_RANK_0']+'_AMPLICONS']
+                    .filter(x=> x['plus']['sseqid']==site_seq || x['isoform']!=true).length;
             if (least_amplicon_num_in_main_db==1) {
                 $('#primers-result-template-site .row-site-info')
                     .append('<div class="col-md-1"><span class="glyphicon glyphicon-ok"></span></div>');
@@ -42,8 +46,10 @@ function generate_html_result(selected_dbs, db_name_change, data){
         $('#primers-result').append($('#primers-result-template-site').html());
         $('#primers-result-template-site').html(raw_html_site);
 
-        var retrieve_start = site_pos - result_data[site_id]['SEQUENCE_RELATIVE_TARGET_START']
-
+        if (typeof(site_pos) != 'undefined') {
+            retrieve_start = site_pos - result_data[site_id]['SEQUENCE_RELATIVE_TARGET_START']
+        }
+        
         // primer
         for (var i=0; i<primer_num; i++) {
             var raw_html_primer = $('#primers-result-template-primer').html();
@@ -54,13 +60,6 @@ function generate_html_result(selected_dbs, db_name_change, data){
             }
             else {
                 raw_rank = i;
-            }
-            var amplicon_num_in_main_db = 0;
-            if (main_db in result_data[site_id]) {
-                amplicon_num_in_main_db = result_data[site_id][main_db]['PRIMER_PAIR_'+raw_rank+'_AMPLICONS'].length;
-                if (amplicon_num_in_main_db==1) {
-                    $('#primers-result-template-primer .list-group-item-primer').addClass('list-group-item-success')
-                }
             }
 
             $('#primers-result-template-primer h4').attr('id', 'Site'+site_rank+'-Primer'+primer_rank)
@@ -139,22 +138,37 @@ function generate_html_result(selected_dbs, db_name_change, data){
                 else {
                     amplicons = [];
                 }
-                amplicon_num = amplicons.length;
+                // amplicon num
+                if ('isoform' in amplicons[0]) {
+                    amplicon_num = amplicons.filter(x=> x['plus']['sseqid']==site_seq || x['isoform']!=true).length;
+                }
+                else {
+                    amplicon_num = amplicons.length;
+                }
                 $('#primers-result-template-primer .amplicons_number').append('<td class="hit-num" data-hit="'
                     +amplicon_num+'">Amplicon Number: '+amplicon_num+'</td>');
+                if (amplicon_num==1 && db==main_db) {
+                    $('#primers-result-template-primer .list-group-item-primer').addClass('list-group-item-success')
+                }
+                // print amplicons
                 $('#primers-result-template-primer .amplicons_region')
                     .append('<td><ul class="list-group list-group-amplicons-'+db_rank+'"></ul></td>');
                 var output_amplicon_num = 0;
-                for (amplicon of amplicons) {
-                    output_amplicon_num++;
+                for (var j in amplicons) {
+                    $('#primers-result-template-primer .list-group-amplicons-'+db_rank)
+                        .append('<li class="list-group-item">'+amplicons[j]['region']+', '+amplicons[j]['product_size']+' bp');
+                    amplicon_li = $('#primers-result-template-primer .list-group-amplicons-'+db_rank+' li:eq('+j+')')
                     if (amplicon_num==1) {
-                        $('#primers-result-template-primer .list-group-amplicons-'+db_rank)
-                            .append('<li class="list-group-item list-group-item-success">'+amplicon['region']
-                                +', '+amplicon['product_size']+' bp</li>');
+                        amplicon_li.addClass('list-group-item-success')
+                    }
+                    if (amplicons[j]['isoform']==true) {
+                        amplicon_li.append(' <i class="fa fa-random"></i>');
+                        if (amplicons[j]['plus']['sseqid']==site_seq) {
+                            output_amplicon_num++;
+                        }
                     }
                     else {
-                        $('#primers-result-template-primer .list-group-amplicons-'+db_rank)
-                            .append('<li class="list-group-item">'+amplicon['region']+', '+amplicon['product_size']+' bp</li>');
+                        output_amplicon_num++;
                     }
                     if (output_amplicon_num==3) {
                         if (amplicon_num==1) {

@@ -5,7 +5,7 @@ function getMaxOfArray(numArray) {
 function getMinOfArray(numArray) {
     return Math.min.apply(null, numArray);
 }
-function GenerateGraph(el, specificity) {
+function GenerateGraph(el, region_type, specificity) {
     // empty the element
     el.find('.PrimerFigure').html('');
 
@@ -51,7 +51,6 @@ function GenerateGraph(el, specificity) {
     var axisEnd;
     var targetPos = el.prev().find('.site-detail').data('pos');
     var targetLen = el.prev().find('.site-detail').data('length');
-    var region_type = $('[name="region_type"]').val();
     if (region_type=='SEQUENCE_INCLUDED_REGION') {
         axisStart = targetPos-Math.round(targetLen/5)>0 ? targetPos-Math.round(targetLen/5) : 1;
         axisEnd = targetPos+targetLen+Math.round(targetLen/5);

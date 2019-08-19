@@ -122,26 +122,27 @@ function visualize(json_data) {
     }
     
     // meta and primers
-    var mode = result_data['meta']['mode'];
+    var visualize_mode = result_data['meta']['mode'];
     var selected_dbs = result_data['meta']['dbs'].map(x=>basename(x)).join(',');
     var primer_data = result_data['primers'];
+    let region_type = result_data['meta']['region_type'];
 
     // valid results
-    generate_html_result(selected_dbs, db_name_change, primer_data);
-    if (mode=='full') {
-        GenerateGraph($('#site-1'), true);
+    generate_html_result(selected_dbs, db_name_change, primer_data, visualize_mode);
+    if (visualize_mode=='full') {
+        GenerateGraph($('#site-1'), region_type, true);
         $('#primers-result .collapse').on('shown.bs.collapse', function () {
-            GenerateGraph($(this), true);
+            GenerateGraph($(this), region_type, true);
         });
         $('#primers-result .collapse').on('hidden.bs.collapse', function () {
             $(this).find('.PrimerFigure').html('');
             $(this).find('.PrimerFigureControl').remove();
         });
     }
-    else if (mode=='design') {
-        GenerateGraph($('#site-1'), false);
+    else if (visualize_mode=='design') {
+        GenerateGraph($('#site-1'), region_type, false);
         $('#primers-result .collapse').on('shown.bs.collapse', function () {
-            GenerateGraph($(this), false);
+            GenerateGraph($(this), region_type, false);
         });
         $('#primers-result .collapse').on('hidden.bs.collapse', function () {
             $(this).find('.PrimerFigure').html('');

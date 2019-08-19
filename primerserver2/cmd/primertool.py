@@ -164,9 +164,9 @@ def run(args):
 
     ###################  Output  ###########################
     if args.out is not None:
-        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs}, 'primers':primers}, indent=4), file=args.out)
+        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': args.type}, 'primers':primers}, indent=4), file=args.out)
     else:
-        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs}, 'primers':primers}, indent=4))
+        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': args.type}, 'primers':primers}, indent=4))
 
     if args.tsv is not None:
         print(output.tsv(primers, dbs), file=args.tsv)
