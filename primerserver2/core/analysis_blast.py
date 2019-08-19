@@ -189,6 +189,17 @@ def add_amplicon_seq(amplicons, template_file):
                 amplicons[primer_id][primer_rank][i]['product_seq'] = amplicon_seqs[amplicon['region']]
     return amplicons
 
+def add_isoform_annotation(amplicons, dbs):
+    isoform_data = json.load(open(dbs[0]+'.isoforms.json'))
+    for primer_id in amplicons.keys():
+        for primer_rank in amplicons[primer_id]:
+            for (i, amplicon) in enumerate(amplicons[primer_id][primer_rank]):
+                sseqid = amplicon['plus']['sseqid']
+                qseqid = amplicon['plus']['qseqid'].split('-')[0]
+                if qseqid in isoform_data and sseqid in isoform_data[qseqid]:
+                    amplicons[primer_id][primer_rank][i]['isoform'] = True
+    return amplicons
+
 
 if __name__ == "__main__":
     blast_out = open('tests/_internal_/query_blast.fa.out.large').read()

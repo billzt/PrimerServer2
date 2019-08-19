@@ -9,7 +9,7 @@ import time
 import primer3
 import progressbar
 
-from primerserver2.core.analysis_blast import filter_len, filter_Tm, add_amplicon_seq
+from primerserver2.core.analysis_blast import filter_len, filter_Tm, add_amplicon_seq, add_isoform_annotation
 from primerserver2.core.make_sites import faidx
 from primerserver2.core.make_primers import make_primers
 from primerserver2.core import global_var
@@ -43,7 +43,7 @@ def run_blast(p3_inputs):
     hits_seqs = faidx(template_file=db, region_string=amplicons['regions_primer'])
     report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq=query_primer_seq_dict, \
         hits_seqs=hits_seqs, Tm_diff=p3_inputs[0]['Tm_diff'], use_3_end=p3_inputs[0]['use_3_end'])
-    if p3_inputs[0]['report_amplicon_seq']==True:
+    if p3_inputs[0]['report_amplicon_seq'] is True:
         report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file=db)
     return {'db': os.path.basename(db), 'amplicons': report_amplicons}
 

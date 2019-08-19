@@ -58,7 +58,7 @@ def single(site):
             # qPCR: primers must span an exon-exon junction
             p3_B = primer3.bindings.designPrimers(
                 {
-                    'SEQUENCE_ID': id+'-PARTA',
+                    'SEQUENCE_ID': id+'-PARTB',
                     'SEQUENCE_TEMPLATE': template,
                     'SEQUENCE_INCLUDED_REGION': [pos,length],
                     'SEQUENCE_OVERLAP_JUNCTION_LIST': site['junction']

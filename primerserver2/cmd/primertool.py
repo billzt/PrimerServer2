@@ -14,7 +14,7 @@ import shutil
 
 from distutils.version import LooseVersion
 
-from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output
+from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, analysis_blast
 
 def make_args():
     parser = argparse.ArgumentParser(description='primertool: the command-line version of PrimerServer2', \
@@ -126,7 +126,7 @@ def check_templates(args):
             raise Exception(f'The isoform file for {template} is not ready. Parameter --isoform is not allowed')
 
 def check_qPCR(args):
-    if args.junction is True and args.type!='SEQUENCE_INCLUDED_REGION':
+    if args.run_mode!='check' and args.junction is True and args.type!='SEQUENCE_INCLUDED_REGION':
         raise Exception('Parameter --junction must be used with --type=SEQUENCE_INCLUDED_REGION')
 
 def run(args):
@@ -159,7 +159,8 @@ def run(args):
         primers = run_blast.run_blast_parallel(primers=primers, dbs=dbs, cpu=args.cpu,\
             checking_size_max=args.checking_size_max, checking_size_min=args.checking_size_min, \
                 report_amplicon_seq=args.report_amplicon_seqs, Tm_diff=args.Tm_diff, use_3_end=args.use_3_end)
-        primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=args.primer_num_retain)
+        primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=args.primer_num_retain, use_isoforms=args.isoform)
+
 
     ###################  Output  ###########################
     if args.out is not None:

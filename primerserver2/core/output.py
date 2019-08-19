@@ -9,6 +9,8 @@ def tsv(primers_dict, dbs):
             'Database\tPossible_Amplicon_Number\tAmplicon_Size_in_DB\t'*len(dbs)])
     print_line.append(header_line)
     for (id, primers) in primers_dict.items():
+        template_id = id.split('-')[0]
+
         # No primers
         if primers['PRIMER_PAIR_NUM_RETURNED']==0:
             print_data = []
@@ -54,7 +56,15 @@ def tsv(primers_dict, dbs):
                 print_data.append(db_base)
                 if db_base in primers:
                     if f'PRIMER_PAIR_{raw_rank}_AMPLICONS' in primers[db_base]:
-                        amplicon_num_in_db = len(primers[db_base][f'PRIMER_PAIR_{raw_rank}_AMPLICONS'])
+                        amplicon_num_in_db = 0
+                        for amplicon in primers[db_base][f'PRIMER_PAIR_{raw_rank}_AMPLICONS']:
+                            if 'isoform' not in amplicon:
+                                amplicon_num_in_db+=1
+                            elif amplicon['isoform'] is False:
+                                amplicon_num_in_db+=1
+                            elif amplicon['plus']['sseqid'] == template_id:
+                                amplicon_num_in_db+=1
+
                         print_data.append(str(amplicon_num_in_db))
                         if amplicon_num_in_db==1:
                             print_data.append(str(primers[db_base][f'PRIMER_PAIR_{raw_rank}_AMPLICONS'][0]['product_size']))
