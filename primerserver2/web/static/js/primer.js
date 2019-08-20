@@ -28,6 +28,40 @@ function menu_init(data) {
     return db_name_change
 }
 
+function qPCR_filedset(config_data, db, mode, region_type) {
+    // junction
+    if (mode=='full' || mode=='design') {
+        if (config_data[db]['junction']==true && region_type=='SEQUENCE_INCLUDED_REGION') {
+            $('#junction_1').parents('.form-group').removeClass('hidden');
+            $('[name="junction"]').val(1);
+        }
+        else {
+            $('#junction_1').parents('.form-group').addClass('hidden');
+            $('[name="junction"]').val(0);
+        }
+    }
+    else {
+        $('#junction_1').parents('.form-group').addClass('hidden');
+        $('[name="junction"]').val(0);
+    }
+
+    // isoform
+    if (mode=='check' || (mode=='full' && region_type=='SEQUENCE_INCLUDED_REGION')) {
+        if (config_data[db]['isoform']==true) {
+            $('#isoform_1').parents('.form-group').removeClass('hidden');
+            $('[name="isoform"]').val(1);
+        }
+        else {
+            $('#isoform_1').parents('.form-group').addClass('hidden');
+            $('[name="isoform"]').val(0);
+        }
+    }
+    else {
+        $('#isoform_1').parents('.form-group').addClass('hidden');
+        $('[name="isoform"]').val(0);
+    }
+}
+
 function switch_parameter_fieldset(mode) {
     if (mode=='visulize') {
         $('#form-primer,#result').addClass('hidden');
@@ -178,7 +212,12 @@ function AjaxSubmit(selected_dbs, mode) {
 // ***********************  Begin main functions  ***********************  
 // ********* Page load *********
 var db_name_change = new Object;
+var config_data = new Object;
 $(function () {
+    $.get($SCRIPT_ROOT + '/dbinfo', function(data){
+        config_data = JSON.parse(data);
+    });
+
     $.get($SCRIPT_ROOT + '/dbselect', function(data){
 
         // init menu, get db_name_change
@@ -217,23 +256,22 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     switch (mode) {
         case 'full':
             textarea_color = '#bfffdf';
-            placeholder = "One per line, blank delimited: TemplateID TargetPos TargetLength";
             break;
         case 'design':
             textarea_color = '#fcd8f7';
-            placeholder = "One per line, blank delimited: TemplateID TargetPos TargetLength";
             break;
         case 'check':
             textarea_color = '#ffdfbf';
-            placeholder = "One primer group per line, space delimited: PrimerID SeqF SeqR";
             break;
         default:
             textarea_color = '#bfffdf';
-            placeholder = "One per line, blank delimited: TemplateID TargetPos TargetLength";
             break;
     }
-    $('textarea').html('').val('').css('background-color', textarea_color).attr('placeholder', placeholder);
 
+    // qPCR fieldset
+    main_db = $('[name="selected_dbs"]').val().split(',')[0];
+    region_type = $('[name="region_type"]').val();
+    qPCR_filedset(config_data, main_db, mode, region_type);
 });
 
 // ********* Switch databases (init load or by user change) and update UI *********
@@ -261,6 +299,20 @@ $('[name="templates"]').on('changed.bs.select refreshed.bs.select', function (ev
         $('[name="selected_dbs"]').val(selected_dbs);
     }
     show_selected_dbs(selected_dbs, db_name_change);
+
+    // qPCR fieldset
+    main_db = selected_dbs.split(',')[0];
+    mode = $("[name='app-type']").val();
+    region_type = $('[name="region_type"]').val();
+    qPCR_filedset(config_data, main_db, mode, region_type);
+});
+
+// ********* Switch region type and update UI ****************************************
+$('[name="region_type"]').on('changed.bs.select', function(){
+    main_db = $('[name="selected_dbs"]').val().split(',')[0];
+    mode = $("[name='app-type']").val();
+    region_type = $('[name="region_type"]').val();
+    qPCR_filedset(config_data, main_db, mode, region_type);
 });
 
 // ********* The reset buttton *******************************************************

@@ -48,6 +48,7 @@ def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
     hits_regions = {}   # make region file (FASTA)
 
     for primer_id in primer_hits_all_sites.keys():
+        amplicons[primer_id] = {}
         for primer_rank in primer_hits_all_sites[primer_id].keys():
             for sseqid in primer_hits_all_sites[primer_id][primer_rank].keys():
                 primer_hits = sorted(primer_hits_all_sites[primer_id][primer_rank][sseqid], key=lambda i: i['sstart'])
@@ -75,8 +76,6 @@ def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
                                 continue
 
                             # store this pair
-                            if primer_id not in amplicons:
-                                amplicons[primer_id] = {}
                             if primer_rank not in amplicons[primer_id]:
                                 amplicons[primer_id][primer_rank] = []
                             amplicons[primer_id][primer_rank].append({
@@ -109,6 +108,7 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
     '''
     amplicons_filter = {}
     for primer_id in amplicons.keys():
+        amplicons_filter[primer_id] = {}
         for primer_rank in amplicons[primer_id]:
             for amplicon in amplicons[primer_id][primer_rank]:
                 # hit seqs (template)
@@ -165,8 +165,6 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
                     +'-'+str(amplicon['minus']['send'])
                 amplicon['product_size'] = amplicon['minus']['send']-amplicon['plus']['sstart']+1
                 amplicon['product_seq'] = ''
-                if primer_id not in amplicons_filter:
-                    amplicons_filter[primer_id] = {}
                 if primer_rank not in amplicons_filter[primer_id]:
                     amplicons_filter[primer_id][primer_rank] = []
                 amplicons_filter[primer_id][primer_rank].append(amplicon)

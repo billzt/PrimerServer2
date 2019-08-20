@@ -13,7 +13,7 @@ bp = Blueprint('db', __name__)
 def dbselect():
     dbs_in_select = {}
     for (template, meta) in web_config['templates'].items():
-        (desc, group, ids) = (meta['description'], meta['group'], meta['IDs'])
+        (desc, group, ids, junction, isoform) = (meta['description'], meta['group'], meta['IDs'], meta['junction'], meta['isoform'])
         if group not in dbs_in_select:
             dbs_in_select[group] = {}
         if template not in dbs_in_select[group]:
@@ -21,6 +21,10 @@ def dbselect():
         dbs_in_select[group][template]['desc'] = desc
         dbs_in_select[group][template]['IDs'] = ids
     return json.dumps(dbs_in_select, indent=4)
+
+@bp.route('/dbinfo')
+def dbinfo():
+    return json.dumps(web_config['templates'], indent=4)
     
 @bp.route('/dbdownload/<template>/')
 def dbdownload(template):

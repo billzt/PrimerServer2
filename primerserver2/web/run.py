@@ -43,7 +43,8 @@ def run():
         if make_sites.judge_input_type(query_string)=='pos':
             sites = make_sites.build_by_pos(query=query_string, template_file=dbs[0], primer_type=request.form['region_type'], \
                 primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
-                    size_max=int(request.form['product_size_max']), pick_internal=bool(int(request.form['pick_internal'])))
+                    size_max=int(request.form['product_size_max']), pick_internal=bool(int(request.form['pick_internal'])), \
+                        use_junction=bool(int(request.form['junction'])) )
         else:
             sites = make_sites.build_by_seq(query=query_string, primer_type=request.form['region_type'], \
                 primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
@@ -60,7 +61,8 @@ def run():
             checking_size_max=int(request.form['checking_size_max']), checking_size_min=int(request.form['checking_size_min']), \
                 report_amplicon_seq=bool(int(request.form['report_amplicon_seqs'])), Tm_diff=int(request.form['Tm_diff']), \
                     use_3_end=bool(int(request.form['use_3_end'])), monitor=False)
-        primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=int(request.form['retain']))
+        primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=int(request.form['retain']), \
+            use_isoforms=bool(int(request.form['isoform'])) )
     return json.dumps({'meta':{'mode':request.form['app-type'], 'dbs':dbs, 'region_type': request.form['region_type']}, \
         'primers':primers}, indent=4)
     

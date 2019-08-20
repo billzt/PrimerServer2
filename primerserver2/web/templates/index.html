@@ -70,7 +70,7 @@
                             <input type="hidden" name="selected_dbs" value="" class="save-input" />
                             <textarea class="form-control monospace-style validate[required, maxSize[100000]]" rows="20"
                             style="background-color: #bfffdf"
-                            placeholder="One per line, blank delimited: TemplateID TargetPos TargetLength" 
+                            placeholder="Refer the help icon to see input format" 
                             name="query"></textarea>
                         </fieldset>
                         <input type="submit" value="Submit" class="btn btn-primary" /> 
@@ -123,6 +123,20 @@
                                     class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
                                 </div>
                             </div>
+                            <div class="form-group hidden">
+                                <label class="col-sm-4 control-label">Using Exon-Exon Junctions:
+                                    <span class="glyphicon glyphicon-question-sign help-icon" data-toggle="tooltip"
+                                        title="Only Valid for qPCR"></span>
+                                </label>
+                                <div class="col-sm-2">
+                                    <div class="radio">
+                                        <label><input type="radio" class="save-input" name="junction" id="junction_1" value=1 />Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" class="save-input" name="junction" id="junction_0" value=0 checked />No</label>
+                                    </div>
+                                </div>
+                            </div>
                         </fieldset>
                         <fieldset id="parameter-check">
                             <legend>Parameter: Check Specificity</legend>
@@ -168,6 +182,20 @@
                                     <div class="radio">
                                         <label><input type="radio" class="save-input" name="report_amplicon_seqs" 
                                             id="report_amplicon_seqs_0" value=0 checked />No</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group hidden">
+                                <label class="col-sm-4 control-label">Exclude Isoforms:
+                                    <span class="glyphicon glyphicon-question-sign help-icon" data-toggle="tooltip"
+                                    title="Only Valid for qPCR"></span>
+                                </label>
+                                <div class="col-sm-2">
+                                    <div class="radio">
+                                        <label><input type="radio" class="save-input" name="isoform" id="isoform_1" value=1 />Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" class="save-input" name="isoform" id="isoform_0" value=0 checked />No</label>
                                     </div>
                                 </div>
                             </div>

@@ -91,7 +91,7 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
                     +'<td>'+result_data[site_id]['PRIMER_RIGHT_'+raw_rank+'_GC_PERCENT'].toFixed(1)+'</td>'
                     +'</tr>')
             
-            if('PRIMER_INTERNAL_'+raw_rank+'_SEQUENCE' in result_data[site_id] == true) {
+            if ('PRIMER_INTERNAL_'+raw_rank+'_SEQUENCE' in result_data[site_id] == true) {
                 p_start = result_data[site_id]['PRIMER_INTERNAL_'+raw_rank][0]+retrieve_start;
                 p_len = result_data[site_id]['PRIMER_INTERNAL_'+raw_rank][1];
                 p_end = p_start+p_len-1;
@@ -118,8 +118,8 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
             // dbs
             var db_rank = 0;
             for (db of selected_dbs.split(',')) {
-                if (db in result_data[site_id] == false) {  // if no specificity check
-                    $('#primers-result-template-primer .amplicons_table').addClass('hidden');
+                if (db in result_data[site_id] == false) {
+                    // $('#primers-result-template-primer .amplicons_table').addClass('hidden');
                     continue;
                 }
                 db_desc = db_name_change[db]
@@ -139,7 +139,7 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
                     amplicons = [];
                 }
                 // amplicon num
-                if ('isoform' in amplicons[0]) {
+                if (amplicons.length>0 && 'isoform' in amplicons[0]) {
                     amplicon_num = amplicons.filter(x=> x['plus']['sseqid']==site_seq || x['isoform']!=true).length;
                 }
                 else {

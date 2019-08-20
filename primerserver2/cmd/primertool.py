@@ -107,7 +107,7 @@ def check_environments(args):
         raise Exception('No NCBI-BLAST+ (makeblastdb) detected in your system')
 
 def check_templates(args):
-    for template in args.templates.split(','):
+    for (i, template) in enumerate(args.templates.split(',')):
         if os.path.isfile(template) is False:
             raise Exception(f'File not found: {template}')
         if os.path.isfile(template+'.fai') is False:
@@ -120,10 +120,11 @@ def check_templates(args):
                 raise Exception(f'File {template} cannot be indexed by makeblastdb.')
         
         # qPCR specific
-        if os.path.isfile(template+'.junctions.json') is False and args.junction is True:
-            raise Exception(f'The junction file for {template} is not ready. Parameter --junction is not allowed')
-        if os.path.isfile(template+'.isoforms.json') is False and args.isoform is True:
-            raise Exception(f'The isoform file for {template} is not ready. Parameter --isoform is not allowed')
+        if i==0:
+            if os.path.isfile(template+'.junctions.json') is False and 'junction' in args and args.junction is True:
+                raise Exception(f'The junction file for {template} is not ready. Parameter --junction is not allowed')
+            if os.path.isfile(template+'.isoforms.json') is False and 'isoform' in args and args.isoform is True:
+                raise Exception(f'The isoform file for {template} is not ready. Parameter --isoform is not allowed')
 
 def check_qPCR(args):
     if args.run_mode!='check' and args.junction is True and args.type!='SEQUENCE_INCLUDED_REGION':
@@ -164,9 +165,10 @@ def run(args):
 
     ###################  Output  ###########################
     if args.out is not None:
-        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': args.type}, 'primers':primers}, indent=4), file=args.out)
+        region_type = args.type if 'type' in args else 'NA'
+        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type}, 'primers':primers}, indent=4), file=args.out)
     else:
-        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': args.type}, 'primers':primers}, indent=4))
+        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type}, 'primers':primers}, indent=4))
 
     if args.tsv is not None:
         print(output.tsv(primers, dbs), file=args.tsv)

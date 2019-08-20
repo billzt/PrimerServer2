@@ -5,11 +5,6 @@ Github: https://github.com/billzt/PrimerServer2
 This is a CLI script to configure PrimerServer2:
     (1) pre-load databases (by makeblastdb in NCBI BLAST+)
     (2) define numbers of CPUs to use
-
-    The --description-file (-d) file format (TSV):
-    template1.fa(dbname, without path)      Name1         (Optional)GroupA
-    template2.fa(dbname, without path)      Name2         (Optional)GroupA
-    template3.fa(dbname, without path)      Name3         (Optional)GroupB
 '''
 
 import argparse
@@ -18,17 +13,16 @@ import sys
 import re
 import json
 
-from primerserver2.cmd.primertool import check_environments, check_templates
+from primerserver2.cmd.primertool import check_environments
 
 def make_args():
     parser = argparse.ArgumentParser(description='primerserver-config: configure PrimerServer2', \
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--json-debug', action='store_true', help=argparse.SUPPRESS)
-    parser.add_argument('-t', '--templates', help='template file in FASTA format. \
-        Allowing multiple files (separated by comma)')
-    parser.add_argument('-d', '--description-file', help='a TSV file including descriptions for the templates', \
-        type=argparse.FileType('r'))
-    parser.add_argument('-p', '--cpu', type=int, help='Used CPU number.')
+    parser.add_argument('-t', '--template', help='a template file in FASTA format.')
+    parser.add_argument('-d', '--description', help='a human readable string describe your template FASTA file. \
+        default: The same as -t / --template')
+    parser.add_argument('-g', '--group', help='Assigning this template to a group.', default='group')
+    parser.add_argument('-p', '--cpu', type=int, help='Used CPU number. default: 2')
     args = parser.parse_args()
     return args
 
@@ -49,62 +43,69 @@ def main():
     check_environments(args)
     db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
 
-    # templates
-    if args.templates is not None:
-        print('Begin configuring templates...', file=sys.stderr)
+    # template, junction, isoform, description, group
+    if args.template is not None:
+        db = args.template
+        print(f'Begin configuring template... {db}', file=sys.stderr)
 
-        check_templates(args)
+        # check templates
+        if os.path.isfile(db) is False:
+            raise Exception(f'File not found: {db}')
+        if os.path.isfile(db+'.fai') is False:
+            code = os.system(f'samtools faidx {db} 2>/dev/null')
+            if code != 0:
+                raise Exception(f'File {db} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format')
+        if os.path.isfile(db+'.nhr') is False:
+            code = os.system(f'makeblastdb -dbtype nucl -in {db} 2>/dev/null')
+            if code != 0:
+                raise Exception(f'File {db} cannot be indexed by makeblastdb.')
 
         # db load
-        for db in args.templates.split(','):
-            db_basename = os.path.basename(db)
+        db_basename = os.path.basename(db)
 
-            # Name can't be example.fa
-            if db_basename=='example.fa':
-                raise Exception('name: example.fa is not allowed')
-            
-            # Index and Copy
-            if os.path.isfile(db_dir+'/'+db_basename):
-                print(f'{db} has already existed in PrimerServer. Skip it', file=sys.stderr)
-            else:
-                # Index
-                if os.path.isfile(db+'.nhr') is False:
-                    print(f'{db} has not been indexed. Start indexing it...', file=sys.stderr)
-                    code = os.system(f'makeblastdb -dbtype nucl -in {db} 2>/dev/null')
-                    if code != 0:
-                        raise Exception(f'Error in indexing {db}. Perhaps it is not a valid DNA file in FASTA format')
-                    print(f'Finish indexing it {db}', file=sys.stderr)
-                
-                # Copy
-                print(f'Start copying {db} to PrimerServer...', file=sys.stderr)
-                code = os.system(f'cp {db} {db}.fai {db}.nhr {db}.nin {db}.nsq {db_dir} 2>/dev/null')
-                if code != 0:
-                    raise Exception(f'Error in copying {db}. Make sure you have write permisson to {db_dir} \
-                        and the space is enough', file=sys.stderr)
-            
-            # Add to config
-            if db_basename not in web_config['templates']:
-                web_config['templates'][db_basename] = {}
-            web_config['templates'][db_basename] = {'description': db_basename, 'group': 'group'}
-
+        # Name can't be example.fa
+        if db_basename=='example.fa' or db_basename=='example2.fa':
+            raise Exception('name: example.fa is not allowed')
         
-    # db descriptions
-    if args.description_file is not None:
-        print('Begin configuring template descriptions...', file=sys.stderr)
-        for line in args.description_file:
-            (db_file, *db_desc) = line.strip().split('\t')
-            if os.path.isfile(db_dir+'/'+db_file) is False:
-                print(f'template {db_file} has not been loaded into PrimerServer. Skip this', file=sys.stderr)
-            if db_file not in web_config['templates']:
-                web_config['templates'][db_file] = {}
-            if len(db_desc)==2:
-                (name, group) = db_desc
-                web_config['templates'][db_file] = {'description': name, 'group': group}
-            elif len(db_desc)==1:
-                web_config['templates'][db_file] = {'description': db_desc[0], 'group': 'group'}
-            else:
-                raise Exception(f'the file {args.description_file.name} does not have two or three columns seprated by tabs')
-    
+        # Index and Copy
+        if os.path.isfile(db_dir+'/'+db_basename):
+            print(f'{db} has already existed in PrimerServer. Skip copying BLAST databases', file=sys.stderr)
+        else:
+            # Index
+            if os.path.isfile(db+'.nhr') is False:
+                print(f'{db} has not been indexed. Start indexing it...', file=sys.stderr)
+                code = os.system(f'makeblastdb -dbtype nucl -in {db} 2>/dev/null')
+                if code != 0:
+                    raise Exception(f'Error in indexing {db}. Perhaps it is not a valid DNA file in FASTA format')
+                print(f'Finish indexing it {db}', file=sys.stderr)
+            
+            # Copy
+            print(f'Start copying {db} to PrimerServer...', file=sys.stderr)
+            code = os.system(f'cp {db} {db}.fai {db}.nhr {db}.nin {db}.nsq {db_dir} 2>/dev/null')
+            if code != 0:
+                raise Exception(f'Error in copying {db}. Make sure you have write permisson to {db_dir} \
+                    and the space is enough', file=sys.stderr)
+        
+        # Add to config
+        if db_basename not in web_config['templates']:
+            web_config['templates'][db_basename] = {}
+        web_config['templates'][db_basename] = {'description': db_basename, 'group': args.group, 'junction': False, 'isoform': False}
+
+        # junction and isoform
+        if os.path.isfile(db+'.isoforms.json') is True and os.path.isfile(db_dir+'/'+db+'.isoforms.json') is not True:
+            code = os.system(f'cp {db}.isoforms.json {db_dir} 2>/dev/null')
+            web_config['templates'][db_basename]['junction'] = True
+        if os.path.isfile(db+'.junctions.json') is True and os.path.isfile(db_dir+'/'+db+'.junctions.json') is not True:
+            code = os.system(f'cp {db}.junctions.json {db_dir} 2>/dev/null')
+            web_config['templates'][db_basename]['isoform'] = True
+        
+        # description and group
+        if args.description is not None:
+            web_config['templates'][db_basename]['description'] = args.description
+        if args.group is not None:
+            web_config['templates'][db_basename]['group'] = args.group
+        
+
     # CPUs
     if args.cpu is not None:
         print('Begin configuring CPUs...', file=sys.stderr)

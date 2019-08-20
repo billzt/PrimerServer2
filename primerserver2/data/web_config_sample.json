@@ -4,12 +4,16 @@
         "example.fa": {
             "IDs": "seq1, seq2",
             "description": "Example Database",
-            "group": "example"
+            "group": "example",
+            "junction": false,
+            "isoform": false
         },
         "example2.fa": {
             "IDs": "seq1, seq2",
             "description": "Example Database 2",
-            "group": "example"
+            "group": "example",
+            "junction": false,
+            "isoform": false
         }
     }
 }
