@@ -18,6 +18,9 @@ def run_blast(p3_inputs):
     '''
         run blastn for a single primer pair, then use analysis_blast.py to obtain amplicons within Tm thredsholds
     '''
+    if global_var.stop_run is True:
+        return {'db': '', 'amplicons': {}}
+
     if len(p3_inputs)==0 :  # unfortunately, these sites have no primers
         return {'db': '', 'amplicons': {}}
     db = p3_inputs[0]['db']  # dbs are the same
@@ -49,6 +52,8 @@ def run_blast(p3_inputs):
 
 def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, \
     report_amplicon_seq=False, Tm_diff=20, use_3_end=False, monitor=True):
+    if global_var.stop_run is True:
+        return {'error': 'Stop running'}
 
     # distribute tasks
     pool = mp.Pool(processes=cpu)

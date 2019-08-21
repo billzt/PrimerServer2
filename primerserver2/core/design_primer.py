@@ -7,6 +7,8 @@ import multiprocessing as mp
 import primer3
 import progressbar
 
+from primerserver2.core import global_var
+
 def single(site):
     '''
         Using the primer3-module to design primers for a single site, return a list (one or two items)
@@ -16,6 +18,9 @@ def single(site):
         site['id'], site['template'], site['type'], site['pos'], site['length'], 
         site['size_max'], site['size_min'], site['primer_num_return'], site['pick_internal']
     '''
+    if global_var.stop_run is True:
+        return []
+
     id = site['id']
     template = site['template']
     type = site['type']
@@ -99,6 +104,9 @@ def single(site):
 
 
 def multiple(sites, cpu=2, monitor=True):
+    if global_var.stop_run is True:
+        return {'error': 'Stop running'}
+    
     # distribute
     pool = mp.Pool(processes=cpu)
     multi_res = []

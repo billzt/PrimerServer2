@@ -3,6 +3,8 @@ import json
 
 import primer3
 
+from primerserver2.core import global_var
+
 def calculate_GC(seq):
     gc = len([x for x in seq.upper() if x=='G' or x=='C'])
     return gc/len(seq)*100
@@ -19,6 +21,9 @@ def make_primers(query):
         Input:
             query: a string in multi-lines
     '''
+    if global_var.stop_run is True:
+        return {'error': 'Stop running'}
+
     primers = {}
 
     for line in query.splitlines():

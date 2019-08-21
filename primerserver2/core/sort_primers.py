@@ -1,6 +1,8 @@
 import json
 import os
 
+from primerserver2.core import global_var
+
 def sort_rank(primers, dbs, max_num_return=10, use_isoforms=False):
     '''
         sort primers within each site based on their amplicons number in the main db
@@ -13,6 +15,9 @@ def sort_rank(primers, dbs, max_num_return=10, use_isoforms=False):
         Return:
             updated primers with PRIMER_PAIR_AMPLICON_NUM_RANK_X attribute
     '''
+    if global_var.stop_run is True:
+        return {'error': 'Stop running'}
+        
     main_db = os.path.basename(dbs[0])
     if use_isoforms is True:
         isoform_data = json.load(open(dbs[0]+'.isoforms.json'))

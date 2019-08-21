@@ -71,3 +71,8 @@ def run():
 def monitor():
     time.sleep(1)
     return Response(progress(), mimetype= 'text/event-stream')
+
+@bp.route('/stop')
+def stop():
+    global_var.stop_run = True
+    return ""

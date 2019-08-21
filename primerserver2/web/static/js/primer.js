@@ -33,32 +33,32 @@ function qPCR_filedset(config_data, db, mode, region_type) {
     if (mode=='full' || mode=='design') {
         if (config_data[db]['junction']==true && region_type=='SEQUENCE_INCLUDED_REGION') {
             $('#junction_1').parents('.form-group').removeClass('hidden');
-            $('[name="junction"]').val(1);
+            $('#junction_1').prop('checked', true);
         }
         else {
             $('#junction_1').parents('.form-group').addClass('hidden');
-            $('[name="junction"]').val(0);
+            $('#junction_0').prop('checked', true);
         }
     }
     else {
         $('#junction_1').parents('.form-group').addClass('hidden');
-        $('[name="junction"]').val(0);
+        $('#junction_0').prop('checked', true);
     }
 
     // isoform
     if (mode=='check' || (mode=='full' && region_type=='SEQUENCE_INCLUDED_REGION')) {
         if (config_data[db]['isoform']==true) {
             $('#isoform_1').parents('.form-group').removeClass('hidden');
-            $('[name="isoform"]').val(1);
+            $('#isoform_1').prop('checked', true);
         }
         else {
             $('#isoform_1').parents('.form-group').addClass('hidden');
-            $('[name="isoform"]').val(0);
+            $('#isoform_0').prop('checked', true);
         }
     }
     else {
         $('#isoform_1').parents('.form-group').addClass('hidden');
-        $('[name="isoform"]').val(0);
+        $('#isoform_0').prop('checked', true);
     }
 }
 
@@ -202,10 +202,9 @@ function AjaxSubmit(selected_dbs, mode) {
         if (currentAjax) {
             currentAjax.abort();
         }
-        // $.get('script/modal_stop.php', function(){
-        //     $('#running-modal').modal('hide');
-        // });
-        $('#running-modal').modal('hide');
+        $.get($SCRIPT_ROOT + '/stop', function(){
+            $('#running-modal').modal('hide');
+        });
     });
 }
 

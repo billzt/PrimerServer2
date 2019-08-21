@@ -4,6 +4,8 @@ import os
 import json
 import subprocess
 
+from primerserver2.core import global_var
+
 def get_template_len(template_file):
     '''
         return a dict of each seq's len based on the faidx
@@ -78,6 +80,9 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
                 'primer_num_return':,
             }]
     '''
+    if global_var.stop_run is True:
+        return {'error': 'Stop running'}
+
     primer_sites = []
     primer_site_rank = 0
     for line in query.splitlines():
