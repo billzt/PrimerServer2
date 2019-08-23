@@ -140,6 +140,7 @@ def multiple(sites, cpu=2, monitor=True):
 
 
 if __name__ == "__main__":
+    global_var.init()
     template = ''
     with open('tests/example.fa') as f:
         data = f.read().split('>')

@@ -115,6 +115,7 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
     return primers
 
 if __name__ == "__main__":
+    global_var.init()
     with open('tests/query_check_multiple') as f:
         primers = make_primers(query=f.read())
         dbs = ['tests/example.fa']

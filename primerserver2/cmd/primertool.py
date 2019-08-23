@@ -14,7 +14,8 @@ import shutil
 
 from distutils.version import LooseVersion
 
-from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, analysis_blast
+from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, analysis_blast, global_var
+from primerserver2.core import multiplex
 
 def make_args():
     parser = argparse.ArgumentParser(description='primertool: the command-line version of PrimerServer2', \
@@ -33,6 +34,10 @@ def make_args():
     group_all = parent_parser_all.add_argument_group('Overall Setttings')
     group_all.add_argument('--primer-num-retain', type=int, help='The maximum number of primers to retain in each \
         site in the final report.', default=10)
+    group_all.add_argument('--check-multiplex', help='Checking dimers between primers in different sites, which is useful in \
+        multiplex PCR.', action='store_true')
+    group_all.add_argument('--Tm-diff', type=int, help='The mininum difference of melting temperature (in ℃) \
+        suggested to produce off-target amplicon or primer dimers. Suggest >10', default=20)
     group_all.add_argument('-p', '--cpu', type=int, help='Used CPU number.', default=2)
     group_all.add_argument('-o', '--out', help="Output primers in JSON format. (Default is STDIN)", type=argparse.FileType('w'))
     group_all.add_argument('-t', '--tsv', help="Output primers in TSV format", type=argparse.FileType('w'))
@@ -57,8 +62,6 @@ def make_args():
     # These arguments are used by check and full
     parent_parser_check = argparse.ArgumentParser(add_help=False)
     group_check = parent_parser_check.add_argument_group('Check Specificity')
-    group_check.add_argument('--Tm-diff', type=int, \
-        help='The mininum melting temperature (in ℃) suggested to produce off-target amplicon. Suggest >10', default=20)
     group_check.add_argument('-3', '--use-3-end', help='If turned on, primer pairs having at least one mismatch at the 3 end\
         position with templates would not be considered to produce off-target amplicon, even if their melting temperatures \
             are high. Turn on this would find more candidate primers, but might also have more false positives\
@@ -162,18 +165,25 @@ def run(args):
                 report_amplicon_seq=args.report_amplicon_seqs, Tm_diff=args.Tm_diff, use_3_end=args.use_3_end)
         primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=args.primer_num_retain, use_isoforms=args.isoform)
 
+    ###################  Checking multiplex  ###############
+    dimers = {}
+    if args.check_multiplex is True:
+        dimers = multiplex.extract_fake_pair(primers, Tm_diff=args.Tm_diff, cpu=args.cpu)
 
     ###################  Output  ###########################
-    if args.out is not None:
-        region_type = args.type if 'type' in args else 'NA'
-        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type}, 'primers':primers}, indent=4), file=args.out)
-    else:
-        print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type}, 'primers':primers}, indent=4))
+    region_type = args.type if 'type' in args else 'NA'
+    output_fh = args.out if args.out is not None else sys.stdout
+    print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type}, \
+        'primers':primers, 'dimers':dimers}, indent=4), file=output_fh)
 
     if args.tsv is not None:
         print(output.tsv(primers, dbs), file=args.tsv)
+        if args.check_multiplex is True:
+            print(output.dimer_list(dimers), file=args.tsv)
+
 
 def main():
+    global_var.init()
     args = make_args()
     check_environments(args)
     check_templates(args)

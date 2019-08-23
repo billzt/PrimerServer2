@@ -83,6 +83,20 @@ def tsv(primers_dict, dbs):
 
     return '\n'.join(print_line)
 
+def dimer_list(dimers):
+    print_line = ['################### Dimers #################']
+    if 'error' in dimers:
+        print_line.append('ERROR: '+dimers['error'])
+    else:
+        header_line = '\t'.join(['#Site_1', 'Primer_Rank_1', 'Site_2', 'Primer_Rank_2'])
+        print_line.append(header_line)
+        for site_1 in dimers.keys():
+            for primer_1 in dimers[site_1].keys():
+                for (site_2, primer_2) in dimers[site_1][primer_1].items():
+                    print_line.append('\t'.join([site_1, primer_1, site_2, primer_2]))
+            print_line.append('###')
+    return '\n'.join(print_line)
+
 
 if __name__ == "__main__":
     primers = json.load(open('tests/_internal_/sort_primers2.json'))

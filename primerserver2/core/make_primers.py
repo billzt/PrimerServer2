@@ -12,7 +12,7 @@ def calculate_GC(seq):
 def check_primer_seq(seq):
     if len(seq)<10 or len(seq)>40:
         return False
-    if re.search('[^ATGCN]', seq) is not None:
+    if re.search('[^ATGCN]', seq, re.RegexFlag.IGNORECASE) is not None:
         return False
 
 def make_primers(query):
@@ -62,6 +62,7 @@ def make_primers(query):
     return primers
 
 if __name__ == "__main__":
+    global_var.init()
     with open('tests/_internal_/query_check') as f:
         primers = make_primers(f.read())
         print(json.dumps(primers, indent=4))

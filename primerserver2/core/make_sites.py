@@ -221,6 +221,7 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
     return primer_sites
 
 if __name__ == "__main__":
+    global_var.init()
     import argparse
     parser = argparse.ArgumentParser(description='Your title here')
     parser.add_argument('query_design', help='input file', type=argparse.FileType('r'))
