@@ -5,7 +5,7 @@ import time
 from flask import Blueprint, request, current_app, Response
 
 from primerserver2.web.config import load
-from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, global_var
+from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, global_var, multiplex
 
 web_config = load()
 db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
@@ -63,8 +63,15 @@ def run():
                     use_3_end=bool(int(request.form['use_3_end'])), monitor=False)
         primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=int(request.form['retain']), \
             use_isoforms=bool(int(request.form['isoform'])) )
-    return json.dumps({'meta':{'mode':request.form['app-type'], 'dbs':dbs, 'region_type': request.form['region_type']}, \
-        'primers':primers}, indent=4)
+
+    ###################  Checking multiplex  ###############
+    dimers = {}
+    if int(request.form['multiplex'])==1:
+        dimers = multiplex.extract_fake_pair(primers, Tm_diff=int(request.form['Tm_diff']), cpu=web_config['cpu'], monitor=False)
+
+    ###################  Output    #########################
+    return json.dumps({'meta':{'mode':request.form['app-type'], 'dbs':dbs, 'region_type': request.form['region_type'], \
+         'check_multiplex': bool(int(request.form['multiplex']))}, 'primers':primers, 'dimers':dimers}, indent=4)
     
 
 @bp.route('/monitor')

@@ -173,7 +173,7 @@ def run(args):
     ###################  Output  ###########################
     region_type = args.type if 'type' in args else 'NA'
     output_fh = args.out if args.out is not None else sys.stdout
-    print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type}, \
+    print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type, 'check_multiplex':args.check_multiplex}, \
         'primers':primers, 'dimers':dimers}, indent=4), file=output_fh)
 
     if args.tsv is not None:

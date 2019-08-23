@@ -203,3 +203,37 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
         }
     }
 }
+
+function generate_dimer_result(data){
+    $('#dimers-result tbody').html('');
+    $('#dimers-result').next('.alert-danger,.alert-success').remove();
+    if ('error' in data) {
+        $('#dimers-result').after($('#primers-result-template-error').html());
+        $('#dimers-result').next('.alert-danger').append('<p>ERROR: '+data['error']+'</p>');
+        return
+    }
+    if (jQuery.isEmptyObject(data)==true) {
+        $('#dimers-result').after($('#primers-result-template-error').html());
+        $('#dimers-result').next('.alert-danger').append('<p>No dimers detected. All primers can be used for multiplex PCR &hearts;</p>')
+            .removeClass('alert-danger').addClass('alert-success');
+        return
+    }
+    for (site_1 in data) {
+        for (primer_1 in data[site_1]) {
+            for (site_2 in data[site_1][primer_1]) {
+                for (primer_2 in data[site_1][primer_1][site_2]) {
+                    dimer = data[site_1][primer_1][site_2][primer_2]
+                    $('#dimers-result tbody').append('<tr>'
+                        +'<td>'+site_1+'</td>'
+                        +'<td>'+primer_1+'</td>'
+                        +'<td><span class="monospace-style">'+dimer['seq_1']+'</span></td>'
+                        +'<td>'+site_2+'</td>'
+                        +'<td>'+primer_2+'</td>'
+                        +'<td><span class="monospace-style">'+dimer['seq_2']+'</span></td>'
+                        +'<td>'+dimer['Tm']+'</td>'
+                        +'</tr>')
+                }
+            }
+        }
+    }
+}

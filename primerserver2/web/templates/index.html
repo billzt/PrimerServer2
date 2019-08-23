@@ -201,11 +201,22 @@
                             </div>
                         </fieldset>
                         <fieldset>
-                            <legend>Output</legend>
-                            <label class="col-sm-4 control-label">Max. Primers Return Number:</label>
-                            <div class="col-sm-3">
-                                <input type="text" name="retain" value="10" 
-                                class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
+                            <legend>Parameter: General</legend>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Max. Primers Return Number:</label>
+                                <div class="col-sm-2">
+                                    <input type="text" name="retain" value="10" 
+                                    class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
+                                </div>
+                                <label class="col-sm-4 control-label">Check Dimers(For multiplex PCR):</label>
+                                <div class="col-sm-2">
+                                    <div class="radio">
+                                        <label><input type="radio" name="multiplex" id="multiplex_1" value=1 />Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="multiplex" id="multiplex_0" value=0 checked />No</label>
+                                    </div>
+                                </div>
                             </div>
                         </fieldset>
                     </div>
@@ -238,6 +249,23 @@
                         </small>
                     </h2>
                     <div class="panel-group" id="primers-result" role="tablist"></div>
+                    <div class="table-responsive hidden"  id="dimers-result">
+                        <h3>Dimers</h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Site 1</th>
+                                    <th>Primer 1</th>
+                                    <th>Seq 1</th>
+                                    <th>Site 2</th>
+                                    <th>Primer 2</th>
+                                    <th>Seq 2</th>
+                                    <th>Tm (&deg;C)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
                 <div id="test"></div>
             </div>
@@ -293,7 +321,7 @@
                                     <th>Sequence (5' -&gt; 3')</th>
                                     <th>Length</th>
                                     <th>Position</th>
-                                    <th>Tm(°C)</th>
+                                    <th>Tm(&deg;C)</th>
                                     <th>GC(%)</th>
                                 </tr>
                             </thead>

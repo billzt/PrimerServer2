@@ -163,6 +163,14 @@ function visualize(json_data) {
 
     // valid results
     generate_html_result(selected_dbs, db_name_change, primer_data, visualize_mode);
+    if (result_data['meta']['check_multiplex']==false) {
+        $('#dimers-result').next('.alert-danger').remove();
+        $('#dimers-result').addClass('hidden');
+    }
+    else {
+        generate_dimer_result(result_data['dimers']);
+        $('#dimers-result').removeClass('hidden');
+    }
     if (visualize_mode=='full') {
         GenerateGraph($('#site-1'), region_type, true);
         $('#primers-result .collapse').on('shown.bs.collapse', function () {
