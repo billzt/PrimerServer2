@@ -88,12 +88,15 @@ def dimer_list(dimers):
     if 'error' in dimers:
         print_line.append('ERROR: '+dimers['error'])
     else:
-        header_line = '\t'.join(['#Site_1', 'Primer_Rank_1', 'Site_2', 'Primer_Rank_2'])
+        header_line = '\t'.join(['#Site_1', 'Primer_Rank_1', 'Seq_1', 'Site_2', 'Primer_Rank_2', 'Seq_2', 'Tm'])
         print_line.append(header_line)
         for site_1 in dimers.keys():
             for primer_1 in dimers[site_1].keys():
-                for (site_2, primer_2) in dimers[site_1][primer_1].items():
-                    print_line.append('\t'.join([site_1, primer_1, site_2, primer_2]))
+                for site_2 in dimers[site_1][primer_1].keys():
+                    for primer_2 in dimers[site_1][primer_1][site_2].keys():
+                        dimer = dimers[site_1][primer_1][site_2][primer_2]
+                        print_line.append('\t'.join([site_1, str(primer_1), dimer['seq_1'], \
+                            site_2, str(primer_2), dimer['seq_2'], str(dimer['Tm'])]))
             print_line.append('###')
     return '\n'.join(print_line)
 

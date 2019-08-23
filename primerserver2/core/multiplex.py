@@ -23,11 +23,11 @@ def judge_two_site(site_pair):
 
                 Heterodimer = primer3.calcHeterodimer(seq_1, seq_2)
                 if Heterodimer.tm > min_Tm:
-                    dimers.append([site_pair['id_1'], site_pair['id_2'], rank_1, rank_2])
+                    dimers.append([site_pair['id_1'], site_pair['id_2'], rank_1, rank_2, seq_1, seq_2, Heterodimer.tm])
                     break
                 EndStability = primer3.bindings.calcEndStability(seq_1, seq_2)
                 if EndStability.tm > min_Tm:
-                    dimers.append([site_pair['id_1'], site_pair['id_2'], rank_1, rank_2])
+                    dimers.append([site_pair['id_1'], site_pair['id_2'], rank_1, rank_2, seq_1, seq_2, EndStability.tm])
                     break
     return dimers
 
@@ -98,9 +98,10 @@ def extract_fake_pair(primers_dict, Tm_diff=10, cpu=2, monitor=True):
     dimers_dict = defaultdict(dict)
     for result in multi_res:
         for dimer in result.get():
-            (id_1, id_2, rank_1, rank_2) = dimer
-            dimers_dict[id_1][str(rank_1)] = defaultdict(dict)
-            dimers_dict[id_1][str(rank_1)][id_2] = str(rank_2)
+            (id_1, id_2, rank_1, rank_2, seq_1, seq_2, tm) = dimer
+            dimers_dict[id_1][rank_1] = defaultdict(dict)
+            dimers_dict[id_1][rank_1][id_2] = defaultdict(dict)
+            dimers_dict[id_1][rank_1][id_2][rank_2] = {'seq_1':seq_1, 'seq_2':seq_2, 'Tm':round(tm, 2)}
     return dimers_dict
 
 if __name__ == "__main__":
