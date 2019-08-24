@@ -9,10 +9,12 @@ import json
 import argparse
 
 from primerserver2.core.qRT import get_junction
+from primerserver2.core import version
 
 def main():
     parser = argparse.ArgumentParser(description='primertool-junctions: preparing the exon-exon junction database for PrimerServer2', \
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s '+version.get())
     parser.add_argument('template', help='the template file in FASTA format')
     parser.add_argument('gff', help='the annotation file in GFF3 format')
     parser.add_argument('-f', '--features', help='features in GFF3 (the 3rd column) that should be parsed as exons. \

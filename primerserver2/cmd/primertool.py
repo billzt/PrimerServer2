@@ -16,10 +16,12 @@ from distutils.version import LooseVersion
 
 from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, analysis_blast, global_var
 from primerserver2.core import multiplex
+from primerserver2.core import version
 
 def make_args():
     parser = argparse.ArgumentParser(description='primertool: the command-line version of PrimerServer2', \
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s '+version.get())
 
     # parent arguments
     # These arguments are used by all the three modes

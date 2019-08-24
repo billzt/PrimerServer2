@@ -1,10 +1,10 @@
 
 from setuptools import setup, find_packages
 
-VERSION = '2.0.0b5'
+from primerserver2.core import version
 
 setup(name='primerserver2',
-      version=VERSION,
+      version=version.get(),
       description="a high-throughput primer design and specificity-checking platform",
       long_description=__doc__,
       classifiers=[
