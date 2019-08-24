@@ -5,15 +5,15 @@ from flask import Blueprint, request, current_app, make_response
 
 from primerserver2.web.config import load
 
-web_config = load()
 db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
 
 bp = Blueprint('db', __name__)
 @bp.route('/dbselect')
 def dbselect():
+    web_config = load()
     dbs_in_select = {}
     for (template, meta) in web_config['templates'].items():
-        (desc, group, ids, junction, isoform) = (meta['description'], meta['group'], meta['IDs'], meta['junction'], meta['isoform'])
+        (desc, group, ids) = (meta['description'], meta['group'], meta['IDs'])
         if group not in dbs_in_select:
             dbs_in_select[group] = {}
         if template not in dbs_in_select[group]:
@@ -24,6 +24,7 @@ def dbselect():
 
 @bp.route('/dbinfo')
 def dbinfo():
+    web_config = load()
     return json.dumps(web_config['templates'], indent=4)
     
 @bp.route('/dbdownload/<template>/')

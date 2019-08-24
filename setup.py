@@ -27,7 +27,8 @@ setup(name='primerserver2',
       install_requires=[
           'primer3-py',
           'progressbar2',
-          'flask'
+          'flask',
+          'python-dotenv'
       ],
       entry_points={
           'console_scripts': [

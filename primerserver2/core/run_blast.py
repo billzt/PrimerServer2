@@ -59,6 +59,7 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
     pool = mp.Pool(processes=cpu)
     multi_res = []
     global_var.all_tasks_num = 0
+    global_var.current_task = 'blast'
     for db in dbs:
         p3_inputs = []
         for (id, primer) in primers.items():
@@ -79,7 +80,7 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
         for i in range(0, int(len(p3_inputs)/5)+1):
             sub_start = i*5
             sub_end = min(len(p3_inputs), sub_start+5)
-            global_var.all_tasks_num += 1
+            global_var.all_tasks_num += 5
             multi_res.append(pool.apply_async(run_blast, (p3_inputs[sub_start:sub_end],)))
 
     # monitor
@@ -87,16 +88,16 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
         widgets = ['Checking specificity: ', progressbar.Counter(),\
             ' Finished', ' (', progressbar.Percentage(), ')', \
                 progressbar.Bar(), progressbar.ETA()]
-        bar = progressbar.ProgressBar(widgets=widgets, max_value=global_var.all_tasks_num*5).start()
+        bar = progressbar.ProgressBar(widgets=widgets, max_value=global_var.all_tasks_num).start()
 
     while True:
-        global_var.complete_count = sum([1 for x in multi_res if x.ready()])
+        global_var.complete_count = sum([1 for x in multi_res if x.ready()])*5
         if global_var.complete_count == global_var.all_tasks_num:
             if monitor is True:
                 bar.finish()
             break
         if monitor is True:
-            bar.update(global_var.complete_count*5)
+            bar.update(global_var.complete_count)
         time.sleep(1)
         
     # Results

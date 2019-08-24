@@ -68,6 +68,7 @@ def extract_fake_pair(primers_dict, Tm_diff=10, cpu=2, monitor=True):
     pool = mp.Pool(processes=cpu)
     multi_res = []
     global_var.all_tasks_num = 0
+    global_var.current_task = 'multiplex'
     primer_ids = list(primer_sites.keys())
     for i in range(0, len(primer_ids)):
         id_1 = primer_ids[i]

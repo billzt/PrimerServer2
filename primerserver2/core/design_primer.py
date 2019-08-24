@@ -111,6 +111,7 @@ def multiple(sites, cpu=2, monitor=True):
     pool = mp.Pool(processes=cpu)
     multi_res = []
     global_var.all_tasks_num = 0
+    global_var.current_task = 'design'
     for site in sites:
         global_var.all_tasks_num += 1
         multi_res.append(pool.apply_async(single, (site,)))

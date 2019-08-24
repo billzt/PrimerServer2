@@ -31,7 +31,7 @@ function menu_init(data) {
 function qPCR_filedset(config_data, db, mode, region_type) {
     // junction
     if (mode=='full' || mode=='design') {
-        if (config_data[db]['junction']==true && region_type=='SEQUENCE_INCLUDED_REGION') {
+        if (db in config_data && config_data[db]['junction']==true && region_type=='SEQUENCE_INCLUDED_REGION') {
             $('#junction_1').parents('.form-group').removeClass('hidden');
             $('#junction_1').prop('checked', true);
         }
@@ -47,7 +47,7 @@ function qPCR_filedset(config_data, db, mode, region_type) {
 
     // isoform
     if (mode=='check' || (mode=='full' && region_type=='SEQUENCE_INCLUDED_REGION')) {
-        if (config_data[db]['isoform']==true) {
+        if (db in config_data && config_data[db]['isoform']==true) {
             $('#isoform_1').parents('.form-group').removeClass('hidden');
             $('#isoform_1').prop('checked', true);
         }
@@ -347,13 +347,19 @@ $('#running-modal').on('shown.bs.modal', function(){
     evtSource = new EventSource($SCRIPT_ROOT + '/monitor');
     evtSource.onmessage = function(e) {
         var progress_data = JSON.parse(e.data);
-        if (progress_data.all_tasks_num>0) {
-            $('#running-modal .modal-body h4').html('Waiting for BLAST: '+ progress_data.all_tasks_num*5 + ' tasks');
-            var progress_per = progress_data.complete_count/progress_data.all_tasks_num*100
-            $('#running-modal .progress-bar').css('width', progress_per+'%')
-                .html(progress_data.complete_count*5 +' tasks finished');
+        if (progress_data.current_task=='design') {
+            $('#running-modal .modal-body h4').html('Design Primers: '+ progress_data.all_tasks_num + ' sites');
         }
-        if (progress_data.complete_count>0 && progress_data.complete_count==progress_data.all_tasks_num) {
+        if (progress_data.current_task=='blast') {
+            $('#running-modal .modal-body h4').html('Waiting for BLAST: '+ progress_data.all_tasks_num + ' tasks');
+        }
+        if (progress_data.current_task=='multiplex') {
+            $('#running-modal .modal-body h4').html('Checking Multiplex Dimers: '+ progress_data.all_tasks_num + ' tasks');
+        }
+        var progress_per = progress_data.complete_count/progress_data.all_tasks_num*100
+        $('#running-modal .progress-bar').css('width', progress_per+'%')
+            .html(progress_data.complete_count +' tasks finished');
+        if (progress_data.current_task=='finish') {
             $('.progress-bar').removeClass('active').html('Completed. Waiting for generating results...');
             evtSource.close();
         }

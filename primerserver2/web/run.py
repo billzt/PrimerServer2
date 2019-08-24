@@ -7,23 +7,27 @@ from flask import Blueprint, request, current_app, Response
 from primerserver2.web.config import load
 from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, global_var, multiplex
 
-web_config = load()
 db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
 
 # for running progress
 global_var.init()
 def progress():
     while True:
-        yield "data:" + json.dumps({'complete_count': global_var.complete_count, 'all_tasks_num': global_var.all_tasks_num}) + '\n\n'
-        time.sleep(0.5)
-        if global_var.complete_count>0 and global_var.complete_count==global_var.all_tasks_num:
+        yield "data:" + json.dumps({'complete_count': global_var.complete_count, \
+            'all_tasks_num': global_var.all_tasks_num, 'current_task': global_var.current_task}) + '\n\n'
+        time.sleep(1)
+        # if global_var.complete_count>0 and global_var.complete_count==global_var.all_tasks_num:
+        #     break
+        if global_var.current_task=='finish':
             break
-    yield "data:" + json.dumps({'complete_count': global_var.complete_count, 'all_tasks_num': global_var.all_tasks_num}) + '\n\n'
+    yield "data:" + json.dumps({'complete_count': global_var.complete_count, \
+        'all_tasks_num': global_var.all_tasks_num, 'current_task': global_var.current_task}) + '\n\n'
 
 bp = Blueprint('run', __name__)
 @bp.route('/run', methods=['POST'])
 def run():
     ###################  init #############################
+    web_config = load()
     global_var.init()
 
     ###################  Design primers ###################
@@ -70,6 +74,7 @@ def run():
         dimers = multiplex.extract_fake_pair(primers, Tm_diff=int(request.form['Tm_diff']), cpu=web_config['cpu'], monitor=False)
 
     ###################  Output    #########################
+    global_var.current_task = 'finish'
     return json.dumps({'meta':{'mode':request.form['app-type'], 'dbs':dbs, 'region_type': request.form['region_type'], \
          'check_multiplex': bool(int(request.form['multiplex']))}, 'primers':primers, 'dimers':dimers}, indent=4)
     
