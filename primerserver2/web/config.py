@@ -2,133 +2,84 @@
 
 '''PrimerServer2: a high-throughput primer design and specificity-checking platform
 Github: https://github.com/billzt/PrimerServer2
-This is a CLI script to configure PrimerServer2:
-    (1) pre-load databases (by makeblastdb in NCBI BLAST+)
-    (2) define numbers of CPUs to use
+This is a CLI script to configure PrimerServer2
 '''
 
 import argparse
 import os
 import sys
-import re
 import json
 
-from primerserver2.cmd.primertool import check_environments
-
-def make_args():
-    parser = argparse.ArgumentParser(description='primerserver-config: configure PrimerServer2', \
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-t', '--template', help='a template file in FASTA format.')
-    parser.add_argument('-d', '--description', help='a human readable string describe your template FASTA file. \
-        default: The same as -t / --template')
-    parser.add_argument('-g', '--group', help='Assigning this template to a group.', default='group')
-    parser.add_argument('-p', '--cpu', type=int, help='Used CPU number. default: 2')
-    args = parser.parse_args()
-    return args
-
 def load():
-    web_config = json.load(open(os.path.join(os.path.dirname(__file__), '../data/web_config.json')))
+    home_dir = os.environ['HOME']
+    web_config = json.load(open(f'{home_dir}/.primerserver.json'))
     return web_config
 
-def main():
-    # init conf
-    if os.path.isfile(os.path.join(os.path.dirname(__file__), '../data/web_config.json')) is False:
-        os.system(f"cp {os.path.join(os.path.dirname(__file__), '../data/web_config_sample.json')} \
-            {os.path.join(os.path.dirname(__file__), '../data/web_config.json')}")
+def prepare():
+    home_dir = os.environ['HOME']
+    if os.path.isfile(f'{home_dir}/.primerserver.json') is False:
+        data_path = os.path.join(os.path.dirname(__file__), '../data')
+        os.system(f"cp {data_path}/web_config_sample.json {home_dir}/.primerserver.json")
+    print(f'Configure file {home_dir}/.primerserver.json is ready. Please modify it')
 
-    web_config = load()
-
-    # args
-    args = make_args()
-    check_environments(args)
-    db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
-
-    # template, junction, isoform, description, group
-    if args.template is not None:
-        db = args.template
-        print(f'Begin configuring template... {db}', file=sys.stderr)
-
-        # check templates
-        if os.path.isfile(db) is False:
-            raise Exception(f'File not found: {db}')
-        if os.path.isfile(db+'.fai') is False:
-            code = os.system(f'samtools faidx {db} 2>/dev/null')
-            if code != 0:
-                raise Exception(f'File {db} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format')
-        if os.path.isfile(db+'.nhr') is False:
-            code = os.system(f'makeblastdb -dbtype nucl -in {db} 2>/dev/null')
-            if code != 0:
-                raise Exception(f'File {db} cannot be indexed by makeblastdb.')
-
-        # db load
-        db_basename = os.path.basename(db)
-
-        # Name can't be example.fa
-        if db_basename=='example.fa' or db_basename=='example2.fa':
-            raise Exception('name: example.fa is not allowed')
-        
-        # Index and Copy
-        if os.path.isfile(db_dir+'/'+db_basename):
-            print(f'{db} has already existed in PrimerServer. Skip copying BLAST databases', file=sys.stderr)
-        else:
-            # Index
-            if os.path.isfile(db+'.nhr') is False:
-                print(f'{db} has not been indexed. Start indexing it...', file=sys.stderr)
-                code = os.system(f'makeblastdb -dbtype nucl -in {db} 2>/dev/null')
-                if code != 0:
-                    raise Exception(f'Error in indexing {db}. Perhaps it is not a valid DNA file in FASTA format')
-                print(f'Finish indexing it {db}', file=sys.stderr)
-            
-            # Copy
-            print(f'Start copying {db} to PrimerServer...', file=sys.stderr)
-            code = os.system(f'cp {db} {db}.fai {db}.nhr {db}.nin {db}.nsq {db_dir} 2>/dev/null')
-            if code != 0:
-                raise Exception(f'Error in copying {db}. Make sure you have write permisson to {db_dir} \
-                    and the space is enough', file=sys.stderr)
-        
-        # Add to config
-        if db_basename not in web_config['templates']:
-            web_config['templates'][db_basename] = {}
-        web_config['templates'][db_basename] = {'description': db_basename, 'group': args.group, 'junction': False, 'isoform': False}
-
-        # junction and isoform
-        if os.path.isfile(db+'.isoforms.json') is True and os.path.isfile(db_dir+'/'+db+'.isoforms.json') is not True:
-            code = os.system(f'cp {db}.isoforms.json {db_dir} 2>/dev/null')
-            web_config['templates'][db_basename]['junction'] = True
-        if os.path.isfile(db+'.junctions.json') is True and os.path.isfile(db_dir+'/'+db+'.junctions.json') is not True:
-            code = os.system(f'cp {db}.junctions.json {db_dir} 2>/dev/null')
-            web_config['templates'][db_basename]['isoform'] = True
-        
-        # description and group
-        if args.description is not None:
-            web_config['templates'][db_basename]['description'] = args.description
-        if args.group is not None:
-            web_config['templates'][db_basename]['group'] = args.group
-        
-
-    # CPUs
-    if args.cpu is not None:
-        print('Begin configuring CPUs...', file=sys.stderr)
-        if args.cpu<0:
-            raise Exception('CPU numbers must be larger than 0')
-        if args.cpu>os.cpu_count()-1:
-            raise Exception(f'CPU numbers cannot be larger than your system resources: {os.cpu_count()}')
-        web_config['cpu'] = args.cpu
-
-    # IDs
-    for db_file in web_config['templates']:
-        if 'IDs' not in web_config['templates'][db_file]:
-            ids = os.popen(f'sort -k2,2nr {db_dir}/{db_file}.fai | cut -f 1 | head -n 3').read().splitlines()
-            web_config['templates'][db_file]['IDs'] = '; '.join(ids)
+def check():
+    home_dir = os.environ['HOME']
+    status = 'error'
+    msg = ''
+    if os.path.isfile(f'{home_dir}/.primerserver.json') is False:
+        msg = f'The configure file {home_dir}/.primerserver.json is not found. Perhaps you are in a fresh \
+            installation? Please run "primerserver-config" to load and edit your configure files'
+        return {'status': status, 'msg': msg}
+    web_config = json.load(open(f'{home_dir}/.primerserver.json'))
+    for key in ['cpu', 'templates_directory', 'templates']:
+        if key not in web_config:
+            msg = f'The configure file {home_dir}/.primerserver.json is broken. It lacks the "{key}" key.'
+            return {'status': status, 'msg': msg}
+    if isinstance(web_config['cpu'], int) is False:
+        msg = f'There is some error in the configure file {home_dir}/.primerserver.json: the value for cpu must \
+            be int.'
+        return {'status': status, 'msg': msg}
+    db_dir = web_config['templates_directory']
+    if os.path.isdir(db_dir) is False:
+        msg = f'There is some error in the configure file {home_dir}/.primerserver.json: the path for \
+            templates_directory ({db_dir}) does not exist'
+        return {'status': status, 'msg': msg}
+    for (dbname, dbinfo) in web_config['templates'].items():
+        if os.path.isfile(f'{db_dir}/{dbname}') is False:
+            if dbname=='example.fa' or dbname=='example2.fa':
+                data_path = os.path.join(os.path.dirname(__file__), '../data')
+                os.system(f"cp {data_path}/{dbname}* {db_dir}/")
+            else:
+                msg = f'File {db_dir}/{dbname} does not exist'
+                return {'status': status, 'msg': msg}
+        if os.path.isfile(f'{db_dir}/{dbname}.nhr') is False:
+            msg = f'File {db_dir}/{dbname}.nhr does not exist. Use "makeblastdb" to index {db_dir}/{dbname}'
+            return {'status': status, 'msg': msg}
+        if os.path.isfile(f'{db_dir}/{dbname}.fai') is False:
+            msg = f'File {db_dir}/{dbname}.fai does not exist. Use "samtools faidx" to index {db_dir}/{dbname}'
+            return {'status': status, 'msg': msg}
+        for key in ['IDs', 'description', 'group', 'junction', 'isoform']:
+            if key not in dbinfo:
+                msg = f'The configure file {home_dir}/.primerserver.json is broken. It lacks the "{key}" key.'
+                return {'status': status, 'msg': msg}
+        for key in ['IDs', 'description', 'group']:
+            if isinstance(dbinfo[key], str) is False:
+                msg = f'There is some error in the configure file {home_dir}/.primerserver.json: the value for {key} must \
+                    be strings'
+                return {'status': status, 'msg': msg}
+        for key in ['junction', 'isoform']:
+            if isinstance(dbinfo[key], bool) is False:
+                msg = f'There is some error in the configure file {home_dir}/.primerserver.json: the value for {key} must \
+                    be boolean: true/false'
+                return {'status': status, 'msg': msg}
+        if dbinfo['junction'] is True and os.path.isfile(f'{db_dir}/{dbname}.junctions.json') is False:
+            msg = f'File {db_dir}/{dbname}.junctions.json does not exist. Use "primertool-junction" to generate it'
+            return {'status': status, 'msg': msg}
+        if dbinfo['isoform'] is True and os.path.isfile(f'{db_dir}/{dbname}.isoforms.json') is False:
+            msg = f'File {db_dir}/{dbname}.isoforms.json does not exist. Use "primertool-isoform" to generate it'
+            return {'status': status, 'msg': msg}
+    status = 'success'
+    return {'status': status, 'msg': msg}
     
-    # write configure file
-    with open(os.path.join(os.path.dirname(__file__), '../data/web_config.json'), 'w') as f:
-        json.dump(web_config, f, indent=4)
-        print('Configure finished', file=sys.stderr)
-
-
 if __name__ == "__main__":
-    main()
-    
-
-
+    print(json.dumps(check()))

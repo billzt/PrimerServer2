@@ -1,5 +1,6 @@
 {
     "cpu": 2,
+    "templates_directory": "",
     "templates": {
         "example.fa": {
             "IDs": "seq1, seq2",

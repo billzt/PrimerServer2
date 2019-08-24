@@ -35,7 +35,7 @@ setup(name='primerserver2',
               'primertool = primerserver2.cmd.primertool:main',
               'primertool-junction = primerserver2.cmd.junctions:main',
               'primertool-isoform = primerserver2.cmd.isoforms:main',
-              'primerserver-config = primerserver2.web.config:main'
+              'primerserver-config = primerserver2.web.config:prepare'
           ]
       },
 )
