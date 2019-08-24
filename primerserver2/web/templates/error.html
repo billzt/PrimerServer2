@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title> PrimerServer: ERROR </title>
+        <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" >
+    </head>
+    <body>
+        <div class="container" role="main">
+            <h1><span class="glyphicon glyphicon-remove-sign"></span></h1>
+            <div class="alert alert-danger" role="alert">
+                <h2>Oops! There's some error!</h2>
+                <p>{{msg}}</p>
+            </div>
+        </div>
+    </body>
+
+</html>
