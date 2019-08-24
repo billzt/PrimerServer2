@@ -7,8 +7,6 @@ from flask import Blueprint, request, current_app, Response
 from primerserver2.web.config import load
 from primerserver2.core import make_sites, make_primers, design_primer, run_blast, sort_primers, output, global_var, multiplex
 
-db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
-
 # for running progress
 global_var.init()
 def progress():
@@ -29,6 +27,7 @@ def run():
     ###################  init #############################
     web_config = load()
     global_var.init()
+    db_dir = web_config['templates_directory']
 
     ###################  Design primers ###################
     query_string = request.form['query']
