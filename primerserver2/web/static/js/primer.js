@@ -97,8 +97,27 @@ function switch_parameter_fieldset(mode) {
     }
 }
 
-function highlight_changed_field() {
-    1;
+function highlight_changed_field(originalValFor) {
+    var inputs = $(':text.save-input');
+    for (var i=0; i<inputs.length; i++) {
+        var el = inputs[i];
+        if (el.value!=originalValFor[el.name]) {
+            $(el).css('background-color', '#ffffbf');
+        }
+        else {
+            $(el).css('background-color', 'white');
+        }
+    }
+    inputs = $(':radio.save-input');
+    for (var i=0; i<inputs.length; i++) {
+        var el = inputs[i];
+        if (el.value!=originalValFor[el.name] && el.checked==true) {
+            $(el).parent('label').css('color', 'red');
+        }
+        else {
+            $(el).parent('label').css('color', '#333');
+        }
+    }
 }
 
 function show_selected_dbs(str, db_name_change) {
@@ -220,12 +239,24 @@ function AjaxSubmit(selected_dbs, mode) {
 // ********* Page load *********
 var db_name_change = new Object;
 var config_data = new Object;
+var originalValFor = new Object;
 $(function () {
     $.get($SCRIPT_ROOT + '/dbinfo', function(data){
         config_data = JSON.parse(data);
     });
 
     $.get($SCRIPT_ROOT + '/dbselect', function(data){
+        // get all the default values
+        var inputs = $(':text.save-input');
+        for (var i=0; i<inputs.length; i++) {
+            var el = inputs[i];
+            originalValFor[el.name] = el.defaultValue;
+        }
+        inputs = $(':radio.save-input');
+        for (var i=0; i<inputs.length; i++) {
+            var el = inputs[i];
+            originalValFor[el.name] = 0;
+        }
 
         // init menu, get db_name_change
         db_name_change = menu_init(data);
@@ -240,7 +271,7 @@ $(function () {
         mode = $("[name='app-type']").val()
         $('a[href="#'+mode+'"]').tab('show');
 
-        highlight_changed_field();
+        highlight_changed_field(originalValFor);
 
         // test('example.fa', 'primer_full.json', 'full');
     });
@@ -248,6 +279,11 @@ $(function () {
     tooltip_init();
 
 });
+
+// ********* Highlight differences when user changes *****************************************
+$('input').blur(function(){
+    highlight_changed_field(originalValFor);
+})
 
 // ********* Switch Running mode (init load change or by user change) and update UI *********
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -328,6 +364,7 @@ $(':reset').click(function(){
     $('[name="region_type"]').selectpicker('val', 'SEQUENCE_TARGET');
     $('[name="selected_dbs"]').val('');
     $('#show-selected-templates').html('');
+    highlight_changed_field(originalValFor);
 });
 
 // ********* User submit the form *******************************************************
