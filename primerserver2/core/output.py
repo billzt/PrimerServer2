@@ -6,7 +6,7 @@ def tsv(primers_dict, dbs):
     print_line = []
     header_line = '\t'.join(['#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Primer_Seq_Oligo', 'Target_Amplicon_Size', \
         'Primer_Pair_Penalty_Score', 'Primer_Rank_in_Primer3_output', 'Tm_left', 'Tm_Right', 'Tm_Oligo', \
-            'Database\tPossible_Amplicon_Number\tAmplicon_Size_in_DB\t'*len(dbs)])
+            'Database\tPossible_Amplicon_Number\tAmplicon_Size_in_DB\tAmplicon_Region_in_DB\t'*len(dbs)])
     print_line.append(header_line)
     for (id, primers) in primers_dict.items():
         template_id = id.split('-')[0]
@@ -68,14 +68,13 @@ def tsv(primers_dict, dbs):
                         print_data.append(str(amplicon_num_in_db))
                         if amplicon_num_in_db==1:
                             print_data.append(str(primers[db_base][f'PRIMER_PAIR_{raw_rank}_AMPLICONS'][0]['product_size']))
+                            print_data.append(str(primers[db_base][f'PRIMER_PAIR_{raw_rank}_AMPLICONS'][0]['region']))
                         else:
-                            print_data.append('NA')
+                            print_data.extend(('NA', 'NA'))
                     else:
-                        print_data.append('NA')
-                        print_data.append('NA')
+                        print_data.extend(('NA', 'NA', 'NA'))
                 else:
-                    print_data.append('NA')
-                    print_data.append('NA')
+                    print_data.extend(('NA', 'NA', 'NA'))
             
 
             print_line.append('\t'.join(print_data))
