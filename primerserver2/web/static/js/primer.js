@@ -394,3 +394,40 @@ $('#file-visulization').on('change', function(){
         visualize(json_data);
     };
 })
+
+// ********* amplicon details when click the button ****************************************
+function target_seq_format(qseq, sseq){
+    qseq = qseq.toUpperCase();
+    sseq = sseq.toUpperCase();
+    new_sseq = ''
+    for (i in sseq) {
+        if (sseq[i]==qseq[i]) {
+            new_sseq +='.'
+        }
+        else {
+            new_sseq +=sseq[i]
+        }
+    }
+    return new_sseq
+}
+$('#amplicon-details-modal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var amplicon_details = button.data('amplicon');
+    $('#amplicon-details-modal pre').html('');
+    $('#amplicon-details-modal pre').append('Template Region: '+amplicon_details['region']+'<br/>')
+        .append('Primer Left: '+amplicon_details['plus']['qseqid']+' ('+amplicon_details['plus']['qseq']+')'+'<br/>')
+        .append('Primer Right: '+amplicon_details['minus']['qseqid']+' ('+amplicon_details['minus']['qseq']+')'+'<br/>')
+        .append('Product Size: '+amplicon_details['product_size']+'<br/>')
+        .append('Melting Temperature for Left Primer (°C): '+amplicon_details['plus']['Tm']+'<br/>')
+        .append('Melting Temperature for Right Primer (°C): '+amplicon_details['minus']['Tm']+'<br/>')
+        .append('Amplicon Seq: "'+amplicon_details['product_seq']+'"<br/><br/>')
+        .append('Primer Left      '+' '.repeat(amplicon_details['plus']['sstart'].toString().length-1)+'1 '+amplicon_details['plus']['qseq']
+            +' '+amplicon_details['plus']['qseq'].toString().length+'<br/>')
+        .append('Binding Template '+amplicon_details['plus']['sstart'].toString()+' '+target_seq_format(amplicon_details['plus']['qseq'], amplicon_details['plus']['sseq'])
+            +' '+amplicon_details['plus']['send'].toString()+'<br/><br/>')
+        .append('Primer Right     '+' '.repeat(amplicon_details['minus']['sstart'].toString().length-1)+'1 '+amplicon_details['minus']['qseq']
+            +' '+amplicon_details['minus']['qseq'].toString().length+'<br/>')
+        .append('Binding Template '+amplicon_details['minus']['send'].toString()+' '+target_seq_format(amplicon_details['minus']['qseq'], amplicon_details['minus']['sseq'])
+            +' '+amplicon_details['minus']['sstart'].toString()+'<br/>')
+
+});

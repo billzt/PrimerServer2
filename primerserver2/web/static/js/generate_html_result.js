@@ -156,7 +156,11 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
                 var output_amplicon_num = 0;
                 for (var j in amplicons) {
                     $('#primers-result-template-primer .list-group-amplicons-'+db_rank)
-                        .append('<li class="list-group-item">'+amplicons[j]['region']+', '+amplicons[j]['product_size']+' bp');
+                        .append('<li class="list-group-item">'+amplicons[j]['region']+', '+amplicons[j]['product_size']+' bp'
+                            +' <a href="javascript:void(0)" data-toggle="modal" data-target="#amplicon-details-modal" data-amplicon='
+                            +JSON.stringify(amplicons[j])
+                            +'>'
+                            +'<span class="glyphicon glyphicon-hand-right"></span></a>');
                     amplicon_li = $('#primers-result-template-primer .list-group-amplicons-'+db_rank+' li:eq('+j+')')
                     if (amplicon_num==1) {
                         amplicon_li.addClass('list-group-item-success')
