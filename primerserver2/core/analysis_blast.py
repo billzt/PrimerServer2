@@ -25,7 +25,10 @@ def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
             continue
 
         # collect
-        (primer_id, primer_rank) = qseqid.split('.')[0:2]
+        # qseqid: {id}.{rank}.L or {id}.{rank}.R
+        qseqid_data = qseqid.split('.')
+        primer_rank = qseqid_data[-2]
+        primer_id = '.'.join(qseqid_data[0:-2])
         if primer_id not in primer_hits_all_sites:
             primer_hits_all_sites[primer_id] = {}
         if primer_rank not in primer_hits_all_sites[primer_id]:
