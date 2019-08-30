@@ -86,6 +86,8 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
     primer_sites = []
     primer_site_rank = 0
     for line in query.splitlines():
+        if line.strip()=='':
+            continue
         primer_site_rank += 1
         seq = re.split(r'\s+', line.strip())[0]
 
@@ -150,11 +152,16 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
                 'primer_num_return':,
             }]
     '''
+    if global_var.stop_run is True:
+        return {'error': 'Stop running'}
+        
     template_len_for = get_template_len(template_file)
 
     primer_sites = []
     retrieve_region2raw_region = {}
     for line in query.splitlines():
+        if line.strip()=='':
+            continue
         query_data = re.split(r'\s+', line.strip())
         if query_data[0]=='':
             return {'error': f'Your input {line.strip()} has no template seqs'}
