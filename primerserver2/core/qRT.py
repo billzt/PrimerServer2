@@ -88,7 +88,7 @@ def get_AS(gff_file, features=['mRNA'], rna_print_ID_key='ID', remove_version=Tr
                     rna_print_ID = x.replace(f'{rna_print_ID_key}=', '')
                     if remove_version is True:
                         rna_print_ID = re.sub(r'\.\d+$', '', rna_print_ID)
-                    rna2gene[rna_print_ID] = gene_ID
+            rna2gene[rna_print_ID] = gene_ID
             gene2rnas[gene_ID].append(rna_print_ID)
             if monitor is True:
                 bar.update(i)
