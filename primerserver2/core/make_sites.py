@@ -119,18 +119,18 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
             else:
                 pos = seq.find('[')
                 length = seq.find(']')-seq.find('[')
-                primer_sites.append({
-                    'id': 'S'+str(primer_site_rank)+'-'+str(pos)+'-'+str(length), 
-                    'template': seq.replace('[','').replace(']',''),
-                    'type': primer_type,
-                    'pos': pos,
-                    'length':length,
-                    'size_min':size_min,
-                    'size_max':size_max,
-                    'primer_num_return':primer_num_return,
-                    'pick_internal': pick_internal,
-                    'junction': []
-                })
+            primer_sites.append({
+                'id': 'S'+str(primer_site_rank)+'-'+str(pos)+'-'+str(length), 
+                'template': seq.replace('[','').replace(']',''),
+                'type': primer_type,
+                'pos': pos,
+                'length':length,
+                'size_min':size_min,
+                'size_max':size_max,
+                'primer_num_return':primer_num_return,
+                'pick_internal': pick_internal,
+                'junction': []
+            })
     return primer_sites
 
 

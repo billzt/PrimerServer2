@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 
 from operator import itemgetter
 
@@ -25,20 +26,20 @@ def get_junction(gff_file, features=['exon'], rna_print_ID_key='Parent', remove_
                     rna_ID = x.replace('Parent=', '')
                     if rna_ID not in id2exons:
                         id2exons[rna_ID] = []
+                    id2exons[rna_ID].append([int(start), int(end)])
+                    id2strand[rna_ID] = strand
                 if f'{rna_print_ID_key}=' in x:
                     rna_print_ID = x.replace(f'{rna_print_ID_key}=', '')
                     if remove_version is True:
                         rna_print_ID = re.sub(r'\.\d+$', '', rna_print_ID)
-            id2exons[rna_ID].append([int(start), int(end)])
-            id2strand[rna_ID] = strand
-            id2print[rna_ID] = rna_print_ID
+                    id2print[rna_ID] = rna_print_ID
             if monitor is True:
                 bar.update(i)
             i+=1
         
         junction_data = {}
         i = 0
-        for rna_ID in id2strand.keys():
+        for rna_ID in id2print.keys():
             exons = id2exons[rna_ID]
             if len(exons)==1:
                 continue
