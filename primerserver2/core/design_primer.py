@@ -118,7 +118,7 @@ def multiple(sites, cpu=2, monitor=True):
 
     # monitor
     if monitor is True:
-        widgets = ['Designning Primers: ', progressbar.Counter(), ' Finished', ' (', progressbar.Percentage(), ')', \
+        widgets = ['Designing Primers: ', progressbar.Counter(), ' Finished', ' (', progressbar.Percentage(), ')', \
             progressbar.Bar(), progressbar.ETA()]
         bar = progressbar.ProgressBar(widgets=widgets, max_value=global_var.all_tasks_num).start()
 
