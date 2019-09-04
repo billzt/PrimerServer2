@@ -235,6 +235,7 @@ function generate_dimer_result(data){
                         +'<td>'+primer_2+'</td>'
                         +'<td><span class="monospace-style">'+dimer['seq_2']+'</span></td>'
                         +'<td>'+dimer['Tm']+'</td>'
+                        +'<td><pre>'+dimer['ascii_structure']+'</pre></td>'
                         +'</tr>')
                 }
             }
