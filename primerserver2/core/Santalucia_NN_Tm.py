@@ -136,8 +136,13 @@ def rev_complement(seq):
 					  '-':'-', 
 					  'N':'N'}
 	letters = list(seq)
-	letters = [basecomplement[base] for base in letters]
-	complement = (''.join(letters))                                                 #gives the complement of the bases in list letters
+	newletters = []
+	for base in letters:
+		if base in basecomplement:
+			newletters.append(basecomplement[base])
+		else:
+			newletters.append('N')
+	complement = (''.join(newletters))                                              #gives the complement of the bases in list letters
 	return complement[::-1]                                                         #gives the reverse of the compliment   
 
 def complement(seq):
@@ -149,8 +154,13 @@ def complement(seq):
 					  '-':'-', 
 					  'N':'N'}
 	letters = list(seq)
-	letters = [basecomplement[base] for base in letters]
-	complement = (''.join(letters))                                                 #gives the complement of the bases in list letters
+	newletters = []
+	for base in letters:
+		if base in basecomplement:
+			newletters.append(basecomplement[base])
+		else:
+			newletters.append('N')
+	complement = (''.join(newletters))                                                 #gives the complement of the bases in list letters
 	return complement 
 
 ### FUNCTION TO QC INPUT OLIGO SEQUENCES. (covert the input seq to uppercase, remove any whitespace and characters other than 'A','C','G','T','N','-')
