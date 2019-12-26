@@ -3,6 +3,7 @@ import json
 import os
 import time
 import multiprocessing as mp
+import sys
 
 import primer3
 import progressbar
@@ -159,7 +160,8 @@ if __name__ == "__main__":
                     'size_min':75,
                     'size_max':1000,
                     'primer_num_return':10,
-                    'pick_internal': True
+                    'pick_internal': False,
+                    'junction': []
                 }, 
                 {
                     'id':'B-SEQUENCE_TARGET-200-10', 
@@ -170,7 +172,8 @@ if __name__ == "__main__":
                     'size_min':75,
                     'size_max':1000,
                     'primer_num_return':10,
-                    'pick_internal': False
+                    'pick_internal': False,
+                    'junction': []
                 },
                 {
                     'id':'C-FORCE_END-319-1', 
@@ -181,5 +184,7 @@ if __name__ == "__main__":
                     'size_min':75,
                     'size_max':1000,
                     'primer_num_return':10,
-                    'pick_internal': False
-                }]), indent=4))
+                    'pick_internal': False,
+                    'junction': []
+                }
+                ]), indent=4))
