@@ -115,7 +115,7 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
         if primer_type=='SEQUENCE_INCLUDED_REGION':
             if '[' not in seq and ']' not in seq:
                 pos = 1
-                length = len(seq)
+                length = len(seq)-1
             else:
                 pos = seq.find('[')
                 length = seq.find(']')-seq.find('[')
