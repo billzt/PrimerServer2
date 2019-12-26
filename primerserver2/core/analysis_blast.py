@@ -21,8 +21,8 @@ def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
         (qseqid, qlen, qstart, qend, sseqid, slen, sstart, send, sstrand) = line.strip().split('\t')
         
         # include main chrs only
-        if 'random' in sseqid or 'alt' in sseqid or 'Un' in sseqid or 'scaffold' in sseqid:
-            continue
+        # if 'random' in sseqid or 'alt' in sseqid or 'Un' in sseqid or 'scaffold' in sseqid:
+        #     continue
 
         # collect
         # qseqid: {id}.{rank}.L or {id}.{rank}.R
