@@ -45,13 +45,14 @@ def run_blast(p3_inputs):
         len_max=p3_inputs[0]['checking_size_max'])
     hits_seqs = faidx(template_file=db, region_string=amplicons['regions_primer'])
     report_amplicons = filter_Tm(amplicons['amplicons'], query_primer_seq=query_primer_seq_dict, \
-        hits_seqs=hits_seqs, Tm_diff=p3_inputs[0]['Tm_diff'], use_3_end=p3_inputs[0]['use_3_end'])
+        hits_seqs=hits_seqs, Tm_diff=p3_inputs[0]['Tm_diff'], use_3_end=p3_inputs[0]['use_3_end'], \
+            max_amplicons=p3_inputs[0]['max_amplicon'])
     if p3_inputs[0]['report_amplicon_seq'] is True:
         report_amplicons = add_amplicon_seq(amplicons=report_amplicons, template_file=db)
     return {'db': os.path.basename(db), 'amplicons': report_amplicons}
 
 def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, \
-    report_amplicon_seq=False, Tm_diff=20, use_3_end=False, monitor=True):
+    report_amplicon_seq=False, Tm_diff=20, use_3_end=False, monitor=True, max_amplicon=10):
     if global_var.stop_run is True:
         return {'error': 'Stop running'}
 
@@ -75,7 +76,8 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
                     'checking_size_max': checking_size_max,
                     'report_amplicon_seq': report_amplicon_seq,
                     'Tm_diff': Tm_diff,
-                    'use_3_end': use_3_end
+                    'use_3_end': use_3_end,
+                    'max_amplicon': max_amplicon
                 })
         for i in range(0, int(len(p3_inputs)/5)+1):
             sub_start = i*5
