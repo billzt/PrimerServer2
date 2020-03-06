@@ -3,7 +3,7 @@ import json
 import sys
 
 from primerserver2.core.make_sites import faidx
-from primerserver2.core.Santalucia_NN_Tm import complement, rev_complement, NN_Tm
+from primerserver2.core.Santalucia_NN_Tm import complement, rev_complement, NN_Tm, transform_degenerate
 from primerserver2.core.make_primers import make_primers
 
 def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
@@ -125,8 +125,10 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
                 query_primer_minus = query_primer_seq[amplicon['minus']['qseqid']]  # LEFT or RIGHT
 
                 # perfect Tm for this primer pair
-                Tm_perfect = min(float(NN_Tm(seq=query_primer_plus, compl_seq=complement(query_primer_plus))), \
-                    float(NN_Tm(seq=query_primer_minus, compl_seq=complement(query_primer_minus))))
+                Tm_perfect = min(float(NN_Tm(seq=transform_degenerate(query_primer_plus), \
+                    compl_seq=complement(transform_degenerate(query_primer_plus)))), \
+                    float(NN_Tm(seq=transform_degenerate(query_primer_minus), \
+                        compl_seq=complement(transform_degenerate(query_primer_minus)))))
 
                 # 3' end in this amplicon
                 if use_3_end is True:
@@ -143,7 +145,8 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
                     raise Exception(f'Not the same length: \n \
                         Primer: {query_primer_plus} \n \
                         Hit: {region_plus} {hit_seq_plus}')
-                Tm_plus = float(NN_Tm(seq=query_primer_plus, compl_seq=complement(hit_seq_plus)))
+                Tm_plus = float(NN_Tm(seq=transform_degenerate(query_primer_plus), \
+                    compl_seq=complement(transform_degenerate(hit_seq_plus))))
                 if Tm_plus<Tm_perfect-Tm_diff:
                     continue
 
@@ -152,7 +155,8 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
                     raise Exception(f'Not the same length: \n \
                         Primer: {query_primer_minus} \n \
                         Hit: {region_minus} {hit_seq_minus}')
-                Tm_minus = float(NN_Tm(seq=query_primer_minus, compl_seq=complement(hit_seq_minus)))
+                Tm_minus = float(NN_Tm(seq=transform_degenerate(query_primer_minus), \
+                    compl_seq=complement(transform_degenerate(hit_seq_minus))))
                 if Tm_minus<Tm_perfect-Tm_diff:
                     continue
 

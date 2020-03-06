@@ -127,6 +127,22 @@ def ion_correction(Na=0, K=0, Tris=0, Mg=0, dNTPs=0, seq_len=None):
 	return correction_factor
 
 ### FUNCTION TO CHECK WHETHER TWO SEQUENCES ARE REVERSE COMPLEMENTS OF EACH OTHER
+def transform_degenerate(seq):
+	seq = seq.upper()
+	basesub = {'R': 'A',
+		'Y': 'C',
+		'M': 'A',
+		'K': 'G',
+		'S': 'G',
+		'W': 'A',
+		'H': 'A',
+		'B': 'G',
+		'V': 'G',
+		'D': 'G'}
+	for base in basesub.keys():
+		seq = seq.replace(base, basesub[base])
+	return seq
+
 def rev_complement(seq):
 	seq = seq.upper()
 	basecomplement = {'A':'T', 

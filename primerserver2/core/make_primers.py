@@ -12,7 +12,7 @@ def calculate_GC(seq):
 def check_primer_seq(seq):
     if len(seq)<10 or len(seq)>40:
         return False
-    if re.search('[^ATGCN]', seq, re.RegexFlag.IGNORECASE) is not None:
+    if re.search('[^ATGCNRYMKSWHBVD]', seq, re.RegexFlag.IGNORECASE) is not None:
         return False
 
 def make_primers(query):
