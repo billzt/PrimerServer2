@@ -41,8 +41,10 @@ def make_args():
     group_all.add_argument('--Tm-diff', type=int, help='The mininum difference of melting temperature (in ℃) \
         suggested to produce off-target amplicon or primer dimers. Suggest >10', default=20)
     group_all.add_argument('-p', '--cpu', type=int, help='Used CPU number.', default=2)
-    group_all.add_argument('-o', '--out', help="Output primers in JSON format. (Default is STDIN)", type=argparse.FileType('w'))
-    group_all.add_argument('-t', '--tsv', help="Output primers in TSV format", type=argparse.FileType('w'))
+    group_all.add_argument('-o', '--out', help="Output primers in JSON format. default: {query}.out", \
+        type=argparse.FileType('w'))
+    group_all.add_argument('-t', '--tsv', help="Output primers in TSV format. default: {query}.tsv", \
+        type=argparse.FileType('w'))
 
     # These arguments are used by design and full
     parent_parser_design = argparse.ArgumentParser(add_help=False)
@@ -177,14 +179,20 @@ def run(args):
 
     ###################  Output  ###########################
     region_type = args.type if 'type' in args else 'NA'
-    output_fh = args.out if args.out is not None else sys.stdout
+    if args.out is None:
+        output_fh = open(f'{args.query.name}.out', mode='w')
+    else:
+        output_fh = args.out
     print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type, 'check_multiplex':args.check_multiplex}, \
         'primers':primers, 'dimers':dimers}, indent=4), file=output_fh)
 
-    if args.tsv is not None:
-        print(output.tsv(primers, dbs), file=args.tsv)
-        if args.check_multiplex is True:
-            print(output.dimer_list(dimers), file=args.tsv)
+    if args.tsv is None:
+        tsv_fh = open(f'{args.query.name}.tsv', mode='w')
+    else:
+        tsv_fh = args.tsv
+    print(output.tsv(primers, dbs), file=tsv_fh)
+    if args.check_multiplex is True:
+        print(output.dimer_list(dimers), file=tsv_fh)
 
 
 def main():

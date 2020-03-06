@@ -4,6 +4,7 @@ import json
 import primer3
 
 from primerserver2.core import global_var
+from primerserver2.core.Santalucia_NN_Tm import transform_degenerate
 
 def calculate_GC(seq):
     gc = len([x for x in seq.upper() if x=='G' or x=='C'])
@@ -52,10 +53,10 @@ def make_primers(query):
         primers[id][f'PRIMER_RIGHT_{rank}_SEQUENCE'] =  seq_R
         primers[id][f'PRIMER_LEFT_{rank}'] = [-1, len(seq_F)]
         primers[id][f'PRIMER_RIGHT_{rank}'] = [-1, len(seq_R)]
-        primers[id][f'PRIMER_LEFT_{rank}_TM'] = primer3.calcTm(seq_F)
-        primers[id][f'PRIMER_RIGHT_{rank}_TM'] = primer3.calcTm(seq_R)
-        primers[id][f'PRIMER_LEFT_{rank}_GC_PERCENT'] = calculate_GC(seq_F)
-        primers[id][f'PRIMER_RIGHT_{rank}_GC_PERCENT'] = calculate_GC(seq_R)
+        primers[id][f'PRIMER_LEFT_{rank}_TM'] = primer3.calcTm(transform_degenerate(seq_F))
+        primers[id][f'PRIMER_RIGHT_{rank}_TM'] = primer3.calcTm(transform_degenerate(seq_R))
+        primers[id][f'PRIMER_LEFT_{rank}_GC_PERCENT'] = calculate_GC(transform_degenerate(seq_F))
+        primers[id][f'PRIMER_RIGHT_{rank}_GC_PERCENT'] = calculate_GC(transform_degenerate(seq_R))
         primers[id][f'PRIMER_PAIR_{rank}_PRODUCT_SIZE'] = -1
         primers[id]['SEQUENCE_RELATIVE_TARGET_START'] = 0
     
