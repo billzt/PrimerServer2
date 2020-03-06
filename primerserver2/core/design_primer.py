@@ -30,11 +30,18 @@ def single(site):
     size_max = site['size_max']
     size_min = site['size_min']
     primer_num_return = site['primer_num_return']
+    Tm_opt = site['Tm_opt'] if 'Tm_opt' in site else 60
 
     p3_json = os.path.join(os.path.dirname(__file__), '../data/p3_settings.json')
     p3_settings = dict(json.load(open(p3_json)))
     p3_settings['PRIMER_PRODUCT_SIZE_RANGE'] = [[size_min, size_max]]
     p3_settings['PRIMER_NUM_RETURN'] = primer_num_return
+    p3_settings['PRIMER_OPT_TM'] = Tm_opt
+    p3_settings['PRIMER_MIN_TM'] = Tm_opt-3
+    p3_settings['PRIMER_MAX_TM'] = Tm_opt+3
+    p3_settings['PRIMER_INTERNAL_OPT_TM'] = Tm_opt+10
+    p3_settings['PRIMER_INTERNAL_MIN_TM'] = p3_settings['PRIMER_INTERNAL_OPT_TM']-3
+    p3_settings['PRIMER_INTERNAL_MAX_TM'] = p3_settings['PRIMER_INTERNAL_OPT_TM']+3
     if site['pick_internal'] is True:
         p3_settings['PRIMER_PICK_INTERNAL_OLIGO'] = 1
 

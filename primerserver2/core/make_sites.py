@@ -63,7 +63,8 @@ def judge_input_type(query):
     else:
         return 'pos'
 
-def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max=1000, pick_internal=False):
+def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, \
+    size_max=1000, pick_internal=False, Tm_opt=60):
     '''
         Input:
             query: a string in multi-lines
@@ -109,7 +110,8 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
                 'size_max':size_max,
                 'primer_num_return':primer_num_return,
                 'pick_internal': pick_internal,
-                'junction': []
+                'junction': [],
+                'Tm_opt': Tm_opt
             })
         # SEQUENCE_INCLUDED_REGION
         if primer_type=='SEQUENCE_INCLUDED_REGION':
@@ -129,13 +131,15 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, size_max
                 'size_max':size_max,
                 'primer_num_return':primer_num_return,
                 'pick_internal': pick_internal,
-                'junction': []
+                'junction': [],
+                'Tm_opt': Tm_opt
             })
     return primer_sites
 
 
 
-def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, size_max=1000, pick_internal=False, use_junction=False):
+def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_min=70, \
+    size_max=1000, pick_internal=False, use_junction=False, Tm_opt=60):
     '''
         Input:
             query: a string in multi-lines
@@ -222,7 +226,8 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
             'size_max':size_max,
             'primer_num_return':primer_num_return,
             'pick_internal': pick_internal,
-            'junction': junctions
+            'junction': junctions,
+            'Tm_opt': Tm_opt
         })
     
     return primer_sites

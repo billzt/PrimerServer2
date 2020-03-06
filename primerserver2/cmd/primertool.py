@@ -38,7 +38,7 @@ def make_args():
         site in the final report.', default=10)
     group_all.add_argument('--check-multiplex', help='Checking dimers between primers in different sites, which is useful in \
         multiplex PCR.', action='store_true')
-    group_all.add_argument('--Tm-diff', type=int, help='The mininum difference of melting temperature (in ℃) \
+    group_all.add_argument('--Tm-diff', type=int, help='The mininum difference of melting temperature (℃) \
         suggested to produce off-target amplicon or primer dimers. Suggest >10', default=20)
     group_all.add_argument('-p', '--cpu', type=int, help='Used CPU number.', default=2)
     group_all.add_argument('-o', '--out', help="Output primers in JSON format. default: {query}.out", \
@@ -56,6 +56,8 @@ def make_args():
         default=70)
     group_design.add_argument('--product-size-max', type=int, help='Upper limit of the product amplicon size range (bp).', \
         default=1000)
+    group_design.add_argument('--Tm-opt', type=int, help='Optmized melting temperature for primers (℃).', \
+        default=60)
     group_design.add_argument('--primer-num-return', type=int, help='The maximum number of primers to return in Primer3 \
         designing results.', default=30)
     # qRT-PCR specific
@@ -155,11 +157,11 @@ def run(args):
         if make_sites.judge_input_type(query_string)=='pos':
             sites = make_sites.build_by_pos(query=query_string, template_file=dbs[0], primer_type=args.type, \
                 primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max, \
-                    pick_internal=args.pick_oligo, use_junction=args.junction)
+                    pick_internal=args.pick_oligo, use_junction=args.junction, Tm_opt=args.Tm_opt)
         else:
             sites = make_sites.build_by_seq(query=query_string, primer_type=args.type, \
                 primer_num_return=primer_num_return, size_min=args.product_size_min, size_max=args.product_size_max, \
-                    pick_internal=args.pick_oligo)
+                    pick_internal=args.pick_oligo, Tm_opt=args.Tm_opt)
         if 'error' in sites:
             raise Exception(sites['error'])
         primers = design_primer.multiple(sites, cpu=args.cpu)
