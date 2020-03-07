@@ -42,6 +42,11 @@ def single(site):
     p3_settings['PRIMER_INTERNAL_OPT_TM'] = Tm_opt+10
     p3_settings['PRIMER_INTERNAL_MIN_TM'] = p3_settings['PRIMER_INTERNAL_OPT_TM']-3
     p3_settings['PRIMER_INTERNAL_MAX_TM'] = p3_settings['PRIMER_INTERNAL_OPT_TM']+3
+    p3_settings['PRIMER_MAX_SELF_ANY_TH'] = Tm_opt-15
+    p3_settings['PRIMER_PAIR_MAX_COMPL_ANY_TH'] = Tm_opt-15
+    p3_settings['PRIMER_MAX_SELF_END_TH'] = Tm_opt-15
+    p3_settings['PRIMER_PAIR_MAX_COMPL_END_TH'] = Tm_opt-15
+    p3_settings['PRIMER_MAX_HAIRPIN_TH'] = Tm_opt-15
     if site['pick_internal'] is True:
         p3_settings['PRIMER_PICK_INTERNAL_OLIGO'] = 1
 
