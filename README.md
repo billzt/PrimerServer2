@@ -29,13 +29,13 @@ This repository is based on Python3 and acts as the successor of legacy [PrimerS
     # (if installed from pip,) tests/query_design_multiple and tests/example.fa can be obtained from this github repository.
 
     # full mode: design primers and check specificity
-    primertool full tests/query_design_multiple tests/example.fa -o full.json -t full.tsv
+    primertool full tests/query_design_multiple tests/example.fa
 
     # design mode: design primers only
-    primertool design tests/query_design_multiple tests/example.fa -o design.json -t design.tsv
+    primertool design tests/query_design_multiple tests/example.fa
 
     # check mode: check specificity only
-    primertool check tests/query_check_multiple tests/example.fa -o check.json -t check.tsv
+    primertool check tests/query_check_multiple tests/example.fa
 
 ```
 
