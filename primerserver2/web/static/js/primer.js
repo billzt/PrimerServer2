@@ -310,6 +310,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             textarea_color = '#bfffdf';
             break;
     }
+    $('textarea').css('background-color', textarea_color);
 
     // qPCR fieldset
     main_db = $('[name="selected_dbs"]').val().split(',')[0];
