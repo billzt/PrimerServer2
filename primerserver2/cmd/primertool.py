@@ -182,7 +182,7 @@ def run(args):
     ###################  Output  ###########################
     region_type = args.type if 'type' in args else 'NA'
     if args.out is None:
-        output_fh = open(f'{args.query.name}.out', mode='w')
+        output_fh = open(f'{args.query.name}.json', mode='w')
     else:
         output_fh = args.out
     print(json.dumps({'meta':{'mode':args.run_mode, 'dbs':dbs, 'region_type': region_type, 'check_multiplex':args.check_multiplex}, \
