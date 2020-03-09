@@ -58,26 +58,14 @@ def check():
         if os.path.isfile(f'{db_dir}/{dbname}.fai') is False:
             msg = f'File {db_dir}/{dbname}.fai does not exist. Use "samtools faidx" to index {db_dir}/{dbname}'
             return {'status': status, 'msg': msg}
-        for key in ['IDs', 'description', 'group', 'junction', 'isoform']:
+        for key in ['IDs', 'description', 'group']:
             if key not in dbinfo:
                 msg = f'The configure file {home_dir}/.primerserver.json is broken. It lacks the "{key}" key.'
                 return {'status': status, 'msg': msg}
-        for key in ['IDs', 'description', 'group']:
             if isinstance(dbinfo[key], str) is False:
                 msg = f'There is some error in the configure file {home_dir}/.primerserver.json: the value for {key} must \
                     be strings'
                 return {'status': status, 'msg': msg}
-        for key in ['junction', 'isoform']:
-            if isinstance(dbinfo[key], bool) is False:
-                msg = f'There is some error in the configure file {home_dir}/.primerserver.json: the value for {key} must \
-                    be boolean: true/false'
-                return {'status': status, 'msg': msg}
-        if dbinfo['junction'] is True and os.path.isfile(f'{db_dir}/{dbname}.junctions.json') is False:
-            msg = f'File {db_dir}/{dbname}.junctions.json does not exist. Use "primertool-junction" to generate it'
-            return {'status': status, 'msg': msg}
-        if dbinfo['isoform'] is True and os.path.isfile(f'{db_dir}/{dbname}.isoforms.json') is False:
-            msg = f'File {db_dir}/{dbname}.isoforms.json does not exist. Use "primertool-isoform" to generate it'
-            return {'status': status, 'msg': msg}
     status = 'success'
     return {'status': status, 'msg': msg}
     

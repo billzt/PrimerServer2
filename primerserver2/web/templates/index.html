@@ -82,7 +82,8 @@
                         <div class="alert alert-warning" role="alert">
                             <h4><span class="glyphicon glyphicon-info-sign"></span> The CLI version has more functions</h4>
                             <p>We recommend to run the <a href="https://github.com/billzt/PrimerServer2">CLI</a> version to generate the JSON output, 
-                                and visualize the JSON here.</p>
+                                and visualize the results in the <strong>[<span class="glyphicon glyphicon-eye-open"></span> Visualize]</strong> tab above
+                                this website.</p>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -117,33 +118,10 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <!--<label class="col-sm-4 control-label">Pick Internal Oligo (Probe):</label>
-                                <div class="col-sm-2">
-                                    <div class="radio">
-                                        <label><input type="radio" class="save-input" name="pick_internal" id="pick_internal_1" value=1 />Yes</label>
-                                    </div>
-                                    <div class="radio">
-                                        <label><input type="radio" class="save-input" name="pick_internal" id="pick_internal_0" value=0 checked />No</label>
-                                    </div>
-                                </div>-->
                                 <label class="col-sm-4 control-label">No. Primers To Return</label>
                                 <div class="col-sm-2">
                                     <input type="text" name="primer_num_return" value="30" 
                                     class="form-control save-input validate[required, custom[integer], min[1], max[1000]]" />
-                                </div>
-                            </div>
-                            <div class="form-group hidden">
-                                <label class="col-sm-4 control-label">Using Exon-Exon Junctions:
-                                    <span class="glyphicon glyphicon-question-sign help-icon" data-toggle="tooltip"
-                                        title="Only Valid for qPCR"></span>
-                                </label>
-                                <div class="col-sm-2">
-                                    <div class="radio">
-                                        <label><input type="radio" name="junction" id="junction_1" value=1 />Yes</label>
-                                    </div>
-                                    <div class="radio">
-                                        <label><input type="radio" name="junction" id="junction_0" value=0 checked />No</label>
-                                    </div>
                                 </div>
                             </div>
                         </fieldset>
@@ -191,20 +169,6 @@
                                     <div class="radio">
                                         <label><input type="radio" class="save-input" name="report_amplicon_seqs" 
                                             id="report_amplicon_seqs_0" value=0 checked />No</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group hidden">
-                                <label class="col-sm-4 control-label">Exclude Isoforms:
-                                    <span class="glyphicon glyphicon-question-sign help-icon" data-toggle="tooltip"
-                                    title="Only Valid for qPCR"></span>
-                                </label>
-                                <div class="col-sm-2">
-                                    <div class="radio">
-                                        <label><input type="radio" name="isoform" id="isoform_1" value=1 />Yes</label>
-                                    </div>
-                                    <div class="radio">
-                                        <label><input type="radio" name="isoform" id="isoform_0" value=0 checked />No</label>
                                     </div>
                                 </div>
                             </div>
