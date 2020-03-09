@@ -58,16 +58,16 @@ This repository is based on Python3 and acts as the successor of legacy [PrimerS
 ## Comparison of the CLI and Web version
 |        |    CLI    |    Web UI    |
 |    ----    |    ----    |    ----    |
-|    design primers    |     :heavy_check_mark:    |     :heavy_check_mark:    |
-|    checking specificity    |     :heavy_check_mark:    |     :heavy_check_mark:    |
-|    progress monitor    |     :heavy_check_mark:    |     :heavy_check_mark:    |
-|    number of tasks    |    High    |    Low    |
-|    alternative isoforms    |     :heavy_check_mark:    |     :x:    |
-|    exon-exon junction    |     :heavy_check_mark:    |     :x:    |
-|    pick internal oligos    |     :heavy_check_mark:    |     :x:    |
-|    custom Tm temperature    |     :heavy_check_mark:    |     :x:    |
-|    custom max amplicons    |     :heavy_check_mark:    |     :x:    |
-|    Visulization    |     :x:    |     :heavy_check_mark:    |
+|    Design primers    |     :heavy_check_mark:    |     :heavy_check_mark:    |
+|    Checking specificity    |     :heavy_check_mark:    |     :heavy_check_mark:    |
+|    Progress monitor    |     :heavy_check_mark:    |     :heavy_check_mark:    |
+|    Number of tasks    |    High    |    Low    |
+|    Alternative isoforms    |     :heavy_check_mark:    |     :x:    |
+|    Exon-exon junction    |     :heavy_check_mark:    |     :x:    |
+|    Pick internal oligos    |     :heavy_check_mark:    |     :x:    |
+|    Custom Tm temperature    |     :heavy_check_mark:    |     :x:    |
+|    Custom max amplicons    |     :heavy_check_mark:    |     :x:    |
+|    Visualization    |     :x:    |     :heavy_check_mark:    |
 
 
 
