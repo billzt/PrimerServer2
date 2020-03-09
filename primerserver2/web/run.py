@@ -24,6 +24,7 @@ def progress():
 bp = Blueprint('run', __name__)
 @bp.route('/run', methods=['POST'])
 def run():
+    
     ###################  init #############################
     web_config = load()
     global_var.init()

@@ -160,7 +160,6 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
         return {'error': 'Stop running'}
         
     template_len_for = get_template_len(template_file)
-
     primer_sites = []
     retrieve_region2raw_region = {}
     for line in query.splitlines():
@@ -205,7 +204,6 @@ def build_by_pos(query, template_file, primer_type, primer_num_return=30, size_m
     if (len(retrieve_region2raw_region)==0):
         return {'error': f'Your input has no template seqs'}
     retrieve_region_string = '\n'.join(retrieve_region2raw_region.keys())
-
     result_seqs = faidx(template_file, retrieve_region_string)
     if use_junction is True:
         junction_data = read_junction(template_file)

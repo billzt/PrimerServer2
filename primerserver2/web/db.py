@@ -5,8 +5,6 @@ from flask import Blueprint, request, current_app, make_response
 
 from primerserver2.web.config import load
 
-db_dir = os.path.join(os.path.dirname(__file__), '../templates/')
-
 bp = Blueprint('db', __name__)
 @bp.route('/dbselect')
 def dbselect():
@@ -29,6 +27,8 @@ def dbinfo():
     
 @bp.route('/dbdownload/<template>/')
 def dbdownload(template):
+    web_config = load()
+    db_dir = web_config['templates_directory']
     result = os.popen(f'cut -f 1,2 {db_dir}/{template}.fai').read()
     response = make_response(result)
     response.headers["Content-Disposition"] = f"attachment; filename={template}.fai"
