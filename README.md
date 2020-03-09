@@ -40,20 +40,7 @@ This repository is based on Python3 and acts as the successor of legacy [PrimerS
 ```
 
 ## Need to run the Web UI?
-### For test only
-```
-    git clone https://github.com/billzt/PrimerServer2.git
-    cd PrimerServer2
-    python3 -m venv venv # (it is recommended it run FLASK app in a virtual environment)
-    . venv/bin/activate
-    python3 setup.py develop
-    flask run
-```
-
-### For production deployment?
-```
-    I'll soon release a version
-```
+Please refer to the wiki.
 
 ## Comparison of the CLI and Web version
 |        |    CLI    |    Web UI    |
