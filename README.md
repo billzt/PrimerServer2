@@ -56,15 +56,17 @@ This repository is based on Python3 and acts as the successor of legacy [PrimerS
 ```
 
 ### Comparison of the CLI and Web version
-| |CLI|Web UI
-design primers| :white_check_mark:| :white_check_mark:
-checking specificity| :white_check_mark:| :white_check_mark:
-progress monitor| :white_check_mark:| :white_check_mark:
-number of tasks|High|Low
-alternative isoforms| :white_check_mark:| :x:
-exon-exon junction| :white_check_mark:| :x:
-pick internal oligos| :white_check_mark:| :x:
-custom Tm temperature| :white_check_mark:| :x:
-custom max amplicons| :white_check_mark:| :x:
-Visulization| :x:| :white_check_mark:
+|        |    CLI    |    Web UI    |
+|    ----    |    ----    |    ----    |
+|    design primers    |     :white_check_mark:    |     :white_check_mark:    |
+|    checking specificity    |     :white_check_mark:    |     :white_check_mark:    |
+|    progress monitor    |     :white_check_mark:    |     :white_check_mark:    |
+|    number of tasks    |    High    |    Low    |
+|    alternative isoforms    |     :white_check_mark:    |     :x:    |
+|    exon-exon junction    |     :white_check_mark:    |     :x:    |
+|    pick internal oligos    |     :white_check_mark:    |     :x:    |
+|    custom Tm temperature    |     :white_check_mark:    |     :x:    |
+|    custom max amplicons    |     :white_check_mark:    |     :x:    |
+|    Visulization    |     :x:    |     :white_check_mark:    |
+
 
