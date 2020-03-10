@@ -14,28 +14,28 @@ This repository is based on Python3 and acts as the successor of legacy [PrimerS
 ## Install
 ### Via PIP (release only)
 ```
-    pip3 install primerserver2
+$ pip3 install primerserver2
 ```
 
 ### Via Github
 ```
-    git clone https://github.com/billzt/PrimerServer2.git
-    cd PrimerServer2
-    python3 setup.py install
+$ git clone https://github.com/billzt/PrimerServer2.git
+$ cd PrimerServer2
+$ python3 setup.py install
 ```
 
 ## Run testing commands
 ```
-    # (if installed from pip,) tests/query_design_multiple and tests/example.fa can be obtained from this github repository.
+** (if installed from pip,) tests/query_design_multiple and tests/example.fa can be obtained from this github repository.
 
-    # full mode: design primers and check specificity
-    primertool full tests/query_design_multiple tests/example.fa
+** full mode: design primers and check specificity
+$ primertool full tests/query_design_multiple tests/example.fa
 
-    # design mode: design primers only
-    primertool design tests/query_design_multiple tests/example.fa
+** design mode: design primers only
+$ primertool design tests/query_design_multiple tests/example.fa
 
-    # check mode: check specificity only
-    primertool check tests/query_check_multiple tests/example.fa
+** check mode: check specificity only
+$ primertool check tests/query_check_multiple tests/example.fa
 
 ```
 
