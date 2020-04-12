@@ -113,6 +113,8 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
     for primer_id in amplicons.keys():
         amplicons_filter[primer_id] = {}
         for primer_rank in amplicons[primer_id]:
+            if primer_rank not in amplicons_filter[primer_id]:
+                amplicons_filter[primer_id][primer_rank] = []
             for amplicon in amplicons[primer_id][primer_rank]:
                 # hit seqs (template)
                 region_plus = amplicon['plus']['sseqid']+':'+str(amplicon['plus']['sstart'])+'-'+str(amplicon['plus']['send'])
@@ -172,13 +174,10 @@ def filter_Tm(amplicons, query_primer_seq, hits_seqs, Tm_diff=20, max_amplicons=
                     +'-'+str(amplicon['minus']['send'])
                 amplicon['product_size'] = amplicon['minus']['send']-amplicon['plus']['sstart']+1
                 amplicon['product_seq'] = ''
-                if primer_rank not in amplicons_filter[primer_id]:
-                    amplicons_filter[primer_id][primer_rank] = []
                 amplicons_filter[primer_id][primer_rank].append(amplicon)
 
                 if len(amplicons_filter[primer_id][primer_rank])==max_amplicons:
                     break
-
     return amplicons_filter
 
 def add_amplicon_seq(amplicons, template_file):

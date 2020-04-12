@@ -122,7 +122,7 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
                     // $('#primers-result-template-primer .amplicons_table').addClass('hidden');
                     continue;
                 }
-                db_desc = db_name_change[db]
+                db_desc = db in db_name_change ? db_name_change[db] : db
                 if (db_rank==0) {
                     $('#primers-result-template-primer .database-list').append('<th>Database: '
                         +db_desc+' <span class="glyphicon glyphicon-star"></span></th>')
