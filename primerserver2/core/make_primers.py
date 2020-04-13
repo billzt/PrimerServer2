@@ -28,6 +28,8 @@ def make_primers(query):
     primers = {}
 
     for line in query.splitlines():
+        if line.strip() == '':
+            continue
         line_data = re.split(r'\s+', line.strip())
         if len(line_data)==4:
             (id, rank, seq_F, seq_R) = line_data

@@ -53,6 +53,8 @@ def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
     for primer_id in primer_hits_all_sites.keys():
         amplicons[primer_id] = {}
         for primer_rank in primer_hits_all_sites[primer_id].keys():
+            if primer_rank not in amplicons[primer_id]:
+                amplicons[primer_id][primer_rank] = []
             for sseqid in primer_hits_all_sites[primer_id][primer_rank].keys():
                 primer_hits = sorted(primer_hits_all_sites[primer_id][primer_rank][sseqid], key=lambda i: i['sstart'])
                 primer_hits_plus = [x for x in primer_hits if x['sstrand']=='plus']
@@ -79,8 +81,6 @@ def filter_len(blast_out, len_min, len_max, chr_main_only=True):    # 1s
                                 continue
 
                             # store this pair
-                            if primer_rank not in amplicons[primer_id]:
-                                amplicons[primer_id][primer_rank] = []
                             amplicons[primer_id][primer_rank].append({
                                 'plus': {
                                     'qseqid': hit_plus['qseqid'], # LEFT or RIGHT
