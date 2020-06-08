@@ -49,7 +49,7 @@ def run():
                 primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
                     size_max=int(request.form['product_size_max']))
         else:
-            sites = make_sites.build_by_seq(query=query_string, primer_type=request.form['region_type'], \
+            sites = make_sites.build_by_seq(query=query_string.replace('\r\n', '\n'), primer_type=request.form['region_type'], \
                 primer_num_return=int(primer_num_return), size_min=int(request.form['product_size_min']), \
                     size_max=int(request.form['product_size_max']))
         if 'error' in sites:

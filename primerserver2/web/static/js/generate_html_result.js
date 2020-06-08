@@ -49,6 +49,9 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
         if (typeof(site_pos) != 'undefined') {
             retrieve_start = site_pos - result_data[site_id]['SEQUENCE_RELATIVE_TARGET_START']
         }
+        else {
+            retrieve_start = 0
+        }
         
         // primer
         for (var i=0; i<primer_num; i++) {
