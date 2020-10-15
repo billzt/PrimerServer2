@@ -56,9 +56,7 @@ def judge_input_type(query):
         whether input by pos or by seq?
         return: pos or seq
     '''
-    line1 = query.splitlines()[0]
-    data1 = re.split(r'\s+', line1.strip())[0]
-    if re.search(r'[^ATGCNatgcn\[\]]', data1) is None and len(data1)>40:
+    if '>' in query:
         return 'seq'
     else:
         return 'pos'
@@ -67,7 +65,7 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, \
     size_max=1000, pick_internal=False, Tm_opt=60):
     '''
         Input:
-            query: a string in multi-lines
+            query: a string in FASTA format
         Return:
             a list of primer sites dict that can be passed to the design_primer module
             [{
@@ -86,11 +84,16 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, \
 
     primer_sites = []
     primer_site_rank = 0
-    for line in query.splitlines():
-        if line.strip()=='':
+    for site in query.split('>'):
+        # site name and templates
+        if site.strip()=='':
+            continue
+        (name_data, *seq_data) = site.strip().split('\n')
+        (name, *dummy) = name_data.strip().split()
+        seq = ''.join(seq_data)
+        if re.search('[^ATGCNRYMKSWHBVD]', seq.replace('[','').replace(']',''), re.RegexFlag.IGNORECASE) is not None:
             continue
         primer_site_rank += 1
-        seq = re.split(r'\s+', line.strip())[0]
 
         # SEQUENCE_TARGET, FORCE_END
         if primer_type=='SEQUENCE_TARGET' or primer_type=='FORCE_END':
@@ -101,7 +104,7 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, \
             pos = seq.find('[')
             length = seq.find(']')-seq.find('[')
             primer_sites.append({
-                'id': 'S'+str(primer_site_rank)+'-'+str(pos)+'-'+str(length), 
+                'id': name, 
                 'template': seq.replace('[','').replace(']',''),
                 'type': primer_type,
                 'pos': pos,
