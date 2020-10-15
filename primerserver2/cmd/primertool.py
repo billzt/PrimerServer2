@@ -195,6 +195,8 @@ def run(args):
     print(output.tsv(primers, dbs), file=tsv_fh)
     if args.check_multiplex is True:
         print(output.dimer_list(dimers), file=tsv_fh)
+    output_fh.close()
+    tsv_fh.close()
 
 
 def main():
