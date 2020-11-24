@@ -1,8 +1,9 @@
 import json
 import sys
 import os
+import argparse
 
-def tsv(primers_dict, dbs):
+def tsv(primers_dict, dbs, mode):
     print_line = []
     header_line = '\t'.join(['#Site_ID', 'Primer_Rank', 'Primer_Seq_Left', 'Primer_Seq_Right', 'Primer_Seq_Oligo', 'Target_Amplicon_Size', \
         'Primer_Pair_Penalty_Score', 'Primer_Rank_in_Primer3_output', 'Tm_left', 'Tm_Right', 'Tm_Oligo', \
@@ -24,7 +25,7 @@ def tsv(primers_dict, dbs):
             print_line.append('###')
             continue
 
-        if 'PRIMER_PAIR_NUM_RETURNED_FINAL' in primers:
+        if mode != 'check':
             primer_num = primers['PRIMER_PAIR_NUM_RETURNED_FINAL']
         else:
             primer_num = primers['PRIMER_PAIR_NUM_RETURNED']
@@ -32,7 +33,7 @@ def tsv(primers_dict, dbs):
             print_data = []
             print_data.append(id)
             print_data.append(str(amplicon_rank))
-            if 'PRIMER_PAIR_NUM_RETURNED_FINAL' in primers:
+            if mode != 'check':
                 raw_rank = primers[f'PRIMER_PAIR_AMPLICON_NUM_RANK_{amplicon_rank}']
             else:
                 raw_rank = amplicon_rank
@@ -72,9 +73,9 @@ def tsv(primers_dict, dbs):
                         else:
                             print_data.extend(('NA', 'NA'))
                     else:
-                        print_data.extend(('NA', 'NA', 'NA'))
+                        print_data.extend(('0', 'NA', 'NA'))
                 else:
-                    print_data.extend(('NA', 'NA', 'NA'))
+                    print_data.extend(('0', 'NA', 'NA'))
             
 
             print_line.append('\t'.join(print_data))
@@ -101,6 +102,8 @@ def dimer_list(dimers):
 
 
 if __name__ == "__main__":
-    primers = json.load(open('tests/_internal_/sort_primers2.json'))
-    dbs = ["Ghir.JGI.genomic", "Gbar.IGDB.genomic"]
-    print(tsv(primers, dbs))
+    parser = argparse.ArgumentParser(description='For internal testing only', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('primers_json', help='primers.json file')
+    args = parser.parse_args()
+    primers_data = json.load(open(args.primers_json))
+    print(tsv(primers_data['primers'], primers_data['meta']['dbs'], primers_data['meta']['mode']))

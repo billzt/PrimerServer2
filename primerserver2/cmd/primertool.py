@@ -192,7 +192,7 @@ def run(args):
         tsv_fh = open(f'{args.query.name}.tsv', mode='w')
     else:
         tsv_fh = args.tsv
-    print(output.tsv(primers, dbs), file=tsv_fh)
+    print(output.tsv(primers, dbs, args.run_mode), file=tsv_fh)
     if args.check_multiplex is True:
         print(output.dimer_list(dimers), file=tsv_fh)
     output_fh.close()
