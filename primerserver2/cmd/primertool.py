@@ -125,7 +125,7 @@ def check_templates(args):
             code = os.system(f'samtools faidx {template} 2>/dev/null')
             if code != 0:
                 raise Exception(f'File {template} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format')
-        if os.path.isfile(template+'.nhr') is False and os.path.isfile(template+'.nal') is False:
+        if os.path.isfile(re.sub('[.]gz$', '', template)+'.nhr') is False and os.path.isfile(re.sub('\.gz$', '', template)+'.nal') is False:
             code = os.system(f'makeblastdb -dbtype nucl -in {template} 2>/dev/null')
             if code != 0:
                 raise Exception(f'File {template} cannot be indexed by makeblastdb.')

@@ -35,9 +35,10 @@ def run_blast(p3_inputs):
         query_primer_seq_dict[f'{id}.{rank}.L'] = seq_L
         query_primer_seq_dict[f'{id}.{rank}.R'] = seq_R
 
-    if os.path.isfile(db+'.nhr')==False and os.path.isfile(db+'.nal')==False:
-        raise Exception(f'The database file is not complete: file {db}.nhr or {db}.nal is not found')
-    cmd = f'blastn -task blastn-short -db {db} -evalue 30000 -word_size 7 ' \
+    blast_db = re.sub('[.]gz$', '', db)
+    if os.path.isfile(blast_db+'.nhr')==False and os.path.isfile(blast_db+'.nal')==False:
+        raise Exception(f'The database file is not complete: file {blast_db}.nhr or {blast_db}.nal is not found')
+    cmd = f'blastn -task blastn-short -db {blast_db} -evalue 30000 -word_size 7 ' \
         + '-perc_identity 60 -dust no -reward 1 -penalty -1 -max_hsps 500 -ungapped ' \
         + ' -outfmt "6 qseqid qlen qstart qend sseqid slen sstart send sstrand"'
     blast_out = subprocess.run(cmd, input=blast_query, stdout=subprocess.PIPE, shell=True, encoding='ascii').stdout
