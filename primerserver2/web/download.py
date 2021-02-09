@@ -9,5 +9,5 @@ bp = Blueprint('download', __name__)
 def download_tsv():
     json_data = json.loads(request.form['json'])
     dbs = request.form['dbs'].split(',')
-    print_lines = output.tsv(json_data['primers'], dbs)
+    print_lines = output.tsv(json_data['primers'], dbs, json_data['meta']['mode'])
     return print_lines

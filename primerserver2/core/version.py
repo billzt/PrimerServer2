@@ -1,2 +1,2 @@
 def get():
-    return '2.0.0b16'
+    return '2.0.0b17'
