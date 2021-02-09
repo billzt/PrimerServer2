@@ -52,7 +52,7 @@ def check():
             else:
                 msg = f'File {db_dir}/{dbname} does not exist'
                 return {'status': status, 'msg': msg}
-        if os.path.isfile(f'{db_dir}/{dbname}.nhr') is False:
+        if os.path.isfile(f'{db_dir}/{dbname}.nhr') is False and os.path.isfile(f'{db_dir}/{dbname.replace(".gz", "")}.nhr') is False:
             msg = f'File {db_dir}/{dbname}.nhr does not exist. Use "makeblastdb" to index {db_dir}/{dbname}'
             return {'status': status, 'msg': msg}
         if os.path.isfile(f'{db_dir}/{dbname}.fai') is False:
