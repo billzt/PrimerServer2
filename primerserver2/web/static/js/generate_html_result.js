@@ -76,7 +76,7 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
                 .append('<tr><th>Left Primer</th>'
                     +'<td><span class="monospace-style">'+result_data[site_id]['PRIMER_LEFT_'+raw_rank+'_SEQUENCE']+'</span></td>'
                     +'<td>'+p_len+'</td>'
-                    +'<td class="primer-left-region">'+p_start+'-'+p_end+'</td>'
+                    +'<td>'+site_seq+':<span class="primer-left-region">'+p_start+'-'+p_end+'</span></td>'
                     +'<td>'+result_data[site_id]['PRIMER_LEFT_'+raw_rank+'_TM'].toFixed(1)+'</td>'
                     +'<td>'+result_data[site_id]['PRIMER_LEFT_'+raw_rank+'_GC_PERCENT'].toFixed(1)+'</td>'
                     +'</tr>')
@@ -89,7 +89,7 @@ function generate_html_result(selected_dbs, db_name_change, data, visualize_mode
                 .append('<tr><th>Right Primer</th>'
                     +'<td><span class="monospace-style">'+result_data[site_id]['PRIMER_RIGHT_'+raw_rank+'_SEQUENCE']+'</span></td>'
                     +'<td>'+p_len+'</td>'
-                    +'<td class="primer-right-region">'+p_start+'-'+p_end+'</td>'
+                    +'<td>'+site_seq+':<span class="primer-right-region">'+p_start+'-'+p_end+'</span></td>'
                     +'<td>'+result_data[site_id]['PRIMER_RIGHT_'+raw_rank+'_TM'].toFixed(1)+'</td>'
                     +'<td>'+result_data[site_id]['PRIMER_RIGHT_'+raw_rank+'_GC_PERCENT'].toFixed(1)+'</td>'
                     +'</tr>')
