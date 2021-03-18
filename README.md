@@ -40,7 +40,12 @@ $ primertool check tests/query_check_multiple tests/example.fa
 ```
 
 ## Need to run the Web UI?
-Please refer to the wiki.
+Please refer to the [wiki](https://github.com/billzt/PrimerServer2/wiki).
+
+## Warning: About the reference genome
+If you use reference genomes with many unplaced scaffolds, be caution since such scaffolds with great homology with main chromosomes might influence your results.
+If possible, delete (some or all of ) these unplaced scaffolds.
+For huamn genomes, we recommend the `hg38.no_alt_analysis_set` from NCBI to be used.
 
 ## Comparison of the CLI and Web version
 |        |    CLI    |    Web UI    |
