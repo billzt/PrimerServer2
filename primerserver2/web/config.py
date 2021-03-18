@@ -9,6 +9,7 @@ import argparse
 import os
 import sys
 import json
+import re
 
 def load():
     home_dir = os.environ['HOME']
@@ -52,8 +53,8 @@ def check():
             else:
                 msg = f'File {db_dir}/{dbname} does not exist'
                 return {'status': status, 'msg': msg}
-        if os.path.isfile(f'{db_dir}/{dbname}.nhr') is False and os.path.isfile(f'{db_dir}/{dbname.replace(".gz", "")}.nhr') is False:
-            msg = f'File {db_dir}/{dbname}.nhr does not exist. Use "makeblastdb" to index {db_dir}/{dbname}'
+        if os.path.isfile(re.sub('[.]gz$', '', f'{db_dir}/{dbname}')+'.nhr') is False and os.path.isfile(re.sub('[.]gz$', '', f'{db_dir}/{dbname}')+'.nal') is False:
+            msg = f'File {db_dir}/{dbname} has no index. Use "makeblastdb" to index {db_dir}/{dbname}'
             return {'status': status, 'msg': msg}
         if os.path.isfile(f'{db_dir}/{dbname}.fai') is False:
             msg = f'File {db_dir}/{dbname}.fai does not exist. Use "samtools faidx" to index {db_dir}/{dbname}'

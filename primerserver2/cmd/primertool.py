@@ -122,13 +122,9 @@ def check_templates(args):
         if os.path.isfile(template) is False:
             raise Exception(f'File not found: {template}')
         if os.path.isfile(template+'.fai') is False:
-            code = os.system(f'samtools faidx {template} 2>/dev/null')
-            if code != 0:
-                raise Exception(f'File {template} cannot be indexed by samtools faidx. Perhaps it is not in FASTA format')
+            raise Exception(f'File {template} has not been indexed by samtools faidx.')
         if os.path.isfile(re.sub('[.]gz$', '', template)+'.nhr') is False and os.path.isfile(re.sub('\.gz$', '', template)+'.nal') is False:
-            code = os.system(f'makeblastdb -dbtype nucl -in {template} 2>/dev/null')
-            if code != 0:
-                raise Exception(f'File {template} cannot be indexed by makeblastdb.')
+            raise Exception(f'File {template} has not been indexed by makeblastdb.')
         
         # qPCR specific
         if i==0:
