@@ -23,12 +23,14 @@ setup(name='primerserver2',
       license='MIT',
       packages=find_packages(),
       include_package_data=True,
-      python_requires='>=3.6',
+      python_requires='>=3.6, <3.9',
       install_requires=[
-          'primer3-py',
-          'progressbar2',
-          'flask',
-          'python-dotenv'
+          'primer3-py < 0.7',
+          'progressbar2 < 3.56',
+          'flask < 2.1 ',
+          'python-dotenv < 0.20',
+          'python-utils < 2.7',
+          'six < 1.17'
       ],
       entry_points={
           'console_scripts': [
