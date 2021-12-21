@@ -14,6 +14,13 @@ This repository is based on Python3 and acts as the successor of legacy [PrimerS
 * [NCBI BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi) (>=2.2.18)
 
 ## Install
+
+Don't use Python 3.9 or above since the [primer3-py](https://pypi.org/project/primer3-py/) module hasn't supported Python 3.9 yet.
+```
+conda create -n primer python=3.8
+conda activate primer
+```
+
 ### Via PIP (release only)
 ```
 $ pip3 install primerserver2
