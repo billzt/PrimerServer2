@@ -32,6 +32,9 @@ def sort_rank(primers, dbs, max_num_return=10, use_isoforms=False):
 
         rank_to_amplicon_valid_num = {}
         for rank in range(0, primer['PRIMER_PAIR_NUM_RETURNED']):
+            if main_db not in primer:
+                primer[main_db] = {"PRIMER_PAIR_0_AMPLICONS": []}
+                continue
             if f'PRIMER_PAIR_{rank}_AMPLICONS' not in primer[main_db]:
                 continue
             if use_isoforms is False:
