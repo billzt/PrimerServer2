@@ -91,7 +91,7 @@ def build_by_seq(query, primer_type, primer_num_return=30, size_min=70, \
         (name_data, *seq_data) = site.strip().split('\n')
         (name, *dummy) = name_data.strip().split()
         seq = ''.join(seq_data)
-        if re.search('[^ATGCNRYMKSWHBVD]', seq.replace('[','').replace(']',''), re.RegexFlag.IGNORECASE) is not None:
+        if re.search('[^ATGCNRYMKSWHBVID]', seq.replace('[','').replace(']',''), re.RegexFlag.IGNORECASE) is not None:
             continue
         primer_site_rank += 1
 

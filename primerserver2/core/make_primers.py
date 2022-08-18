@@ -1,5 +1,7 @@
 import re
 import json
+import sys
+from itertools import product
 
 import primer3
 
@@ -13,8 +15,31 @@ def calculate_GC(seq):
 def check_primer_seq(seq):
     if len(seq)<10 or len(seq)>40:
         return False
-    if re.search('[^ATGCNRYMKSWHBVD]', seq, re.RegexFlag.IGNORECASE) is not None:
+    if re.search('[^ATGCNRYMKSWHBIVD]', seq, re.RegexFlag.IGNORECASE) is not None:
         return False
+
+d = {
+'A': ['A'],
+'C': ['C'],
+'G': ['G'],
+'T': ['T'],
+'R': ['A', 'G'],
+'Y': ['C', 'T'],
+'S': ['G', 'C'],
+'W': ['A', 'T'],
+'K': ['G', 'T'],
+'M': ['A', 'C'],
+'B': ['C', 'G', 'T'],
+'D': ['A', 'G', 'T'],
+'H': ['A', 'C', 'T'],
+'V': ['A', 'C', 'G'],
+'N': ['A', 'C', 'G', 'T'],
+'I': ['A', 'C', 'G', 'T'],}
+
+def expand_degenerate_bases(seq):
+   """return a list of all possible k-mers given a degenerate base"""
+   return list(map("".join, product(*map(d.get, seq))))
+
 
 def make_primers(query):
     '''
@@ -47,20 +72,28 @@ def make_primers(query):
             return {'error': f'Your input: {seq_R} does not seem like a vaild primer seq'}
         
         # generate primers
-        if id not in primers:
-            primers[id] = {}
-        primers[id]['PRIMER_PAIR_NUM_RETURNED'] = rank+1
-        primers[id][f'PRIMER_PAIR_{rank}_PENALTY'] = 0
-        primers[id][f'PRIMER_LEFT_{rank}_SEQUENCE'] = seq_F
-        primers[id][f'PRIMER_RIGHT_{rank}_SEQUENCE'] =  seq_R
-        primers[id][f'PRIMER_LEFT_{rank}'] = [-1, len(seq_F)]
-        primers[id][f'PRIMER_RIGHT_{rank}'] = [-1, len(seq_R)]
-        primers[id][f'PRIMER_LEFT_{rank}_TM'] = primer3.calcTm(transform_degenerate(seq_F))
-        primers[id][f'PRIMER_RIGHT_{rank}_TM'] = primer3.calcTm(transform_degenerate(seq_R))
-        primers[id][f'PRIMER_LEFT_{rank}_GC_PERCENT'] = calculate_GC(transform_degenerate(seq_F))
-        primers[id][f'PRIMER_RIGHT_{rank}_GC_PERCENT'] = calculate_GC(transform_degenerate(seq_R))
-        primers[id][f'PRIMER_PAIR_{rank}_PRODUCT_SIZE'] = -1
-        primers[id]['SEQUENCE_RELATIVE_TARGET_START'] = 0
+        seq_F = seq_F.upper()
+        seq_R = seq_R.upper()
+        seq_F_expands = expand_degenerate_bases(seq_F)
+        seq_R_expands = expand_degenerate_bases(seq_R)
+        id_sub_num = 0
+        for seq_F_expand in seq_F_expands:
+            for seq_R_expand in seq_R_expands:
+                id_sub_num += 1
+                if f'{id}|||{id_sub_num}' not in primers:
+                    primers[f'{id}|||{id_sub_num}'] = {}
+                primers[f'{id}|||{id_sub_num}']['PRIMER_PAIR_NUM_RETURNED'] = rank+1
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_PAIR_{rank}_PENALTY'] = 0
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_LEFT_{rank}_SEQUENCE'] = seq_F_expand
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_RIGHT_{rank}_SEQUENCE'] =  seq_R_expand
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_LEFT_{rank}'] = [-1, len(seq_F_expand)]
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_RIGHT_{rank}'] = [-1, len(seq_R_expand)]
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_LEFT_{rank}_TM'] = primer3.calcTm(seq_F_expand)
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_RIGHT_{rank}_TM'] = primer3.calcTm(seq_R_expand)
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_LEFT_{rank}_GC_PERCENT'] = calculate_GC(seq_F_expand)
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_RIGHT_{rank}_GC_PERCENT'] = calculate_GC(seq_R_expand)
+                primers[f'{id}|||{id_sub_num}'][f'PRIMER_PAIR_{rank}_PRODUCT_SIZE'] = -1
+                primers[f'{id}|||{id_sub_num}']['SEQUENCE_RELATIVE_TARGET_START'] = 0
     
     return primers
 
