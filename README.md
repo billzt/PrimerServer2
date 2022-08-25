@@ -48,6 +48,32 @@ $ primertool check tests/query_check_multiple tests/example.fa
 
 ```
 
+## Input Format (The First Parameter)
+### in FASTA Format
+If you have parts of template sequences, you can directly input in FASTA format:
+```
+>site1
+TGTGATATTAAGTAAAGGAACATTAAACAATCTCGACACCAGATTGAATATCGATACAGA
+TACCCCAACTGCCGCCAATTCAACCGACCCTTCACCACAAAAAAACTAATATTTATCAGC
+CAATA[GTTACCTGTGTG]ATTAATAGATAAAGCTACAAAAGCAAGCTTGGTATGATAGT
+TAATAATAAAAAAAGAAAAAACAAGTATCCAAATGGCCAACAAAGGCTGTATCAACAAGT
+>site2
+ACCAGATTGAATATCGATACAGATACCCCAACTGCCGCCAATTCAACCGACCCTTCACCA
+CAAAAAAACTAATATTTATCA[GC]CAATAGTTACCTGTGTGATTAATAGATAAAGCTAC
+AAGCAAGCTTGGTATGATAGTATTAATAATAAAAAAAGAAAAACAAGTATCCAAATGGCC
+```
+Note there is a pair of square brackets `[]` indicating target in each sequences. It means primers should be put around the target. This is the default mode.
+
+### in Text Format
+If you have genomic coordinates for each site (e.g. SNPs), you can input coordinates like:
+```
+seq1 200 10
+seq1 400 10
+```
+It means that two sites (one site per line) are needed to design primers. The first site is in `seq1` and starts in position `200` and the region length is `10` (means `seq1:200-209`). The second site is in `seq1` and starts in position `400` and the region length is `10` (means `seq1:400-409`).
+
+For details, see the [wiki](https://github.com/billzt/PrimerServer2/wiki).
+
 ## Need to run the Web UI?
 Please refer to the [wiki](https://github.com/billzt/PrimerServer2/wiki).
 
