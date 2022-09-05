@@ -39,7 +39,7 @@ def run_blast(p3_inputs):
     if os.path.isfile(blast_db+'.nhr')==False and os.path.isfile(blast_db+'.nal')==False:
         raise Exception(f'The database file is not complete: file {blast_db}.nhr or {blast_db}.nal is not found')
     cmd = f'blastn -task blastn-short -db {blast_db} -evalue 30000 -word_size 7 ' \
-        + '-perc_identity 60 -dust no -reward 1 -penalty -1 -max_hsps 500 -ungapped ' \
+        + f'-perc_identity 60 -dust no -reward 1 -penalty -1 -max_hsps 500 -max_target_seqs {p3_inputs[0]["blast_target_seq"]} -ungapped ' \
         + ' -outfmt "6 qseqid qlen qstart qend sseqid slen sstart send sstrand"'
     blast_out = subprocess.run(cmd, input=blast_query, stdout=subprocess.PIPE, shell=True, encoding='ascii').stdout
     amplicons = filter_len(blast_out=blast_out, len_min=p3_inputs[0]['checking_size_min'], \
@@ -53,7 +53,7 @@ def run_blast(p3_inputs):
     return {'db': os.path.basename(db), 'amplicons': report_amplicons}
 
 def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_max=1000, \
-    report_amplicon_seq=False, Tm_diff=20, use_3_end=False, monitor=True, max_amplicon=10):
+    report_amplicon_seq=False, Tm_diff=20, use_3_end=False, monitor=True, max_amplicon=10, blast_target_seq=500):
     if global_var.stop_run is True:
         return {'error': 'Stop running'}
 
@@ -78,7 +78,8 @@ def run_blast_parallel(primers, dbs, cpu=2, checking_size_min=70, checking_size_
                     'report_amplicon_seq': report_amplicon_seq,
                     'Tm_diff': Tm_diff,
                     'use_3_end': use_3_end,
-                    'max_amplicon': max_amplicon
+                    'max_amplicon': max_amplicon,
+                    'blast_target_seq': blast_target_seq
                 })
         for i in range(0, int(len(p3_inputs)/5)+1):
             sub_start = i*5

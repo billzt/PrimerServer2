@@ -78,6 +78,8 @@ def make_args():
         default=2000)
     group_check.add_argument('--amplicon-num-max', type=int, help='The maximum number of amplicons for checking.', \
         default=10)
+    group_check.add_argument('--blast-max-target-seqs', type=int, help='The -max_target_seqs to blastn. Useful if your target database contains many replicated sequences', \
+        default=500)
     group_check.add_argument('-a', '--report-amplicon-seqs', help="Get amplicon seqs (might be slow)", action='store_true')
     # qRT-PCR specific
     group_check.add_argument('--isoform', help="Allow primers targeting on alternative isoforms and still regard them \
@@ -167,7 +169,7 @@ def run(args):
         primers = run_blast.run_blast_parallel(primers=primers, dbs=dbs, cpu=args.cpu,\
             checking_size_max=args.checking_size_max, checking_size_min=args.checking_size_min, \
                 report_amplicon_seq=args.report_amplicon_seqs, Tm_diff=args.Tm_diff, use_3_end=args.use_3_end, \
-                    max_amplicon=args.amplicon_num_max)
+                    max_amplicon=args.amplicon_num_max, blast_target_seq=args.blast_max_target_seqs)
         primers = sort_primers.sort_rank(primers=primers, dbs=dbs, max_num_return=args.primer_num_retain, use_isoforms=args.isoform)
 
     ###################  Checking multiplex  ###############
